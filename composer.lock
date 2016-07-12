@@ -1,0 +1,98 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "95865dfe7f175da2844bbef4cdc067be",
+    "content-hash": "7a39334d2739d9ef2dbef539879453e4",
+    "packages": [
+        {
+            "name": "emmetblue/emmet-blue",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/EmmetBlue/Emmet-Blue.git",
+                "reference": "10710485d4e0637fdd20995b21e688d40e4f00d6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/EmmetBlue/Emmet-Blue/zipball/10710485d4e0637fdd20995b21e688d40e4f00d6",
+                "reference": "10710485d4e0637fdd20995b21e688d40e4f00d6",
+                "shasum": ""
+            },
+            "require": {
+                "samshal/acl": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmmetBlue\\": "./src",
+                    "EmmetBlue\\Test\\": "./tests"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Samshal",
+                    "email": "samueladeshina73@gmail.com"
+                }
+            ],
+            "support": {
+                "source": "https://github.com/EmmetBlue/Emmet-Blue/tree/master"
+            },
+            "time": "2016-07-12 14:51:30"
+        },
+        {
+            "name": "samshal/acl",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Samshal/Acl.git",
+                "reference": "96da075dc6080c1745dedb301738211283eea0ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Samshal/Acl/zipball/96da075dc6080c1745dedb301738211283eea0ef",
+                "reference": "96da075dc6080c1745dedb301738211283eea0ef",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Samshal\\Acl\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Samshal",
+                    "email": "samueladeshina73@gmail.com"
+                }
+            ],
+            "description": "This package provides a lightweight and flexible access control list for privileges and permission management.",
+            "time": "2016-06-10 10:43:53"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "emmetblue/emmet-blue": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.0"
+    }
+}
