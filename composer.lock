@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "95865dfe7f175da2844bbef4cdc067be",
-    "content-hash": "7a39334d2739d9ef2dbef539879453e4",
+    "hash": "4fcc42276497714521ef0488dd18609d",
+    "content-hash": "fb5f38662404a02c97b20934d0fd8ed4",
     "packages": [
         {
             "name": "emmetblue/emmet-blue",
