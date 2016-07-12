@@ -1,1 +1,10 @@
+<<<<<<< HEAD
 /vendor/
+=======
+composer.phar
+/vendor/
+
+# Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
+# You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
+# composer.lock
+>>>>>>> 4629c8cc4974eb2e96f2b041a8a013c29a94e783
