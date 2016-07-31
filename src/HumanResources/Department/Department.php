@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\HumanResources\DepartmentGroup;
+namespace EmmetBlue\Plugins\HumanResources\Department;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -18,17 +18,17 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission;
+use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
- * class NewDepartmentGroup.
+ * class NewDepartment.
  *
- * NewDepartmentGroup Controller
+ * NewDepartment Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class DepartmentGroup
+class Department
 {
 	/**
 	 * Determines if a login data is valid
@@ -37,18 +37,19 @@ class DepartmentGroup
 	 */
     public static function create(array $data)
     {
-        $groupName = $data['groupName'];
+        $groupId = $data['groupId'];
+        $name = $data['name'];
 
         try
         {
-        	$result = DBQueryFactory::insert('Staffs.DepartmentGroup', [
-                'GroupName'=>QB::wrapString($groupName, "'")
+        	$result = DBQueryFactory::insert('Staffs.Department', [
+                'Name'=>QB::wrapString($name, "'"),
+                'GroupID'=>$groupId
             ]);
-
 
             if ($result['lastInsertId'])
             {
-                (new Permission())->add('role', $groupName);
+                (new Permission())->add('role', $name);
             }
             
             return $result;
@@ -71,12 +72,9 @@ class DepartmentGroup
 
         try
         {
-            $updateBuilder->table("Staffs.DepartmentGroup");
-            foreach ($data as $key=>$value){
-                $updateBuilder->set([$key=>QB::wrapString($value, "'")]);
-            }
-
-            $updateBuilder->where("DepartmentGroupID = $resourceId");
+            $updateBuilder->table("Staffs.Department");
+            $updateBuilder->set($data);
+            $updateBuilder->where("DepartmentID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -112,10 +110,10 @@ class DepartmentGroup
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Staffs.DepartmentGroup");
+            $selectBuilder->from("Staffs.Department");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("DepartmentGroupID = $resourceId");
+                $selectBuilder->where("DepartmentID = $resourceId");
             }
 
             $result = (
@@ -141,8 +139,8 @@ class DepartmentGroup
         try
         {
             $deleteBuilder
-                ->from("Staffs.DepartmentGroup")
-                ->where("DepartmentGroupID = $resourceId");
+                ->from("Staffs.Department")
+                ->where("DepartmentID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()

@@ -18,56 +18,34 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class DepartmentGroup.
+ * class Staff.
  *
- * DepartmentGroup Controller
+ * Staff Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class DepartmentGroup
+class Staff
 {
 	/**
-	 * Creates a new department group
+	 * Creates a new staff
 	 *
 	 * @param array $data Dept. Group Data
 	 */
-    public static function newDepartmentGroup(array $data)
+    public static function newStaff(array $data)
     {
-        $result = DepartmentGroup\DepartmentGroup::create($data);
+        $result = Staff\Staff::create($data);
 
         return $result;
     }
 
     /**
-     * Edits a department group
+     * Deletes a staff
      */
-    public static function editDepartmentGroup(int $resourceId, array $data)
+    public static function deleteStaff(int $resourceId)
     {
-    	$result = DepartmentGroup\DepartmentGroup::edit($resourceId, $data);
-
-    	return $result;
-    }
-
-    /**
-     * Selects department group(s)
-     */
-    public static function viewDepartmentGroup(int $resourceId=0, array $data = [])
-    {
-    	$result = DepartmentGroup\DepartmentGroup::view($resourceId, $data);
-
-    	return $result;
-    }
-
-    /**
-     * Deletes a department group
-     */
-    public static function deleteDepartmentGroup(int $resourceId)
-    {
-    	$result = DepartmentGroup\DepartmentGroup::delete($resourceId);
+    	$result = Staff\Staff::delete($resourceId);
 
     	return $result;
     }

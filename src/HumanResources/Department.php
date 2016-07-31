@@ -18,26 +18,24 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class DepartmentGroup.
+ * class Department.
  *
- * DepartmentGroup Controller
+ * Department Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class DepartmentGroup
+class Department
 {
 	/**
 	 * Creates a new department group
 	 *
 	 * @param array $data Dept. Group Data
 	 */
-    public static function newDepartmentGroup(array $data)
+    public static function newDepartment(array $data)
     {
-        $result = DepartmentGroup\DepartmentGroup::create($data);
+        $result = Department\Department::create($data);
 
         return $result;
     }
@@ -45,9 +43,9 @@ class DepartmentGroup
     /**
      * Edits a department group
      */
-    public static function editDepartmentGroup(int $resourceId, array $data)
+    public static function editDepartment(int $resourceId, array $data)
     {
-    	$result = DepartmentGroup\DepartmentGroup::edit($resourceId, $data);
+    	$result = Department\Department::edit($resourceId, $data);
 
     	return $result;
     }
@@ -55,9 +53,9 @@ class DepartmentGroup
     /**
      * Selects department group(s)
      */
-    public static function viewDepartmentGroup(int $resourceId=0, array $data = [])
+    public static function viewDepartment(int $resourceId=0, array $data = [])
     {
-    	$result = DepartmentGroup\DepartmentGroup::view($resourceId, $data);
+    	$result = Department\Department::view($resourceId, $data);
 
     	return $result;
     }
@@ -65,9 +63,9 @@ class DepartmentGroup
     /**
      * Deletes a department group
      */
-    public static function deleteDepartmentGroup(int $resourceId)
+    public static function deleteDepartment(int $resourceId)
     {
-    	$result = DepartmentGroup\DepartmentGroup::delete($resourceId);
+    	$result = Department\Department::delete($resourceId);
 
     	return $result;
     }

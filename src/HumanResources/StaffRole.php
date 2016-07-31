@@ -18,56 +18,54 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class DepartmentGroup.
+ * class StaffRole.
  *
- * DepartmentGroup Controller
+ * StaffRole Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class DepartmentGroup
+class StaffRole
 {
 	/**
-	 * Creates a new department group
+	 * Creates a new staff
 	 *
 	 * @param array $data Dept. Group Data
 	 */
-    public static function newDepartmentGroup(array $data)
+    public static function newStaffRole(array $data)
     {
-        $result = DepartmentGroup\DepartmentGroup::create($data);
+        $result = StaffRole\StaffRole::create($data);
+
+        return $result;
+    }
+
+     /**
+     * Edits a department group
+     */
+    public static function editStaffRole(int $resourceId, array $data)
+    {
+        $result = StaffRole\StaffRole::edit($resourceId, $data);
 
         return $result;
     }
 
     /**
-     * Edits a department group
-     */
-    public static function editDepartmentGroup(int $resourceId, array $data)
-    {
-    	$result = DepartmentGroup\DepartmentGroup::edit($resourceId, $data);
-
-    	return $result;
-    }
-
-    /**
      * Selects department group(s)
      */
-    public static function viewDepartmentGroup(int $resourceId=0, array $data = [])
+    public static function viewStaffRole(int $resourceId=0, array $data = [])
     {
-    	$result = DepartmentGroup\DepartmentGroup::view($resourceId, $data);
+        $result = StaffRole\StaffRole::view($resourceId, $data);
 
-    	return $result;
+        return $result;
     }
 
     /**
-     * Deletes a department group
+     * Deletes a staff
      */
-    public static function deleteDepartmentGroup(int $resourceId)
+    public static function deleteStaffRole(int $resourceId)
     {
-    	$result = DepartmentGroup\DepartmentGroup::delete($resourceId);
+    	$result = StaffRole\StaffRole::delete($resourceId);
 
     	return $result;
     }

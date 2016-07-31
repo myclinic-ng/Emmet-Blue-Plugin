@@ -34,8 +34,10 @@ class Account
 	 * @param string $username
 	 * @param string $password
 	 */
-    public static function login($username, $password)
+    public static function login($data)
     {
+        $username = $data["username"];
+        $password = $data["password"];
         if (Account\Login::isUserLoggedIn((int)self::getUserID($username)))
         {
             if (Account\Login::isLoginDataValid($username, $password))

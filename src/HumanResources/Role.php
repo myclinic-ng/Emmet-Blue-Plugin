@@ -18,56 +18,54 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class DepartmentGroup.
+ * class Role.
  *
- * DepartmentGroup Controller
+ * Role Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class DepartmentGroup
+class Role
 {
 	/**
-	 * Creates a new department group
+	 * Creates a new role
 	 *
 	 * @param array $data Dept. Group Data
 	 */
-    public static function newDepartmentGroup(array $data)
+    public static function newRole(array $data)
     {
-        $result = DepartmentGroup\DepartmentGroup::create($data);
+        $result = Role\Role::create($data);
 
         return $result;
     }
 
     /**
-     * Edits a department group
+     * Edits a role
      */
-    public static function editDepartmentGroup(int $resourceId, array $data)
+    public static function editRole(int $resourceId, array $data)
     {
-    	$result = DepartmentGroup\DepartmentGroup::edit($resourceId, $data);
+    	$result = Role\Role::edit($resourceId, $data);
 
     	return $result;
     }
 
     /**
-     * Selects department group(s)
+     * Selects role(s)
      */
-    public static function viewDepartmentGroup(int $resourceId=0, array $data = [])
+    public static function viewRole(int $resourceId=0, array $data = [])
     {
-    	$result = DepartmentGroup\DepartmentGroup::view($resourceId, $data);
+    	$result = Role\Role::view($resourceId, $data);
 
     	return $result;
     }
 
     /**
-     * Deletes a department group
+     * Deletes a role
      */
-    public static function deleteDepartmentGroup(int $resourceId)
+    public static function deleteRole(int $resourceId)
     {
-    	$result = DepartmentGroup\DepartmentGroup::delete($resourceId);
+    	$result = Role\Role::delete($resourceId);
 
     	return $result;
     }

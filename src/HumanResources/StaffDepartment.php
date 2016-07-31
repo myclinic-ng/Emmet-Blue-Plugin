@@ -18,56 +18,54 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class DepartmentGroup.
+ * class StaffDepartment.
  *
- * DepartmentGroup Controller
+ * StaffDepartment Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class DepartmentGroup
+class StaffDepartment
 {
 	/**
-	 * Creates a new department group
+	 * Creates a new staff
 	 *
 	 * @param array $data Dept. Group Data
 	 */
-    public static function newDepartmentGroup(array $data)
+    public static function newStaffDepartment(array $data)
     {
-        $result = DepartmentGroup\DepartmentGroup::create($data);
+        $result = StaffDepartment\StaffDepartment::create($data);
+
+        return $result;
+    }
+
+     /**
+     * Edits a department group
+     */
+    public static function editStaffDepartment(int $resourceId, array $data)
+    {
+        $result = StaffDepartment\StaffDepartment::edit($resourceId, $data);
 
         return $result;
     }
 
     /**
-     * Edits a department group
-     */
-    public static function editDepartmentGroup(int $resourceId, array $data)
-    {
-    	$result = DepartmentGroup\DepartmentGroup::edit($resourceId, $data);
-
-    	return $result;
-    }
-
-    /**
      * Selects department group(s)
      */
-    public static function viewDepartmentGroup(int $resourceId=0, array $data = [])
+    public static function viewStaffDepartment(int $resourceId=0, array $data = [])
     {
-    	$result = DepartmentGroup\DepartmentGroup::view($resourceId, $data);
+        $result = StaffDepartment\StaffDepartment::view($resourceId, $data);
 
-    	return $result;
+        return $result;
     }
 
     /**
-     * Deletes a department group
+     * Deletes a staff
      */
-    public static function deleteDepartmentGroup(int $resourceId)
+    public static function deleteStaffDepartment(int $resourceId)
     {
-    	$result = DepartmentGroup\DepartmentGroup::delete($resourceId);
+    	$result = StaffDepartment\StaffDepartment::delete($resourceId);
 
     	return $result;
     }
