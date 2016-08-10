@@ -38,17 +38,9 @@ class Account
     {
         $username = $data["username"];
         $password = $data["password"];
-        if (Account\Login::isUserLoggedIn((int)self::getUserID($username)))
+        if (Account\Login::isLoginDataValid($username, $password))
         {
-            if (Account\Login::isLoginDataValid($username, $password))
-            {
-                Session::init();
-                Session::save('USER_ID', self::getUserID($username));
-            } 
-        }
-        else
-        {
-            Session::delete('USER_ID');
+           return ["Sam", "Adej"];
         }
     }
 
@@ -68,10 +60,10 @@ class Account
                     "StaffID"
                 )
                 ->from(
-                    "Staffs.Staff"
+                    "Staffs.StaffPassword"
                 )
                 ->where(
-                    "Username = ".
+                    "StaffUsername = ".
                     QB::wrapString($username, "'")
                 );
 
@@ -80,7 +72,7 @@ class Account
                     ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
+            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'StaffPassword', (string)$selectBuilder);
              if (count($result) == 1)
              {
                 return $result[0]['StaffID'];
@@ -100,6 +92,11 @@ class Account
                 "A database related error has occurred"
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function isAccountActivated(int $staffId)
+    {
+        
     }
 	
 }

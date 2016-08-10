@@ -48,10 +48,10 @@ class Login
         		)
         		->innerJoin(
         			"Staffs.StaffPassword b",
-        			"a.PasswordID = b.StaffPasswordID"
+        			"a.StaffID = b.StaffID"
         		)
         		->where(
-        			"a.Username = ".
+        			"b.StaffUsername = ".
         			QB::wrapString($username, "'")
         		);
 
