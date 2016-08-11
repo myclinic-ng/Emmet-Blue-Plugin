@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "emmetblue/emmet-blue":"dev-master"
+        "emmetblue/emmet-blue":"master"
     },
     "autoload":{
         "psr-4":{
