@@ -13,20 +13,5 @@
         "platform":{
             "php":"7.0"
         }
-    },
-    "repositories":[
-        {
-            "type":"vcs",
-            "url":"https://github.com/emmetblue/emmet-blue"
-        }
-    ],
-    "require": {
-        "emmetblue/emmet-blue":"dev-master"
-    },
-    "autoload":{
-        "psr-4":{
-            "EmmetBlue\\Plugins\\":"./src"
-        }
-    },
-    "minimum-stability": "dev"
+    }
 }
