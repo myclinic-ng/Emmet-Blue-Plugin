@@ -38,10 +38,8 @@ class Account
     {
         $username = $data["username"];
         $password = $data["password"];
-        if (Account\Login::isLoginDataValid($username, $password))
-        {
-           return ["Sam", "Adej"];
-        }
+
+        return ["status"=>Account\Login::isLoginDataValid($username, $password)];
     }
 
      /**
