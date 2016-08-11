@@ -39,7 +39,14 @@ class Account
         $username = $data["username"];
         $password = $data["password"];
 
-        return ["status"=>Account\Login::isLoginDataValid($username, $password)];
+        if (Account\Login::isLoginDataValid($username, $password))
+        {
+            $info = self::getAccountInfo(self::getUserID($username));
+
+            return ["status"=>true, "uuid"=>$info['StaffUUID'], "accountActivated"=>$info["AccountActivated"]];
+        }
+
+        return ["status"=>false];
     }
 
      /**
@@ -92,9 +99,50 @@ class Account
         }
     }
 
-    public static function isAccountActivated(int $staffId)
+    public static function getAccountInfo(int $staffId)
     {
-        
+        $selectBuilder = (new Builder("QueryBuilder","Select"))->getBuilder();
+
+        try
+        {
+            $selectBuilder
+                ->columns(
+                    "StaffUUID",
+                    "AccountActivated"
+                )
+                ->from(
+                    "Staffs.Staff"
+                )
+                ->where(
+                    "StaffID = ".
+                    $staffId
+                );
+
+             $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
+             if (count($result) == 1)
+             {
+                return $result[0];
+             }
+
+             throw new UndefinedValueException(
+                sprintf(
+                    "User with ID: %s not found",
+                    $username
+                 ),
+                (int)Session::get('USER_ID')
+             );
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "A database related error has occurred"
+            ), Constant::UNDEFINED);
+        }   
     }
 	
 }
