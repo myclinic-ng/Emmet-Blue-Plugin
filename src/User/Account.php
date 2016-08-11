@@ -80,7 +80,7 @@ class Account
             DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'StaffPassword', (string)$selectBuilder);
              if (count($result) == 1)
              {
-                return $result[0]['StaffID'];
+                return (int)$result[0]['StaffID'];
              }
 
              throw new UndefinedValueException(
