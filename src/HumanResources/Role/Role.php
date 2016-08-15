@@ -68,7 +68,9 @@ class Role
         try
         {
             $data['Name'] = QB::wrapString($data['Name'], "'");
-            $data['Description'] = QB::wrapString($data['Description'], "'");
+            if (isset($data['Description'])){
+                $data['Description'] = QB::wrapString($data['Description'], "'");
+            }
             $updateBuilder->table("Staffs.Role");
             $updateBuilder->set($data);
             $updateBuilder->where("RoleID = $resourceId");
