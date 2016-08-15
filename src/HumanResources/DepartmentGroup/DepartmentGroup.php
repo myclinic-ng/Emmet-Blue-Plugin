@@ -80,7 +80,7 @@ class DepartmentGroup
 
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->exec((string)$updateBuilder)
                 );
 
             return $result;
