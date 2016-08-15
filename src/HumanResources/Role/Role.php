@@ -144,7 +144,7 @@ class Role
             
             $selectBuilder->from("Staffs.Role");
 
-            if ($resourceId !== 0){
+            if ($departmentId !== 0){
                 $selectBuilder->where("DepartmentID = $departmentId");
             }
 
