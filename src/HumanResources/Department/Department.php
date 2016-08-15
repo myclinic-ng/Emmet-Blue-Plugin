@@ -110,10 +110,10 @@ class Department
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Staffs.Department");
+            $selectBuilder->from("Staffs.Department a")->join("Staffs.DepartmentGroup b", "a.GroupID = b.DepartmentGroupID");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("DepartmentID = $resourceId");
+                $selectBuilder->where("a.DepartmentID = $resourceId");
             }
 
             $result = (
