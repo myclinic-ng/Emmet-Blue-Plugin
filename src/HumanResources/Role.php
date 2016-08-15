@@ -55,9 +55,16 @@ class Role
      */
     public static function viewRole(int $resourceId=0, array $data = [])
     {
-    	$result = Role\Role::view($resourceId, $data);
+        $result = Role\Role::view($resourceId, $data);
 
-    	return $result;
+        return $result;
+    }
+
+    public static function viewByDepartment(int $resourceId, array $data = [])
+    {
+        $result = Role\Role::viewByDepartment($resourceId, $data);
+
+        return $result;
     }
 
     /**
