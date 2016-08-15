@@ -36,12 +36,14 @@ class Role
     public static function create(array $data)
     {
         $name = $data['name'];
+        $department = $data['department'];
         $description = $data["description"] ?? null;
 
         try
         {
         	$result = DBQueryFactory::insert('Staffs.Role', [
                 'Name'=>QB::wrapString($name, "'"),
+                'DepartmentID'=>$department,
                 'Description'=>(is_null($description)) ? "" : QB::wrapString($description, "'")
             ]);
             
@@ -65,6 +67,8 @@ class Role
 
         try
         {
+            $data['Name'] = QB::wrapString($data['Name'], "'");
+            $data['Description'] = QB::wrapString($data['Description'], "'");
             $updateBuilder->table("Staffs.Role");
             $updateBuilder->set($data);
             $updateBuilder->where("RoleID = $resourceId");
