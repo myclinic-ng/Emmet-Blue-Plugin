@@ -110,7 +110,7 @@ class Department
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Staffs.Department a")->join("Staffs.DepartmentGroup b", "a.GroupID = b.DepartmentGroupID");
+            $selectBuilder->from("Staffs.Department a")->innerJoin("Staffs.DepartmentGroup b", "a.GroupID = b.DepartmentGroupID");
 
             if ($resourceId !== 0){
                 $selectBuilder->where("a.DepartmentID = $resourceId");
