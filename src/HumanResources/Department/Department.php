@@ -30,11 +30,11 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class Department
 {
-	/**
-	 * Determines if a login data is valid
-	 *
-	 * @param array $data
-	 */
+    /**
+     * Determines if a login data is valid
+     *
+     * @param array $data
+     */
     public static function create(array $data)
     {
         $groupId = $data['groupId'];
@@ -42,7 +42,7 @@ class Department
 
         try
         {
-        	$result = DBQueryFactory::insert('Staffs.Department', [
+            $result = DBQueryFactory::insert('Staffs.Department', [
                 'Name'=>QB::wrapString($name, "'"),
                 'GroupID'=>$groupId
             ]);
@@ -72,6 +72,7 @@ class Department
 
         try
         {
+            $data["Name"] = QB::wrapString($data["Name"], "'");
             $updateBuilder->table("Staffs.Department");
             $updateBuilder->set($data);
             $updateBuilder->where("DepartmentID = $resourceId");
