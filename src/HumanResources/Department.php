@@ -55,9 +55,16 @@ class Department
      */
     public static function viewDepartment(int $resourceId=0, array $data = [])
     {
-    	$result = Department\Department::view($resourceId, $data);
+        $result = Department\Department::view($resourceId, $data);
 
-    	return $result;
+        return $result;
+    }
+
+    public static function viewDepartmentByGroup(int $resourceId, array $data = [])
+    {
+        $result = Department\Department::viewByGroup($resourceId, $data);
+
+        return $result;
     }
 
     /**

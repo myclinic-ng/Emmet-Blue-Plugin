@@ -133,6 +133,41 @@ class Department
         }
     }
 
+    public static function viewByGroup(int $group, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("*");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Staffs.Department a")->innerJoin("Staffs.DepartmentGroup b", "a.GroupID = b.DepartmentGroupID");
+
+            if ($resourceId !== 0){
+                $selectBuilder->where("a.GroupID = $group");
+            }
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
