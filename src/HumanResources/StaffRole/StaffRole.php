@@ -36,7 +36,7 @@ class StaffRole
     public static function create(array $data)
     {
         $staff = $data['staffId'];
-        $role = $data['roleId'];
+        $roleId = $data['roleId'];
 
         try
         {
