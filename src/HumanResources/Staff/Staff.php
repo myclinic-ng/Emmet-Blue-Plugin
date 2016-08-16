@@ -83,7 +83,7 @@ class Staff
             $departmentData = $data["department"];
             $departmentData["staffId"] = $result["lastInsertId"];
 
-            \EmmetBlue\Plugins\HumanResources\StaffDepartment::newStaffDepartent($departmentData);
+            \EmmetBlue\Plugins\HumanResources\StaffDepartment::newStaffDepartment($departmentData);
 
             $roleData = $data["role"];
             $roleData["staffId"] = $result["lastInsertId"];
@@ -92,6 +92,7 @@ class Staff
 
            return $result;
         }
+
         return false;
     }
 
