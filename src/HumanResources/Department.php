@@ -60,7 +60,7 @@ class Department
         return $result;
     }
 
-    public static function viewDepartmentByGroup(int $resourceId, array $data = [])
+    public static function viewByGroup(int $resourceId, array $data = [])
     {
         $result = Department\Department::viewByGroup($resourceId, $data);
 
