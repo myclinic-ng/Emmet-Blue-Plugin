@@ -74,6 +74,27 @@ class Staff
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function createWithDepartmentAndRole(array $data)
+    {
+        $staffData = $data["staff"];
+        $result = self::create($staffData);
+        if (isset($result['lastInsertId'])){
+            $departmentData = $data["department"];
+            $departmentData["staffId"] = $result["lastInsertId"];
+
+            \EmmetBlue\Plugins\HumanResources\StaffDepartment::newStaffDepartent($departmentData);
+
+            $roleData = $data["role"];
+            $roleData["staffId"] = $result["lastInsertId"];
+
+           \EmmetBlue\Plugins\HumanResources\StaffRole::newStaffRole($roleData);
+
+           return $result;
+        }
+        return false;
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();

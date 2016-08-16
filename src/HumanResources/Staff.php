@@ -40,6 +40,13 @@ class Staff
         return $result;
     }
 
+    public static function newStaffWithDepartmentAndRole(array $data)
+    {
+        $result = Staff\Staff::createWithDepartmentAndRole($data);
+
+        return $result;
+    }
+
     /**
      * Deletes a staff
      */
