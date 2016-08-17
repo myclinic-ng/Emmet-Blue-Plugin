@@ -40,9 +40,9 @@ class StaffProfileRecord
         try
         {
         	$result = DBQueryFactory::insert('Staffs.StaffProfileRecords', [
-                'RecordName'=>$name,
-                'RecordType'=>$type,
-                'RecordDescription'=>$description
+                'RecordName'=>QB::wrapString($name, "'"),
+                'RecordType'=>QB::wrapString($type, "'"),
+                'RecordDescription'=>QB::wrapString($description, "'")
             ]);
             
             return $result;
