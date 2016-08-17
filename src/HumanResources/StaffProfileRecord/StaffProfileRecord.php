@@ -34,7 +34,7 @@ class StaffProfileRecord
     public static function create(array $data)
     {
         $name = $data['name'];
-        $type= $data['type']
+        $type= $data['type'];
         $description = $data['description'];
 
         try
