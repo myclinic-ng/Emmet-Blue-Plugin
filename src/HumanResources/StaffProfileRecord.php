@@ -47,6 +47,13 @@ class StaffProfileRecord
         return $result;
     }
 
+    public static function editStaffProfileRecord(int $resourceId=0, array $data = [])
+    {
+        $result = StaffProfileRecord\StaffProfileRecord::edit($resourceId, $data);
+
+        return $result;
+    }
+
     /**
      * Deletes a staff
      */
