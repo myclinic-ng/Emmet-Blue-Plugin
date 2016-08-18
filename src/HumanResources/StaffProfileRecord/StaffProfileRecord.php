@@ -62,6 +62,8 @@ class StaffProfileRecord
 
         try
         {
+            $data['RecordName'] = QB::wrapString($data['RecordName'], "'");
+            $data['RecordDescription'] = QB::wrapString($data['RecordDescription'], "'");
             $updateBuilder->table("Staffs.StaffProfileRecords");
             $updateBuilder->set($data);
             $updateBuilder->where("RecordID = $resourceId");
