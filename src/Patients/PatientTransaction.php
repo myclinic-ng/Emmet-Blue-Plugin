@@ -45,7 +45,7 @@ class PatientTransaction
      */
     public static function viewPatientTransaction(int $resourceId=0)
     {
-        $result = Patient\Patient::view($resourceId);
+        $result = PatientTransaction\PatientTransaction::view($resourceId);
 
         return $result;
     }
@@ -55,7 +55,7 @@ class PatientTransaction
      */
     public static function deletePatientTransaction(int $resourceId)
     {
-    	$result = Patient\Patient::delete($resourceId);
+    	$result = PatientTransaction\PatientTransaction::delete($resourceId);
 
     	return $result;
     }
