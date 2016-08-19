@@ -42,17 +42,17 @@ class Patient
 
         try
         {
-        	$result = DBQueryFactory::insert('Patients.Patient', [
-                'PatientUUID'=>$patientUuid
+            $result = DBQueryFactory::insert('Patients.Patient', [
+                'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
             DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Patients',
-				'Patient',
-				(string)$result
-			);
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'Patient',
+                (string)(serialize($result))
+            );
             
             return $result;
         }
@@ -68,46 +68,46 @@ class Patient
      * view patients UUID
      */
     public static function view(int $resourceId)
-	{
-		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-		$selectBuilder
-			->columns('*')
-			->from('Patients.Patient');
-		if ($resourceId != 0){
-			$selectBuilder->where('PatientUUID ='.$resourceId);
-		}
-		try
-		{
-			$viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('*')
+            ->from('Patients.Patient');
+        if ($resourceId != 0){
+            $selectBuilder->where('PatientUUID ='.$resourceId);
+        }
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Patients',
-				'Patient',
-				(string)$selectBuilder
-			);
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'Patient',
+                (string)$selectBuilder
+            );
 
-			if(count($viewOperation) > 0)
-			{
-				return $viewOperation;
-			}
-			else
-			{
-				return null;
-			}			
-		} 
-		catch (\PDOException $e) 
-		{
-			throw new SQLException(
-				sprintf(
-					"Error procesing request"
-				),
-				Constant::UNDEFINED
-			);
-			
-		}
-	}
+            if(count($viewOperation) > 0)
+            {
+                return $viewOperation;
+            }
+            else
+            {
+                return null;
+            }           
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
     /**
      * delete patient UUID
      */
@@ -127,12 +127,12 @@ class Patient
                 );
 
             DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Patients',
-				'Patient',
-				(string)$deleteBuilder
-			);
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'Patient',
+                (string)$deleteBuilder
+            );
 
             return $result;
         }
