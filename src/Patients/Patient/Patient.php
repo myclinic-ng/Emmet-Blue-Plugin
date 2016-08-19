@@ -35,12 +35,12 @@ class Patient
      *
      * @param array $data
      */
-    public static function create($_POST)
+    public static function create()
     {
         
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
 
-         try
+        try
         {
         	$result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientUUID'=>$patientUuid

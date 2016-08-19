@@ -33,9 +33,9 @@ class Patient
 	 *
 	 * @param $_POST
 	 */
-    public static function newPatientUUID($data)
+    public static function newPatientUUID()
     {
-        $result = Patient\Patient::create($data);
+        $result = Patient\Patient::create();
 
         return $result;
     }
