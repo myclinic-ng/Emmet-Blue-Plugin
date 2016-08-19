@@ -1,0 +1,25 @@
+CREATE SCHEMA Patients;
+GO
+
+CREATE TABLE Patients.Patient (
+	PatientID INT PRIMARY KEY IDENTITY,
+	PatientUUID INT UNIQUE NOT NULL,
+)
+GO
+
+CREATE TABLE Patients.PatientDepartment (
+	PatientDepartmentID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	DepartmentID INT,
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Patients.PatientTransaction(
+	PatientTransactionID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	Link VARCHAR(max),
+	Meta VARCHAR(max),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
