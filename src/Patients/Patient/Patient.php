@@ -59,7 +59,7 @@ class Patient
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (patient UUID not created), %s",
+                "Unable to process request (patient not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
@@ -109,7 +109,7 @@ class Patient
         }
     }
     /**
-     * delete patient UUID
+     * delete patient
      */
     public static function delete(int $resourceId)
     {

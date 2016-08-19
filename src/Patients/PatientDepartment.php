@@ -33,9 +33,9 @@ class PatientDepartment
 	 *
 	 * @param $_POST
 	 */
-    public static function newPatientDepartmentId(array $data)
+    public static function newPatientDepartment(array $data)
     {
-        $result = Patient\PatientDepartment::create($data;
+        $result = Patient\PatientDepartment::create($data);
 
         return $result;
     }
@@ -43,7 +43,7 @@ class PatientDepartment
     /**
      * Selects Patient department request id
      */
-    public static function viewPatientDepartmentId(int $resourceId=0,)
+    public static function viewPatientDepartment(int $resourceId=0)
     {
         $result = Patient\PatientDepartment::view($resourceId);
 
@@ -53,7 +53,7 @@ class PatientDepartment
     /**
      * Deletes a Patient department request id
      */
-    public static function deletePatientDepartmentId(int $resourceId)
+    public static function deletePatientDepartment(int $resourceId)
     {
     	$result = Patient\PatientDepartment::delete($resourceId);
 
