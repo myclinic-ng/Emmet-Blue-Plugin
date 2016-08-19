@@ -40,7 +40,7 @@ class PatientTransaction
         
         $patientId = $data['patientId'];
         $link = $data['link'];
-        $meta = $data['meta']
+        $meta = serialize($data['meta']);
 
          try
         {
@@ -55,7 +55,7 @@ class PatientTransaction
                 Constant::EVENT_SELECT,
                 'Patients',
                 'PatientTransaction',
-                (string)$result
+                (string)(serialize($result))
             );
             
             return $result;
