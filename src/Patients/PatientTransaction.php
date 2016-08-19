@@ -43,7 +43,7 @@ class PatientTransaction
     /**
      * Selects Patienttransaction Id request
      */
-    public static function viewPatientTransaction(int $resourceId=0,)
+    public static function viewPatientTransaction(int $resourceId=0)
     {
         $result = Patient\Patient::view($resourceId);
 
