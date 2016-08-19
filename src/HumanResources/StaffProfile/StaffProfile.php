@@ -28,12 +28,12 @@ use EmmetBlue\Core\Constant;
  */
 class StaffProfile
 {
-	/**
-	 * @param array $data
-	 */
+    /**
+     * @param array $data
+     */
     public static function create(array $data)
     {
-        $staff = $data['staff'];
+        $staff = $data['staff'] ?? null;
         unset($data['staff']);
 
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
@@ -47,10 +47,25 @@ class StaffProfile
                     ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-            foreach ($result as $key=>$value)
+            $staffProfileRecords = [];
+            $staffProfile = [];
+            foreach ($result as $value)
             {
-                
+                $staffProfileRecords[strtolower($value["RecordName"])] = $value;
             }
+
+            foreach ($data as $key=>$value)
+            {
+                $key = strtolower($key);
+                if (isset($staffProfileRecords[$key]))
+                {
+                    $record = $staffProfileRecords[$key];
+                    $staffProfile[$record["RecordID"]] = $value;
+                }
+            }
+
+            print_r($_FILES);
+            die();
         }
         catch (\PDOException $e)
         {

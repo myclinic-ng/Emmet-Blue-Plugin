@@ -38,14 +38,14 @@ class PatientDepartment
     public static function create(array $data)
     {
         
-        $patientId = $data['patientId'];
-        $departmentId = $data['departmentId'];
+        $patientId = $data['patientId'] ?? null;
+        $departmentId = $data['departmentId'] ?? null;
 
          try
         {
         	$result = DBQueryFactory::insert('Patients.PatientDepartment', [
                 'PatientId'=>$patientId,
-                'DepartmentId' => $departmentId
+                'DepartmentId'=>$departmentId
             ]);
 
             DatabaseLog::log(
@@ -53,7 +53,7 @@ class PatientDepartment
 				Constant::EVENT_SELECT,
 				'Patients',
 				'PatientDepartment',
-				(string)$result
+				(string)(serialize($result))
 			);
             
             return $result;

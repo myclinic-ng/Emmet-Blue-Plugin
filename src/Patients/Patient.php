@@ -33,9 +33,9 @@ class Patient
 	 *
 	 * @param $_POST
 	 */
-    public static function newPatientUUID($_POST)
+    public static function newPatient()
     {
-        $result = Patient\Patient::create($_POST);
+        $result = Patient\Patient::create();
 
         return $result;
     }
@@ -43,7 +43,7 @@ class Patient
     /**
      * Selects Patient UUID(s)
      */
-    public static function viewPatientUUID(int $resourceId=0)
+    public static function viewPatient(int $resourceId=0)
     {
         $result = Patient\Patient::view($resourceId);
 
@@ -53,7 +53,7 @@ class Patient
     /**
      * Deletes a Patient UUID
      */
-    public static function deletePatientUUID(int $resourceId)
+    public static function deletePatient(int $resourceId)
     {
     	$result = Patient\Patient::delete($resourceId);
 

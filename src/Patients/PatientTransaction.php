@@ -26,7 +26,7 @@ use EmmetBlue\Core\Constant;
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 19/08/2016 14:2004
  */
-class Patient
+class PatientTransaction
 {
 	/**
 	 * Creates a new PatientTransaction request Id
@@ -35,7 +35,7 @@ class Patient
 	 */
     public static function newPatientTransaction(array $data)
     {
-        $result = Patient\Patient::create($data);
+        $result = PatientTransaction\PatientTransaction::create($data);
 
         return $result;
     }
@@ -43,7 +43,7 @@ class Patient
     /**
      * Selects Patienttransaction Id request
      */
-    public static function viewPatientTransaction(int $resourceId=0,)
+    public static function viewPatientTransaction(int $resourceId=0)
     {
         $result = Patient\Patient::view($resourceId);
 
