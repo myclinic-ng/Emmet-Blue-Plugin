@@ -184,4 +184,38 @@ class ConsultationSheet
             ), Constant::UNDEFINED);
         }
     }
+    /**
+     * Assigning consultation sheet operation to patient
+     */
+    public static function assignToPatient(array $data)
+    {
+        $patientId = $data['patientId'] ?? null;
+        $link = $data['link'];
+        $meta = $data['meta'];
+        try
+        {
+            $result = DBQueryFactory::insert('Patients.PatientTransaction', [
+                'PatientID'=>$consultantId,
+                'Link'=>$note,
+                'Meta'=>$meta
+            ]);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'PatientTransaction',
+                (string)(serialize($result))
+            );
+            
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process request %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
 }
