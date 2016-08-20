@@ -33,9 +33,9 @@ class ConsultationSheet
 	 *
 	 * @param $_POST
 	 */
-    public static function newConsultationSheet()
+    public static function newConsultationSheet(array $data)
     {
-        $result = ConsultationSheet\ConsultationSheet::create();
+        $result = ConsultationSheet\ConsultationSheet::create($data);
 
         return $result;
     }
