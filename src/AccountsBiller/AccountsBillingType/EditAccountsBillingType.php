@@ -45,6 +45,8 @@ class EditAccountsBillingType
             $updateBuilder->set($data);
             $updateBuilder->where("BillingTypeID = $resourceId");
 
+            return (string)$updateBuilder;
+
             $result = (
                     DBConnectionFactory::getConnection()
                     ->query((string)$updateBuilder)
