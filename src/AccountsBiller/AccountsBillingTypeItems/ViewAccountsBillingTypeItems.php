@@ -35,7 +35,7 @@ class ViewAccountsBillingTypeItems
 	 * @param int $accountBillingTypeId
 	 * @author bardeson Lucky <Ahead!!> <flashup4all@gmail.com>
 	 */
-	public static function ViewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
+	public static function viewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
     {
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
 
