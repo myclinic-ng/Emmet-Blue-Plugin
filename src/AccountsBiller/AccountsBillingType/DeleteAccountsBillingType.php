@@ -41,7 +41,7 @@ class DeleteAccountsBillingType
 
 		$deleteBuilder
 			->from('Accounts.BillingType')
-			->where('Accounts.BillingTypeID = '.$accountBillingTypeId);
+			->where('BillingTypeID = '.$accountBillingTypeId);
 
 		try
 		{
