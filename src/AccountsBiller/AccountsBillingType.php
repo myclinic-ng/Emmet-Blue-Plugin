@@ -33,9 +33,9 @@ class AccountsBillingType
 		return AccountsBillingType\NewAccountsBillingType::default($data);
 	}
 
-	public static function viewAccountsBillingType(int $accountsBillingTypeId)
+	public static function viewAccountsBillingType(int $resourceId=0, array $data = [])
 	{
-		return AccountsBillingType\ViewAccountsBillingType::viewAccountsBillingType($accountsBillingTypeId);
+		return AccountsBillingType\ViewAccountsBillingType::viewAccountsBillingType($resourceId, $data);
 	}
 
 	public static function deleteAccountsBillingType(int $accountsBillingTypeId)
