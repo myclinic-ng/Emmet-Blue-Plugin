@@ -56,7 +56,7 @@ class EditAccountsBillingType
 
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->exec((string)$updateBuilder)
                 );
 
             return $result;
