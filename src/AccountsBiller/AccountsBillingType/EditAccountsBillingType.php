@@ -41,9 +41,15 @@ class EditAccountsBillingType
 
         try
         {
-        	$data["billingTypeDescription"] = QB::wrapString($data["billingTypeDescription"], "'");
-        	$data["billingTypeName"] = QB::wrapString($data["billingTypeName"], "'");
-        	
+        	if (isset($data['billingTypeName']))
+        	{
+        		$data["billingTypeName"] = QB::wrapString($data["billingTypeName"], "'");
+        	}
+        	if (isset($data['billingTypeDescription']))
+        	{
+        		$data["billingTypeDescription"] = QB::wrapString($data["billingTypeDescription"], "'");
+        	}
+
             $updateBuilder->table("Accounts.BillingType");
             $updateBuilder->set($data);
             $updateBuilder->where("BillingTypeID = $resourceId");
