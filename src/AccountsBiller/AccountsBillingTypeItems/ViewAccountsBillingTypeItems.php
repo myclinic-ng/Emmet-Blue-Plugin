@@ -29,8 +29,7 @@ use EmmetBlue\Core\Constant;
  */
 class ViewAccountsBillingTypeItems
 { 
-	/**
-	 * viewAccountBillingType method
+	/* viewAccountBillingType method
 	 *
 	 * @param int $accountBillingTypeId
 	 * @author bardeson Lucky <Ahead!!> <flashup4all@gmail.com>
