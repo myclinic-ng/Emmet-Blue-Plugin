@@ -25,7 +25,7 @@ use EmmetBlue\Core\Constant;
  *
  * DeleteAccountBillingType Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 15/06/2016 14:20
  */
 class DeleteAccountsBillingType
@@ -52,17 +52,7 @@ class DeleteAccountsBillingType
 
 			DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_DELETE,'Accounts', 'BillingType', (string)$deleteOperation);
 
-			if($deleteOperation)
-			{
-				return true;
-			}
-
-			throw new UndefinedValueException(
-				sprintf(
-					"A Database error has occurred."
-				),
-				(int)Session::get('USER_ID')
-			);
+			return $deleteOperation;
 		}
 		catch(\PDOException $e)
 		{
