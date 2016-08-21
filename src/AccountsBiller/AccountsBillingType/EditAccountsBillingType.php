@@ -41,11 +41,12 @@ class EditAccountsBillingType
 
         try
         {
+        	$data["billingTypeDescription"] = QB::wrapString($data["billingTypeDescription"], "'");
+        	$data["billingTypeName"] = QB::wrapString($data["billingTypeName"], "'");
+        	
             $updateBuilder->table("Accounts.BillingType");
             $updateBuilder->set($data);
             $updateBuilder->where("BillingTypeID = $resourceId");
-
-            return (string)$updateBuilder;
 
             $result = (
                     DBConnectionFactory::getConnection()
