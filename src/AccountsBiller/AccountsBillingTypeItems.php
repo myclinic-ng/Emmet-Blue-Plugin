@@ -23,7 +23,7 @@ use EmmetBlue\Core\Constant;
  *
  * AccountsBillingType Controller
  *
- * @author Bardeson Lucky
+ * @author Samuel Adeshina
  * @since v0.0.1 08/06/2016 14:20
  */
 class AccountsBillingTypeItems

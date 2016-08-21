@@ -32,17 +32,23 @@ class NewAccountsBillingTypeItems
 	/**
 	 *method default
 	 * manages the creation of new billing item resource
-	 * @author Bardeson Lucky <flashup4all@gmail.com>
+	 * @author Samuel Adeshina <samueladeshina73@gmail.com>
 	 * @since v.0.0.1 05/07/2016 08:48pm
 	*/
 	public static function default(array $data)
 	{
 		$billingType = $data['billingType'] ?? 'NULL';
 		$billingTypeItemName = $data['billingTypeItemName'] ?? 'NULL';
+		$billingTypeItemPrice = $data['billingTypeItemPrice'] ?? 'NULL';
+		$rateBased = $data['rateBased'] ?? 0;
+		$rateIdentifier = $data['rateIdentifier'] ?? 'NULL';
 
 		$packed = [
 			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString($billingType, "'") : $billingType,
-			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName
+			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName,
+			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString($billingTypeItemPrice, "'") : $billingTypeItemPrice,
+			'RateBased'=>$rateBased,
+			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString($rateIdentifier, "'") : $rateIdentifier
 		];
 
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
