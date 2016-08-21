@@ -33,7 +33,7 @@ class AccountsBillingTypeItems
 		return AccountsBillingTypeItems\NewAccountsBillingTypeItems::default($data);
 	}
 
-	public static function viewAccountsBillingTypeItems(int $accountsBillingTypeItemId)
+	public static function viewAccountsBillingTypeItems(int $resourceId=0, array $data = [])
 	{
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountBillingTypeItems($accountsBillingTypeItemId);
 	}

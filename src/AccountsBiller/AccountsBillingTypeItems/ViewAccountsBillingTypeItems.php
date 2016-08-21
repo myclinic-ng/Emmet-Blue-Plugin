@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\AccountsBiller\AccountsBillingTypeItems;
+namespace EmmetBlue\Plugins\AccountsBiller\AccountsBillingType;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -20,58 +20,53 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class ViewAccountBillingTypeItems.
+ * class ViewAccountBillingType.
  *
- * ViewAccountBillingTypeItems Controller
+ * ViewAccountBillingType Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina
  * @since v0.0.1 08/06/2016 14:2016
  */
 class ViewAccountsBillingTypeItems
 { 
 	/**
-	 * viewAccountBillingTypeItems method
+	 * viewAccountBillingType method
 	 *
-	 * @param int $BillingTypeItemsId
+	 * @param int $accountBillingTypeId
 	 * @author bardeson Lucky <Ahead!!> <flashup4all@gmail.com>
 	 */
-	public static function viewAccountsBillingTypeItems(int $billingTypeItemId)
-	{
-		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-		$selectBuilder
-			->columns('*')
-			->from('Accounts.BillingTypeItems')
-			->where('BillingTypeItemID ='.$billingTypeItemsId);
-		try
-		{
-			$viewBillingTypeItemOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+	public static function ViewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
 
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Accounts',
-				'BillingTypeItems',
-				(string)$selectBuilder
-			);
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("*");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Accounts.BillingTypeItems");
 
-			if(count($viewBillingTypeItemOperation) > 0)
-			{
-				return $viewBillingTypeItemOperation;
-			}
-			else
-			{
-				return null;
-			}			
-		} 
-		catch (\PDOException $e) 
-		{
-			throw new SQLException(
-				sprintf(
-					"Error procesing request"
-				),
-				Constant::UNDEFINED
-			);
-			
-		}
-	}
+            if ($resourceId !== 0){
+                $selectBuilder->where("BillingTypeItemID = $resourceId");
+            }
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
 }
