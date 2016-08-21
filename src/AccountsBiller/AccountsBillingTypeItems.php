@@ -42,4 +42,11 @@ class AccountsBillingTypeItems
 	{
 		return AccountsBillingTypeItems\DeleteAccountsBillingTypeitems::delete($accountsBillingTypeitemId);
 	}
+
+	public static function editAccountsBillingTypeItems(int $resourceId, array $data)
+    {
+        $result = AccountsBillingTypeItems\EditAccountsBillingTypeItems::edit($resourceId, $data);
+
+        return $result;
+    }
 }
