@@ -45,7 +45,10 @@ class DeleteAccountsBillingType
 
 		try
 		{
-			$deleteOperation = (DBConnectionFactory::getConnection())->query((string)$deleteBuilder);
+			$deleteOperation = (
+				DBConnectionFactory::getConnection()
+				->exec((string)$deleteBuilder)
+			);
 
 			DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_DELETE,'Accounts', 'BillingType', (string)$deleteOperation);
 
