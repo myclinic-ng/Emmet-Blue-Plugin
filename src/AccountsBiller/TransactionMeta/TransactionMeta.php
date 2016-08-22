@@ -91,19 +91,19 @@ class TransactionMeta
 
         try
         {
-            if (isset($data['CustomerContactName'])){
-                $data['CustomerContactName'] = QB::wrapString($data['CustomerContactName'], "'");
+            if (isset($data['BillingTransactionStatus'])){
+                $data['BillingTransactionStatus'] = QB::wrapString($data['BillingTransactionStatus'], "'");
             }
-            if (isset($data['CustomerContactPhone'])){
-                $data['CustomerContactPhone'] = QB::wrapString($data['CustomerContactPhone'], "'");
+            if (isset($data['BilledAmountTotal'])){
+                $data['BilledAmountTotal'] = QB::wrapString($data['BilledAmountTotal'], "'");
             }
-            if (isset($data['CustomerContactAddress'])){
-                $data['CustomerContactAddress'] = QB::wrapString($data['CustomerContactAddress'], "'");
+            if (isset($data['BillingType'])){
+                $data['BillingType'] = QB::wrapString($data['BillingType'], "'");
             }
 
             $updateBuilder->table("Accounts.BillingTransactionMeta");
             $updateBuilder->set($data);
-            $updateBuilder->where("CustomerContactID = $resourceId");
+            $updateBuilder->where("BillingTransactionMetaID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -142,7 +142,7 @@ class TransactionMeta
             $selectBuilder->from("Accounts.BillingTransactionMeta");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("CustomerContactID = $resourceId");
+                $selectBuilder->where("BillingTransactionMetaID = $resourceId");
             }
 
             $result = (
@@ -169,7 +169,7 @@ class TransactionMeta
         {
             $deleteBuilder
                 ->from("Accounts.BillingTransactionMeta")
-                ->where("CustomerContactID = $resourceId");
+                ->where("BillingTransactionMetaID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
