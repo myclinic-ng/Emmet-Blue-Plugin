@@ -25,7 +25,7 @@ CREATE TABLE Accounts.BillingPaymentMethods (
 	PaymentMethodDescription VARCHAR(250)
 )
 
-CREATE TABLE Accounts.BillingTransactionCustomerContacts (
+CREATE TABLE Accounts.BillingCustomerInfo (
 	CustomerContactID INT PRIMARY KEY IDENTITY,
 	CustomerCategoryID INT,
 	CustomerContactName VARCHAR(100),
@@ -74,7 +74,7 @@ CREATE TABLE Accounts.BillingTransaction (
 	BillingAmountPaid MONEY NOT NULL,
 	BillingAmountBalance MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (BillingTransactionCustomerContactID) REFERENCES [Accounts].[BillingTransactionCustomerContacts] (CustomerContactID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (BillingTransactionCustomerContactID) REFERENCES [Accounts].[BillingCustomerInfo] (CustomerContactID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (BillingPaymentMethod) REFERENCES [Accounts].[BillingPaymentMethods] (PaymentMethodName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO
