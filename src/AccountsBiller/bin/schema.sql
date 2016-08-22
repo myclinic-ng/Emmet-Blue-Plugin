@@ -48,7 +48,7 @@ CREATE TABLE Accounts.BillingTransactionMeta (
 	BillingTransactionMetaID INT PRIMARY KEY IDENTITY,
 	BillingTransactionNumber VARCHAR(15) UNIQUE NOT NULL,
 	BillingType VARCHAR(50) NOT NULL,
-	BilledAmountTotal MONEY NOT NULL,
+	BilledAmountTotal MONEY,
 	CreatedByUUID VARCHAR(20),
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
 	BillingTransactionStatus VARCHAR(20) NOT NULL DEFAULT 'Unknown',
