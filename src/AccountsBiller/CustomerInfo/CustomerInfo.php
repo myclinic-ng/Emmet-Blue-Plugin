@@ -31,7 +31,7 @@ class CustomerInfo
 {
 	public static function create(array $data)
     {
-        $category = $data['category'];
+        $category = $data['category'] ?? null;
         $name = $data['name'];
         $phone = $data['phone'] ?? null;
         $address = $data['address'] ?? null;
@@ -39,7 +39,7 @@ class CustomerInfo
         try
         {
         	$result = DBQueryFactory::insert('Accounts.BillingCustomerInfo', [
-                'CustomerCategoryID'=>$category,
+                'CustomerCategoryID'=>(is_null($category)) ? "NULL" : QB::wrapString($category, "'"),
                 'CustomerContactName'=>QB::wrapString($name, "'"),
                 'CustomerContactPhone'=>(is_null($phone)) ? "NULL" : QB::wrapString($phone, "'"),
                 'CustomerContactAddress'=>(is_null($address)) ? "NULL" : QB::wrapString($address, "'")
@@ -74,7 +74,7 @@ class CustomerInfo
             if (isset($data['CustomerContactAddress'])){
                 $data['CustomerContactAddress'] = QB::wrapString($data['CustomerContactAddress'], "'");
             }
-            
+
             $updateBuilder->table("Accounts.BillingCustomerInfo");
             $updateBuilder->set($data);
             $updateBuilder->where("CustomerContactID = $resourceId");
