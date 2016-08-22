@@ -37,8 +37,8 @@ class CustomerCategory
         try
         {
         	$result = DBQueryFactory::insert('Accounts.BillingTypeCustomerCategories', [
-                'Name'=>QB::wrapString($name, "'"),
-                'Description'=>(is_null($description)) ? "NULL" : QB::wrapString($description, "'")
+                'CustomerCategoryName'=>QB::wrapString($name, "'"),
+                'CustomerCategoryDescription'=>(is_null($description)) ? "NULL" : QB::wrapString($description, "'")
             ]);
             
             return $result;
@@ -61,9 +61,9 @@ class CustomerCategory
 
         try
         {
-            $data['name'] = QB::wrapString($data['name'], "'");
-            if (isset($data['description'])){
-                $data['description'] = QB::wrapString($data['description'], "'");
+            $data['CustomerCategoryName'] = QB::wrapString($data['CustomerCategoryName'], "'");
+            if (isset($data['CustomerCategoryDescription'])){
+                $data['CustomerCategoryDescription'] = QB::wrapString($data['CustomerCategoryDescription'], "'");
             }
             $updateBuilder->table("Accounts.BillingTypeCustomerCategories");
             $updateBuilder->set($data);
