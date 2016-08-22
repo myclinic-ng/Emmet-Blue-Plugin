@@ -32,7 +32,7 @@ class TransactionMeta
     private static function generateTransactionNumber()
     {
         $string = strtotime('time');
-        $date = new DateTime($string);
+        $date = new \DateTime($string);
 
         return $date->format('YmdHis');  
     }
