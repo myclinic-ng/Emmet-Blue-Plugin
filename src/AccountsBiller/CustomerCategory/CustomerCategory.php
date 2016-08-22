@@ -10,6 +10,7 @@ namespace EmmetBlue\Plugins\AccountsBiller\CustomerCategory;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
+use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Exception\UndefinedValueException;
