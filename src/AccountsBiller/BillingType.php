@@ -26,24 +26,24 @@ use EmmetBlue\Core\Constant;
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class AccountsBillingType
+class BillingType
 {
-	public static function newAccountsBillingType(array $data)
+	public static function newBillingType(array $data)
 	{
 		return AccountsBillingType\NewAccountsBillingType::default($data);
 	}
 
-	public static function viewAccountsBillingType(int $resourceId=0, array $data = [])
+	public static function viewBillingType(int $resourceId=0, array $data = [])
 	{
 		return AccountsBillingType\ViewAccountsBillingType::viewAccountsBillingType($resourceId, $data);
 	}
 
-	public static function deleteAccountsBillingType(int $accountsBillingTypeId)
+	public static function deleteBillingType(int $accountsBillingTypeId)
 	{
 		return AccountsBillingType\DeleteAccountsBillingType::delete($accountsBillingTypeId);
 	}
 
-	public static function editAccountsBillingType(int $resourceId, array $data)
+	public static function editBillingType(int $resourceId, array $data)
     {
         $result = AccountsBillingType\EditAccountsBillingType::edit($resourceId, $data);
 

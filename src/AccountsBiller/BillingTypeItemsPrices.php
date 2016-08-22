@@ -26,19 +26,19 @@ use EmmetBlue\Core\Constant;
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class AccountsBillingTypeItemsPrices
+class BillingTypeItemsPrices
 {
-	public static function newAccountsBillingTypeItemsPrices(array $data)
+	public static function newBillingTypeItemsPrices(array $data)
 	{
 		return AccountsBillingTypeItemsPrices\NewAccountsBillingTypeItemsPrices::default($data);
 	}
 
-	public static function viewAccountsBillingTypeItemsPrices(int $accountsBillingTypeItemPriceId)
+	public static function viewBillingTypeItemsPrices(int $accountsBillingTypeItemPriceId)
 	{
 		return AccountsBillingTypeItemsPrices\ViewAccountsBillingTypeItemsPrices::viewAccountsBillingTypeItemsPrices($accountsBillingTypeItemPriceId);
 	}
 
-	public static function deleteAccountsBillingTypeItemsPrices(int $accountsBillingTypeItemPriceId)
+	public static function deleteBillingTypeItemsPrices(int $accountsBillingTypeItemPriceId)
 	{
 		return AccountsBillingTypeItemsPrices\DeleteAccountsBillingTypeitemsPrices::delete($accountsBillingTypeitemPriceId);
 	}
