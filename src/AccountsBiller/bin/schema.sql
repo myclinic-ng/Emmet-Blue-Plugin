@@ -9,7 +9,7 @@ CREATE TABLE Accounts.BillingType (
 
 CREATE TABLE Accounts.BillingTypeCustomerCategories (
 	CustomerCategoryID INT PRIMARY KEY IDENTITY,
-	CustomerCategoryName VARCHAR(100),
+	CustomerCategoryName VARCHAR(100) UNIQUE NOT NULL,
 	CustomerCategoryDescription VARCHAR(250)
 )
 
