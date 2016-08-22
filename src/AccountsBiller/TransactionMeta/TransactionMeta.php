@@ -31,15 +31,13 @@ class TransactionMeta
 {
     private static function generateTransactionNumber()
     {
-        $string = strtotime('time');
-        echo $string;
-        die();
+        $string = date(DATE_RFC2822);
         $date = new \DateTime($string);
 
         return $date->format('YmdHis');  
     }
 
-	public static function create(array $data)
+    public static function create(array $data)
     {
         $type = $data['type'] ?? null;
         $createdBy = $data['createdBy'] ?? null;
@@ -49,7 +47,7 @@ class TransactionMeta
 
         try
         {
-        	$result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
+            $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
                 'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
                 'BillingType'=>QB::wrapString($type, "'"),
                 'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
