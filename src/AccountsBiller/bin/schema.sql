@@ -49,7 +49,7 @@ CREATE TABLE Accounts.BillingTransactionMeta (
 	BillingTransactionNumber VARCHAR(15) UNIQUE NOT NULL,
 	BillingType VARCHAR(50) NOT NULL,
 	BilledAmountTotal MONEY,
-	CreatedByUUID VARCHAR(20),
+	CreatedByUUID VARCHAR(),
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
 	BillingTransactionStatus VARCHAR(20) NOT NULL DEFAULT 'Unknown',
 	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeName) ON UPDATE CASCADE ON DELETE NO ACTION,

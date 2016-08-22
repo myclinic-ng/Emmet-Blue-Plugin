@@ -43,6 +43,7 @@ class TransactionMeta
         $createdBy = $data['createdBy'] ?? null;
         $items = $data['items'] ?? null;
         $status = $data['status'] ?? null;
+        $amount = $data['amount'] ?? null;
         $transactionNumber = self::generateTransactionNumber();
 
         try
@@ -52,14 +53,25 @@ class TransactionMeta
                 'BillingType'=>QB::wrapString($type, "'"),
                 'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
                 'DateCreated'=>'GETDATE()',
+                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString($amount, "'"),
                 'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString($status, "'")
             ]);
             
             $id = $result['lastInsertId']; 
 
+            $itemNames = [];
+            foreach ($items as $datum){
+                $itemNames[] = "($id, ".QB::wrapString($datum['name'], "'").")";
+            }
 
-            return [$id, $data];
-            
+            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName) VALUES ".implode(", ", $itemNames);
+
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->exec($query)
+            );
+
+            return ['lastInsertId'=>$id];
         }
         catch (\PDOException $e)
         {
