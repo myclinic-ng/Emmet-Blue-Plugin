@@ -69,12 +69,12 @@ CREATE TABLE Accounts.BillingTransaction (
 	BillingTransactionID INT PRIMARY KEY IDENTITY,
 	BillingTransactionMetaID INT,
 	BillingTransactionDate DATETIME NOT NULL DEFAULT GETDATE(),
-	BillingTransactionCustomerContactID INT,
+	BillingTransactionCustomerID INT,
 	BillingPaymentMethod VARCHAR(20) NOT NULL,
 	BillingAmountPaid MONEY NOT NULL,
 	BillingAmountBalance MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (BillingTransactionCustomerContactID) REFERENCES [Accounts].[BillingCustomerInfo] (CustomerContactID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (BillingTransactionCustomerID) REFERENCES [Accounts].[BillingCustomerInfo] (CustomerContactID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (BillingPaymentMethod) REFERENCES [Accounts].[BillingPaymentMethods] (PaymentMethodName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO

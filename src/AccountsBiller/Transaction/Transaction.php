@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\AccountsBiller\TransactionMeta;
+namespace EmmetBlue\Plugins\AccountsBiller\Transaction;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -20,58 +20,35 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class BillingTransactionMeta.
+ * class BillingTransaction.
  *
- * BillingTransactionMeta Controller
+ * BillingTransaction Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class TransactionMeta
+class Transaction
 {
-    private static function generateTransactionNumber()
-    {
-        $string = date(DATE_RFC2822);
-        $date = new \DateTime($string);
-
-        return $date->format('YmdHis');  
-    }
-
     public static function create(array $data)
     {
-        $type = $data['type'] ?? null;
-        $createdBy = $data['createdBy'] ?? null;
-        $items = $data['items'] ?? null;
-        $status = $data['status'] ?? null;
-        $amount = $data['amount'] ?? null;
-        $transactionNumber = self::generateTransactionNumber();
+        $metaId = $data['metaId'] ?? null;
+        $customerId = $data['customerId'] ?? null;
+        $paymentMethod = $data['paymentMethod'] ?? null;
+        $amountPaid = $data['amountPaid'] ?? null;
+        $amountBalance = $data['amountBalance'] ?? null;
 
         try
         {
-            $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
-                'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
-                'BillingType'=>QB::wrapString($type, "'"),
-                'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
-                'DateCreated'=>'GETDATE()',
-                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString($amount, "'"),
-                'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString($status, "'")
+            $result = DBQueryFactory::insert('Accounts.BillingTransaction', [
+                'BillingTransactionMetaID'=>$metaId,
+                'BillingTransactionDate'=>'GETDATE()',
+                'BillingTransactionCustomerID'=>(is_null($customerId)) ? "NULL" : QB::wrapString($customerId, "'"),
+                'BillingPaymentMethod'=>(is_null($paymentMethod)) ? "NULL" : QB::wrapString($paymentMethod, "'"),
+                'BillingAmountPaid'=>(is_null($amountPaid)) ? "NULL" : QB::wrapString($amountPaid, "'"),
+                'BillingAmountBalance'=>(is_null($amountBalance)) ? "NULL" : QB::wrapString($amountBalance, "'")
             ]);
-            
-            $id = $result['lastInsertId']; 
 
-            $itemNames = [];
-            foreach ($items as $datum){
-                $itemNames[] = "($id, ".QB::wrapString($datum['name'], "'").")";
-            }
-
-            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName) VALUES ".implode(", ", $itemNames);
-
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->exec($query)
-            );
-
-            return ['lastInsertId'=>$id];
+            return $result;
         }
         catch (\PDOException $e)
         {
@@ -91,19 +68,22 @@ class TransactionMeta
 
         try
         {
-            if (isset($data['BillingTransactionStatus'])){
-                $data['BillingTransactionStatus'] = QB::wrapString($data['BillingTransactionStatus'], "'");
+            if (isset($data['BillingTransactionCustomerID'])){
+                $data['BillingTransactionCustomerID'] = QB::wrapString($data['BillingTransactionCustomerID'], "'");
             }
-            if (isset($data['BilledAmountTotal'])){
-                $data['BilledAmountTotal'] = QB::wrapString($data['BilledAmountTotal'], "'");
+            if (isset($data['BillingPaymentMethod'])){
+                $data['BillingPaymentMethod'] = QB::wrapString($data['BillingPaymentMethod'], "'");
             }
-            if (isset($data['BillingType'])){
-                $data['BillingType'] = QB::wrapString($data['BillingType'], "'");
+            if (isset($data['BillingAmountPaid'])){
+                $data['BillingAmountPaid'] = QB::wrapString($data['BillingAmountPaid'], "'");
+            }
+            if (isset($data['BillingAmountBalance'])){
+                $data['BillingAmountBalance'] = QB::wrapString($data['BillingAmountBalance'], "'");
             }
 
-            $updateBuilder->table("Accounts.BillingTransactionMeta");
+            $updateBuilder->table("Accounts.BillingTransaction");
             $updateBuilder->set($data);
-            $updateBuilder->where("BillingTransactionMetaID = $resourceId");
+            $updateBuilder->where("BillingTransactionID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -139,29 +119,16 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a");
+            $selectBuilder->from("Accounts.BillingTransaction a");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingTransactionMetaID = $resourceId");
+                $selectBuilder->where("BillingTransactionID = $resourceId");
             }
 
             $result = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
-
-            foreach ($result as $key=>$metaItem)
-            {
-                $id = $metaItem["BillingTransactionMetaID"];
-                $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
-
-                $queryResult = (
-                    DBConnectionFactory::getConnection()
-                    ->query($query)
-                )->fetchAll(\PDO::FETCH_ASSOC);
-
-                $result[$key]["BillingTransactionItems"] = $queryResult;
-            }
 
             return $result;
         }
@@ -181,8 +148,8 @@ class TransactionMeta
         try
         {
             $deleteBuilder
-                ->from("Accounts.BillingTransactionMeta")
-                ->where("BillingTransactionMetaID = $resourceId");
+                ->from("Accounts.BillingTransaction")
+                ->where("BillingTransactionID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
