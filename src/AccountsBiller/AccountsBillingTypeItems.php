@@ -38,9 +38,9 @@ class AccountsBillingTypeItems
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountsBillingTypeItems($resourceId, $data);
 	}
 
-	public static function deleteAccountsBillingTypeItems(int $accountsBillingTypeItemId)
+	public static function deleteAccountsBillingTypeItems(int $resourceId)
 	{
-		return AccountsBillingTypeItems\DeleteAccountsBillingTypeitems::delete($accountsBillingTypeitemId);
+		return AccountsBillingTypeItems\DeleteAccountsBillingTypeitems::delete($resourceId);
 	}
 
 	public static function editAccountsBillingTypeItems(int $resourceId, array $data)

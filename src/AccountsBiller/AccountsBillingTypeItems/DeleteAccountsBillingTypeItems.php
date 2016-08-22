@@ -41,18 +41,18 @@ class DeleteAccountsBillingTypeItems
 
 		$deleteBuilder
 			->from('Accounts.BillingTypeItems')
-			->where('BillingTypeItems.BillingTypeItemID = '.$accountBillingTypeItemId);
+			->where('BillingTypeItemID = '.$accountBillingTypeItemId);
 
 		try
 		{
-			$deleteOperation = (DBConnectionFactory::getConnection())->query((string)$deleteBuilder);
+			$deleteOperation = (
+				DBConnectionFactory::getConnection()
+				->exec((string)$deleteBuilder)
+			);
 
 			DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_DELETE,'Accounts', 'BillingTypeItems', (string)$deleteOperation);
 
-			if($deleteOperation)
-			{
-				return true;
-			}
+			return $deleteOperation;
 
 			throw new UndefinedValueException(
 				sprintf(
