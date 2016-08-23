@@ -45,9 +45,9 @@ class EditAccountsBillingTypeItems
         	{
         		$data["billingTypeItemName"] = QB::wrapString($data["billingTypeItemName"], "'");
         	}
-            if (isset($data['billingTypePrice']))
+            if (isset($data['billingTypeItemPrice']))
             {
-                $data["billingTypePrice"] = QB::wrapString($data["billingTypePrice"], "'");
+                $data["billingTypeItemPrice"] = QB::wrapString($data["billingTypeItemPrice"], "'");
             }
             if (isset($data['rateIdentifier']))
             {
