@@ -50,7 +50,7 @@ class ViewAccountsBillingTypeItems
             $selectBuilder->from("Accounts.BillingTypeItems");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingTypeItemID = $resourceId");
+                $selectBuilder->where("BillingType = $resourceId");
             }
 
             $result = (
