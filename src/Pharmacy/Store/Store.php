@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Samuel Adeshina <samueladeshina73@gmail.calculhmac(clent, data)om>
+ * @author Bardeson Lucky <flashup4all@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\AccountsBiller\TransactionMeta;
+namespace EmmetBlue\Plugins\Pharmacy\Store;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -20,51 +20,42 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class BillingTransactionMeta.
+ * class Store.
  *
- * BillingTransactionMeta Controller
+ * Stores and store inventory properies Controller
  *
- * @author Samuel Adeshina <samueladeshina73@gmail.com>
- * @since v0.0.1 08/06/2016 14:20
+ * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @since v0.0.1 24/08/2016 12:17
  */
-class TransactionMeta
+class Store
 {
-    private static function generateTransactionNumber()
-    {
-        $string = date(DATE_RFC2822);
-        $date = new \DateTime($string);
-
-        return $date->format('YmdHis');  
-    }
+    /**
+     * @method create
+     * creates ne store and also creates store inventory properties
+     * 
+     */
 
     public static function create(array $data)
     {
-        $type = $data['type'] ?? null;
-        $createdBy = $data['createdBy'] ?? null;
-        $items = $data['items'] ?? null;
-        $status = $data['status'] ?? null;
-        $amount = $data['amount'] ?? null;
-        $transactionNumber = self::generateTransactionNumber();
+        $storeInventoryProperties = $data['storeInventoryProperties'] ?? null;
+        $storeName = $data['storeName'] ?? null;
+        $storeDescription = $data['storeDescription'] ?? null;
 
         try
         {
-            $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
-                'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
-                'BillingType'=>QB::wrapString($type, "'"),
-                'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
-                'DateCreated'=>'GETDATE()',
-                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString($amount, "'"),
-                'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString($status, "'")
-            ]);
+            $result = DBQueryFactory::insert('Pharmacy.Store', [
+                'StoreName'=>QB::wrapString($storeName, "'"),
+                'StoreDescription'=>QB::wrapString($storeDescription, "'"),
+                ]);
             
             $id = $result['lastInsertId']; 
 
-            $itemNames = [];
-            foreach ($items as $datum){
-                $itemNames[] = "($id, ".QB::wrapString($datum['name'], "'").")";
+            foreach ($storeInventoryProperties as $datum){
+                $inventoryProperties[] = "($id, ".QB::wrapString($datum['name'], "'").")";
             }
 
-            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName) VALUES ".implode(", ", $itemNames);
+            $query = "INSERT INTO Pharmacy.StoreInventoryProperties (StoreID, PropertyName) 
+                            VALUES ".implode(", ", $inventoryProperties);
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -83,27 +74,60 @@ class TransactionMeta
     }
 
     /**
-     * Modifies the content of a department group record
+     * Modifies the content of a store
      */
-    public static function edit(int $resourceId, array $data)
+    public static function editStore(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
-            if (isset($data['BillingTransactionStatus'])){
-                $data['BillingTransactionStatus'] = QB::wrapString($data['BillingTransactionStatus'], "'");
+            if (isset($data['StoreName'])){
+                $data['StoreName'] = QB::wrapString($data['StoreName'], "'");
             }
-            if (isset($data['BilledAmountTotal'])){
-                $data['BilledAmountTotal'] = QB::wrapString($data['BilledAmountTotal'], "'");
-            }
-            if (isset($data['BillingType'])){
-                $data['BillingType'] = QB::wrapString($data['BillingType'], "'");
+            if (isset($data['StoreDescription'])){
+                $data['StoreDescription'] = QB::wrapString($data['StoreDescription'], "'");
             }
 
-            $updateBuilder->table("Accounts.BillingTransactionMeta");
+            $updateBuilder->table("Pharmacy.Store");
             $updateBuilder->set($data);
-            $updateBuilder->where("BillingTransactionMetaID = $resourceId");
+            $updateBuilder->where("StoreID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$updateBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+     /**
+     * Modifies the content of a store Inventory Properties
+     */
+    public static function editStoreInventoryProperties(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            if (isset($data['StoreName'])){
+                $data['StoreName'] = QB::wrapString($data['StoreName'], "'");
+            }
+            if (isset($data['PropertyName'])){
+                $data['PropertyName'] = QB::wrapString($data['PropertyName'], "'");
+            }
+
+            $updateBuilder->table("Pharmacy.StoreInventoryProperties");
+            $updateBuilder->set($data);
+            $updateBuilder->where("StoreInventoryPropertiesID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -122,7 +146,7 @@ class TransactionMeta
     }
 
     /**
-     * Returns department group data
+     * Returns store group data
      *
      * @param int $resourceId optional
      */
@@ -139,10 +163,10 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a");
+            $selectBuilder->from("Pharmacy.Store");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingTransactionMetaID = $resourceId");
+                $selectBuilder->where("StoreID = $resourceId");
             }
 
             $result = (
@@ -150,17 +174,17 @@ class TransactionMeta
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
 
-            foreach ($result as $key=>$metaItem)
+            foreach ($result as $key=>$storeItem)
             {
-                $id = $metaItem["BillingTransactionMetaID"];
-                $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
+                $id = $storeItem["StoreID"];
+                $query = "SELECT * FROM Pharmacy.StoreInventoryProperties WHERE StoreID = $id";
 
                 $queryResult = (
                     DBConnectionFactory::getConnection()
                     ->query($query)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-                $result[$key]["BillingTransactionItems"] = $queryResult;
+                $result[$key]["StoreInventoryProperties"] = $queryResult;
             }
 
             return $result;
@@ -174,6 +198,10 @@ class TransactionMeta
         }
     }
 
+    /**
+     * deletes store resource
+     */
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
@@ -181,8 +209,8 @@ class TransactionMeta
         try
         {
             $deleteBuilder
-                ->from("Accounts.BillingTransactionMeta")
-                ->where("BillingTransactionMetaID = $resourceId");
+                ->from("Pharmacy.Store")
+                ->where("StoreID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()

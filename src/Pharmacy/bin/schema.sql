@@ -26,9 +26,22 @@ GO
 CREATE TABLE Pharmacy.StoreInventoryTags(
 	TagID INT PRIMARY KEY IDENTITY NOT NULL,
 	ItemID INT,
-	TagTitle VARCHAR(20),
-	TagName VARCHAR(20),
+	TagTitle VARCHAR(50),
+	TagName VARCHAR(100),
 	FOREIGN KEY (ItemID) REFERENCES Pharmacy.StoreInventory(ItemID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Pharmacy.EligibleDispensory(
+	EligibleDispensoryID INT PRIMARY KEY IDENTITY NOT NULL,
+	EligibleDispensory VARCHAR(20) UNIQUE
+)
+GO
+
+CREATE TABLE Pharmacy.Dispensee(
+	DispenseeID INT PRIMARY KEY IDENTITY NOT NULL,
+	DispenseeType VARCHAR(20),
+	DispenseeTypeID INT
 )
 GO
 CREATE TABLE Pharmacy.Dispensation(
@@ -42,22 +55,11 @@ CREATE TABLE Pharmacy.Dispensation(
 	FOREIGN KEY (DispenseeID) REFERENCES Pharmacy.Dispensee(DispenseeID) on UPDATE CASCADE ON DELETE SET NULL
 )
 GO
-CREATE TABLE Pharmacy.EligibleDispensory(
-	EligibleDispensoryID INT PRIMARY KEY IDENTITY NOT NULL,
-	EligibleDispensory VARCHAR(20),
-)
-GO
 CREATE TABLE Pharmacy.DispensedItems(
 	DispensedItemsID INT PRIMARY KEY IDENTITY NOT NULL,
 	DispensationID INT NOT NULL,
 	ItemID INT,
 	DispensedQuantity INT,
 	FOREIGN KEY (DispensationID) REFERENCES Pharmacy.Dispensation(DispensationID) ON UPDATE CASCADE ON DELETE CASCADE
-)
-GO
-CREATE TABLE Pharmacy.Dispensee(
-	DispenseeID INT PRIMARY KEY IDENTITY NOT NULL,
-	DispenseeType VARCHAR(20),
-	DispenseeTypeID INT
 )
 GO

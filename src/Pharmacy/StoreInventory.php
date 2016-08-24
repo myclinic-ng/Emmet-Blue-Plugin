@@ -19,39 +19,39 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class Store.
+ * class Inventory.
  *
  * store and Inventory properties Controller
  *
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class Store
+class StoreInventory
 {
-	public static function newStore(array $data)
+	public static function newStoreInventory(array $data)
 	{
-		return Store\Store::create($data);
+		return StoreInventory\StoreInventory::create($data);
 	}
 
-	public static function viewStore(int $resourceId=0, array $data = [])
+	public static function viewStoreInventory(int $resourceId=0, array $data = [])
 	{
-		return Store\Store::view($resourceId, $data);
+		return StoreInventory\StoreInventory::view($resourceId, $data);
 	}
 
-	public static function deleteStore(int $resourceId)
+	public static function deleteStoreInventory(int $resourceId)
 	{
-		return Store\Store::delete($resourceId);
+		return StoreInventory\storeInventory::delete($resourceId);
 	}
 
-	public static function editStore(int $resourceId, array $data)
+	public static function editStoreInventory(int $resourceId, array $data)
     {
-        $result = Store\Store::edit($resourceId, $data);
+        $result = StoreInventory\StoreInventory::editStoreInventory($resourceId, $data);
 
         return $result;
     }
-    public static function editStoreInventoryProperties(int $resourceId, array $data)
+    public static function editStoreInventoryTags(int $resourceId, array $data)
     {
-        $result = Store\Store::edit($resourceId, $data);
+        $result = StoreInventory\StoreInventory::editStoreInventoryTags($resourceId, $data);
 
         return $result;
     }
