@@ -9,53 +9,53 @@
 namespace EmmetBlue\Plugins\Patients;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
-use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
+use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFacto
+use EmmetBlue\Core\Session\Session;ry;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Exception\UndefinedValueException;
-use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class Patient.
+ * class PatientRepository.
  *
- * Patient Controller
+ * PatientRepository Controller
  *
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 19/08/2016 14:2004
  */
-class Patient
+class PatientRepository
 {
 	/**
-	 * Creates a new Patient group
+	 * Creates a new PatientRepository group
 	 *
 	 * @param $_POST
 	 */
-    public static function newPatient(array $data)
+    public static function newPatientRepository(array $data)
     {
-        $result = Patient\Patient::create($data);
+        $result = PatientRepository\PatientRepository::create($data);
 
         return $result;
     }
 
     /**
-     * Selects Patient UUID(s)
+     * Selects PatientRepository UUID(s)
      */
-    public static function viewPatient(int $resourceId=0)
+    public static function viewPatientRepository(int $resourceId=0)
     {
-        $result = Patient\Patient::view($resourceId);
+        $result = PatientRepository\PatientRepository::view($resourceId);
 
         return $result;
     }
 
     /**
-     * Deletes a Patient UUID
+     * Deletes a PatientRepository UUID
      */
-    public static function deletePatient(int $resourceId)
+    public static function deletePatientRepository(int $resourceId)
     {
-    	$result = Patient\Patient::delete($resourceId);
+    	$result = PatientRepository\PatientRepository::delete($resourceId);
 
     	return $result;
     }

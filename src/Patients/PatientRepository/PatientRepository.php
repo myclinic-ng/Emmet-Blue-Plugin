@@ -37,8 +37,12 @@ class PatientRepository
      */
     public static function create(array $data)
     {
+        return $_FILES;
         $patient = $data["patient"];
         $number = substr(str_shuffle(MD5(microtime())), 0, 40);
+        $name = $data["name"] ?? null;
+        $description = $data["description"] ?? null;
+        $url;
         try
         {
             $result = DBQueryFactory::insert('PatientRepositorys.PatientRepository', [
