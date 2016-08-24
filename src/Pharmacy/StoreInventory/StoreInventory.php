@@ -27,7 +27,7 @@ use EmmetBlue\Core\Constant;
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 24/08/2016 12:17
  */
-class Store
+class StoreInventory
 {
     /**
      * @method create
@@ -45,7 +45,7 @@ class Store
         try
         {
             $result = DBQueryFactory::insert('Pharmacy.StoreInventory', [
-                'StoreID'=>$storeid;
+                'StoreID'=>$storeid,
                 'ItemName'=>QB::wrapString($itemName, "'"),
                 'ItemQuantity'=>QB::wrapString($itemQuantity, "'"),
                 ]);
