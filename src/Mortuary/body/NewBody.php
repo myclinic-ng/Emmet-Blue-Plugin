@@ -112,7 +112,7 @@ class NewBody
 			'NextOfKinPhoneNumber'=>($nextOfKinPhoneNumber !== 'NULL') ? QB::wrapString($nextOfKinPhoneNumber, "'") : $nextOfKinPhoneNumber
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
+		$result = DatabaseQueryFactory::insert('Mortuary.NextOfKinDetails', $packed);
 		return $result;
 	}
 }
