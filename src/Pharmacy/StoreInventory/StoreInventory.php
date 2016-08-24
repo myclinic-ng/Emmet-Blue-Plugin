@@ -45,7 +45,7 @@ class StoreInventory
         try
         {
             $result = DBQueryFactory::insert('Pharmacy.StoreInventory', [
-                'StoreID'=>$storeid,
+                'StoreID'=>$storeId,
                 'ItemName'=>QB::wrapString($itemName, "'"),
                 'ItemQuantity'=>QB::wrapString($itemQuantity, "'"),
                 ]);
@@ -58,6 +58,7 @@ class StoreInventory
 
             $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
                             VALUES ".implode(", ", $inventoryTags);
+                           
             $result = (
                 DBConnectionFactory::getConnection()
                 ->exec($query)

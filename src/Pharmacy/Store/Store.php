@@ -54,9 +54,7 @@ class Store
                 $inventoryProperties[] = "($id, ".QB::wrapString($datum['name'], "'").")";
             }
 
-            $query = "INSERT INTO Pharmacy.StoreInventoryProperties (StoreID, PropertyName) 
-                            VALUES ".implode(", ", $inventoryProperties);
-
+            $query = "INSERT INTO Pharmacy.StoreInventoryProperties (StoreID, PropertyName) VALUES ".implode(", ", $inventoryProperties);
             $result = (
                 DBConnectionFactory::getConnection()
                 ->exec($query)
