@@ -129,7 +129,7 @@ class Patient
         {
             $deleteBuilder
                 ->from("Patients.Patient")
-                ->where("PatientUUID = $resourceId");
+                ->where("PatientID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()

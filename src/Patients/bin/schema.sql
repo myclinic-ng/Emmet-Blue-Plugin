@@ -8,7 +8,7 @@ CREATE TABLE Patients.Patient (
 	PatientDateOfBirth DATE,
 	PatientAddress VARCHAR(100),
 	PatientPhoneNumber VARCHAR(20),
-	PatientUUID INT UNIQUE NOT NULL,
+	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
 GO
 
