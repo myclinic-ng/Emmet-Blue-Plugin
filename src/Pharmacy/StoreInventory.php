@@ -28,30 +28,30 @@ use EmmetBlue\Core\Constant;
  */
 class StoreInventory
 {
-	public static function newinventory(array $data)
+	public static function newStoreInventory(array $data)
 	{
-		return Inventory\StoreInventory::create($data);
+		return StoreInventory\StoreInventory::create($data);
 	}
 
-	public static function viewInventory(int $resourceId=0, array $data = [])
+	public static function viewStoreInventory(int $resourceId=0, array $data = [])
 	{
-		return Inventory\StoreInventory::view($resourceId, $data);
+		return StoreInventory\StoreInventory::view($resourceId, $data);
 	}
 
-	public static function deleteInventory(int $resourceId)
+	public static function deleteStoreInventory(int $resourceId)
 	{
-		return Inventory\storeInventory::delete($resourceId);
+		return StoreInventory\storeInventory::delete($resourceId);
 	}
 
-	public static function editInventory(int $resourceId, array $data)
+	public static function editStoreInventory(int $resourceId, array $data)
     {
-        $result = Inventory\StoreInventory::editStoreInventory($resourceId, $data);
+        $result = StoreInventory\StoreInventory::editStoreInventory($resourceId, $data);
 
         return $result;
     }
-    public static function editInventoryTags(int $resourceId, array $data)
+    public static function editStoreInventoryTags(int $resourceId, array $data)
     {
-        $result = Inventory\StoreInventory::editStoreInventoryTags($resourceId, $data);
+        $result = StoreInventory\StoreInventory::editStoreInventoryTags($resourceId, $data);
 
         return $result;
     }
