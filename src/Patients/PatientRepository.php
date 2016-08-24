@@ -9,8 +9,8 @@
 namespace EmmetBlue\Plugins\Patients;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
-use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFacto
-use EmmetBlue\Core\Session\Session;ry;
+use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
+use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Exception\UndefinedValueException;
