@@ -115,8 +115,95 @@ class ViewBody
 					"Error procesing request"
 				),
 				Constant::UNDEFINED
+			);			
+		}
+	}
+	/**
+	 * body depositor info
+	 * method view depositorDetails
+	 */
+	public static function viewDepositorDetails(int $bodyId)
+	{
+		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+		$selectBuilder
+			->columns('*')
+			->from('Mortuary.DepositorDetails');
+		if ($bodyId != 0){
+			$selectBuilder->where('BodyID ='.$bodyId);
+		}
+		try
+		{
+			$viewDepositorDetailsOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+			DatabaseLog::log(
+				Session::get('USER_ID'),
+				Constant::EVENT_SELECT,
+				'Mortuary',
+				'Body',
+				(string)$selectBuilder
 			);
-			
+
+			if(count($viewDepositorDetailsOperation) > 0)
+			{
+				return $viewDepositorDetailsOperation;
+			}
+			else
+			{
+				return null;
+			}			
+		} 
+		catch (\PDOException $e) 
+		{
+			throw new SQLException(
+				sprintf(
+					"Error procesing request"
+				),
+				Constant::UNDEFINED
+			);			
+		}
+	}
+	/**
+	 * next of kin details
+	 * method viewNextOfKin
+	 */
+	public static function viewNextOfKin(int $bodyId)
+	{
+		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+		$selectBuilder
+			->columns('*')
+			->from('Mortuary.NextOfKinDetails');
+		if ($bodyId != 0){
+			$selectBuilder->where('BodyID ='.$bodyId);
+		}
+		try
+		{
+			$viewNextOfKinOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+			DatabaseLog::log(
+				Session::get('USER_ID'),
+				Constant::EVENT_SELECT,
+				'Mortuary',
+				'Body',
+				(string)$selectBuilder
+			);
+
+			if(count($viewNextOfKinOperation) > 0)
+			{
+				return $viewNextOfKinOperation;
+			}
+			else
+			{
+				return null;
+			}			
+		} 
+		catch (\PDOException $e) 
+		{
+			throw new SQLException(
+				sprintf(
+					"Error procesing request"
+				),
+				Constant::UNDEFINED
+			);			
 		}
 	}
 }

@@ -3,11 +3,10 @@ GO
 
 CREATE TABLE Mortuary.Body (
 	BodyID INTEGER PRIMARY KEY IDENTITY NOT NULL,
+	DeathPhysicianID INTEGER,
 	BodyTag VARCHAR(50) NOT NULL,
 	DateOfDeath DATE NOT NULL,
-	TimeOfDeath TIME NOT NULL,
-	PlaceOfDeath VARCHAR(100) NOT NULL,
-	DeathPhysicianID INTEGER 
+	PlaceOfDeath VARCHAR(100) NOT NULL
 )
 GO
 
@@ -15,19 +14,19 @@ CREATE TABLE Mortuary.BodyInformation (
 	BodyInformationID INTEGER PRIMARY KEY IDENTITY NOT NULL,
 	BodyID INTEGER,
 	BodyFirstName VARCHAR(20) NOT NULL,
-	BodyLastName VARCHAR(20),
+	BodyOtherNames VARCHAR(20),
 	BodyDateOfBirth DATETIME,
 	BodyGender VARCHAR(10) NOT NULL,
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
 CREATE TABLE Mortuary.DepositorDetails(
-	NextOfKinID INTEGER PRIMARY KEY IDENTITY NOT NULL,
+	DepositorDetailsID INTEGER PRIMARY KEY IDENTITY NOT NULL,
 	BodyID INTEGER,
 	DepositorFirstName VARCHAR(20),
-	DepositorLastName VARCHAR(20),
+	DepositorOtherNames VARCHAR(20),
 	DepositorAddress VARCHAR (max),
-	DepositorRelationship VARCHAR(20),
+	DepositorRelationshipType VARCHAR(20),
 	DepositorPhoneNumber VARCHAR(20),
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
@@ -36,9 +35,9 @@ CREATE TABLE Mortuary.NextOfKinDetails(
 	NextOfKinID INTEGER PRIMARY KEY IDENTITY NOT NULL,
 	BodyID INTEGER,
 	NextOfKinFirstName VARCHAR(20),
-	NextOfKinLastName VARCHAR(20),
+	NextOfKinOtherNames VARCHAR(20),
 	NextOfKinAddress VARCHAR (max),
-	NextOfKinRelationship VARCHAR(20),
+	NextOfKinRelationshipType VARCHAR(20),
 	NextOfKinPhoneNumber VARCHAR(20),
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
