@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Pharmacy;
+namespace EmmetBlue\Plugins\Store;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -26,26 +26,32 @@ use EmmetBlue\Core\Constant;
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class TransactionMeta
+class Store
 {
 	public static function newStore(array $data)
 	{
 		return Store\Store::create($data);
 	}
 
-	public static function viewTransactionMeta(int $resourceId=0, array $data = [])
+	public static function viewStore(int $resourceId=0, array $data = [])
 	{
-		return TransactionMeta\TransactionMeta::view($resourceId, $data);
+		return Store\Store::view($resourceId, $data);
 	}
 
-	public static function deleteTransactionMeta(int $resourceId)
+	public static function deleteStore(int $resourceId)
 	{
-		return TransactionMeta\TransactionMeta::delete($resourceId);
+		return Store\Store::delete($resourceId);
 	}
 
-	public static function editTransactionMeta(int $resourceId, array $data)
+	public static function editStore(int $resourceId, array $data)
     {
-        $result = TransactionMeta\TransactionMeta::edit($resourceId, $data);
+        $result = Store\Store::edit($resourceId, $data);
+
+        return $result;
+    }
+    public static function editStoreInventoryProperties(int $resourceId, array $data)
+    {
+        $result = Store\Store::edit($resourceId, $data);
 
         return $result;
     }

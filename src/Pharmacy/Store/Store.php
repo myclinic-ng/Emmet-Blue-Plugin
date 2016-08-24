@@ -199,6 +199,10 @@ class Store
         }
     }
 
+    /**
+     * deletes store resource
+     */
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
