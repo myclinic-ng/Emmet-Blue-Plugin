@@ -33,9 +33,9 @@ class Patient
 	 *
 	 * @param $_POST
 	 */
-    public static function newPatient()
+    public static function newPatient(array $data)
     {
-        $result = Patient\Patient::create();
+        $result = Patient\Patient::create($data);
 
         return $result;
     }
