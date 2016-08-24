@@ -3,7 +3,12 @@ GO
 
 CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
-	PatientUUID INT UNIQUE NOT NULL,
+	PatientFirstName VARCHAR(20),
+	PatientLastName VARCHAR(20),
+	PatientDateOfBirth DATE,
+	PatientAddress VARCHAR(100),
+	PatientPhoneNumber VARCHAR(20),
+	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
 GO
 

@@ -35,14 +35,24 @@ class Patient
      *
      * @param array $data
      */
-    public static function create()
+    public static function create(array $data)
     {
         
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
+        $firstName = $data["firstName"] ?? null;
+        $lastName = $data["lastName"] ?? null;
+        $dateOfBirth = $data["dateOfBirth"] ?? null;
+        $address = $data["address"] ?? null;
+        $phoneNumber = $data["phoneNumber"] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
+                'PatientFirstName'=>(is_null($firstName)) ? 'NULL' : QB::wrapString($firstName, "'"),
+                'PatientLastName'=>(is_null($lastName)) ? 'NULL' : QB::wrapString($lastName, "'"),
+                'PatientDateOfBirth'=>(is_null($dateOfBirth)) ? 'NULL' : QB::wrapString($dateOfBirth, "'"),
+                'PatientAddress'=>(is_null($address)) ? 'NULL' : QB::wrapString($address, "'"),
+                'PatientPhoneNumber'=>(is_null($phoneNumber)) ? 'NULL' : QB::wrapString($phoneNumber, "'"),
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
@@ -119,7 +129,7 @@ class Patient
         {
             $deleteBuilder
                 ->from("Patients.Patient")
-                ->where("PatientUUID = $resourceId");
+                ->where("PatientID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
