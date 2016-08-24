@@ -7,8 +7,6 @@ CREATE TABLE Mortuary.Body (
 	DateOfDeath DATE NOT NULL,
 	TimeOfDeath TIME NOT NULL,
 	PlaceOfDeath VARCHAR(100) NOT NULL,
-	BurialPlace VARCHAR(100),
-	DeathPhysicianName VARCHAR(20),
 	DeathPhysicianID INTEGER 
 )
 GO
@@ -20,10 +18,28 @@ CREATE TABLE Mortuary.BodyInformation (
 	BodyLastName VARCHAR(20),
 	BodyDateOfBirth DATETIME,
 	BodyGender VARCHAR(10) NOT NULL,
-	BodyPlaceOfBirth VARCHAR(100),
-	FamilyMemberRelationshipType VARCHAR(20) NOT NULL,
-	FamilyMemberName VARCHAR(50) NOT NULL,
-	FamilyMemberPhoneNumber VARCHAR(20),
+	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+CREATE TABLE Mortuary.DepositorDetails(
+	NextOfKinID INTEGER PRIMARY KEY IDENTITY NOT NULL,
+	BodyID INTEGER,
+	DepositorFirstName VARCHAR(20),
+	DepositorLastName VARCHAR(20),
+	DepositorAddress VARCHAR (max),
+	DepositorRelationship VARCHAR(20),
+	DepositorPhoneNumber VARCHAR(20),
+	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+CREATE TABLE Mortuary.NextOfKinDetails(
+	NextOfKinID INTEGER PRIMARY KEY IDENTITY NOT NULL,
+	BodyID INTEGER,
+	NextOfKinFirstName VARCHAR(20),
+	NextOfKinLastName VARCHAR(20),
+	NextOfKinAddress VARCHAR (max),
+	NextOfKinRelationship VARCHAR(20),
+	NextOfKinPhoneNumber VARCHAR(20),
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
