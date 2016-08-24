@@ -50,12 +50,11 @@ class Store
             
             $id = $result['lastInsertId']; 
 
-            $storeInventoryProperties = [];
             foreach ($storeInventoryProperties as $datum){
                 $inventoryProperties[] = "($id, ".QB::wrapString($datum['name'], "'").")";
             }
 
-            $query = "INSERT INTO Pharmacy.storeInventoryProperties (StoreID, PropertyName) 
+            $query = "INSERT INTO Pharmacy.StoreInventoryProperties (StoreID, PropertyName) 
                             VALUES ".implode(", ", $inventoryProperties);
 
             $result = (
