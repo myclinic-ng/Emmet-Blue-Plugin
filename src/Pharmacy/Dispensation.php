@@ -21,37 +21,49 @@ use EmmetBlue\Core\Constant;
 /**
  * class Inventory.
  *
- * store and Inventory properties Controller
+ * Dispensation properties Controller
  *
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class StoreInventory
+class Dispensation
 {
-	public static function newStoreInventory(array $data)
+	public static function newDispensation(array $data)
 	{
-		return StoreInventory\StoreInventory::create($data);
+		return Dispensation\Dispensation::create($data);
 	}
 
-	public static function viewStoreInventory(int $resourceId=0, array $data = [])
+	public static function viewDispensation(int $resourceId=0, array $data = [])
 	{
-		return StoreInventory\StoreInventory::view($resourceId, $data);
+		return Dispensation\Dispensation::view($resourceId, $data);
 	}
 
-	public static function deleteStoreInventory(int $resourceId)
+	public static function deleteDispensation(int $resourceId)
 	{
-		return StoreInventory\storeInventory::delete($resourceId);
+		return Dispensation\storeInventory::delete($resourceId);
 	}
 
-	public static function editStoreInventory(int $resourceId, array $data)
+	public static function editDispensation(int $resourceId, array $data)
     {
-        $result = StoreInventory\StoreInventory::editStoreInventory($resourceId, $data);
+        $result = Dispensation\Dispensation::editEligibleDispensory($resourceId, $data);
 
         return $result;
     }
-    public static function editStoreInventoryTags(int $resourceId, array $data)
+    public static function editDispensation(int $resourceId, array $data)
     {
-        $result = StoreInventory\StoreInventory::editStoreInventoryTags($resourceId, $data);
+        $result = Dispensation\Dispensation::editDispensee($resourceId, $data);
+
+        return $result;
+    }
+     public static function editDispensation(int $resourceId, array $data)
+    {
+        $result = Dispensation\Dispensation::editDispensation($resourceId, $data);
+
+        return $result;
+    }
+     public static function editDispensation(int $resourceId, array $data)
+    {
+        $result = Dispensation\Dispensation::editDispenseditems($resourceId, $data);
 
         return $result;
     }
