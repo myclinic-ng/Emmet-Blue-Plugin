@@ -37,7 +37,7 @@ class PatientRepository
      */
     public static function create(array $data)
     {
-        $patient = $data["patient"];
+        $patient = $data["patient"] ?? 'null';
         $number = substr(str_shuffle(MD5(microtime())), 0, 40);
         $name = $data["name"] ?? null;
         $description = $data["description"] ?? null;
