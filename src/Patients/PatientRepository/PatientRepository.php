@@ -41,14 +41,15 @@ class PatientRepository
         $number = substr(str_shuffle(MD5(microtime())), 0, 40);
         $name = $data["name"] ?? null;
         $description = $data["description"] ?? null;
-        $location = $data["location"] ?? null;
+        $location = "bin/records/patient-repositories";
         if (!empty($_FILES)) {
-            foreach ($_FILES as $key=>$files)
+            foreach ($_FILES["name"] as $key=>$files)
             {
-                return [$key, $files];
-                $tempFile = $files['file'][$key]['tmp_name'];    
+                $tempFile = $files['file']['tmp_name'][$key];    
                 $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
-                $targetFile =  $url. $files['file']['name'];
+                $ext = explode(".", $files['file']['name'][$key])[1];
+                $targetFile =  $url. $key.".".$ext;
+                return $targetFile;
                 move_uploaded_file($tempFile,$targetFile);
 
                 return $targetFile;
