@@ -48,28 +48,25 @@ class Dispensation
         {
             //eligible query
             $eligibleResult = DBQueryFactory::insert('Pharmacy.EligibleDispensory', [
-
-                'EligibleDispensory'=>QB::wrapString($eligibleDispensory, "'"),
-                ]);
+                'EligibleDispensory'=>QB::wrapString($eligibleDispensory, "'")
+            ]);
             
             $eligibleId = $eligibleResult['lastInsertId']; 
 
             // dispensee query
             $dispenseeResult = DBQueryFactory::insert('Pharmacy.Dispensee', [
-
                 'DispenseeType'=>QB::wrapString($dispenseeType, "'"),
                 'DispenseeTypeId'=>QB::wrapString($dispenseeTypeId, "'")
-                ]);
+            ]);
             
             $dispenseeId = $eligibleResult['lastInsertId'];
 
             //dispensation query
              $dispensationResult = DBQueryFactory::insert('Pharmacy.Dispensation', [
-
                 'DispensingStore'=>QB::wrapString($dispensingStore, "'"),
                 'EligibleDispensory'=>QB::wrapString($eligibleDispensory, "'"),
                 'DispenseeId'=>$dispenseeId
-                ]);
+            ]);
             
             $dispensationId = $dispensationResult['lastInsertId'];
             //foreach dispensed item
@@ -77,15 +74,14 @@ class Dispensation
                 $dispensedItem[] = "($dispensationId, ".QB::wrapString($datum['itemId'], "'").",".QB::wrapString($datum['dispensedQuantity'], "'").")";
             }
 
-            $query = "INSERT INTO Pharmacy.DispensedItems (DispensationId, ItemId, DispensedQuantity) 
-                            VALUES ".implode(", ", $dispensedItems);
+            $query = "INSERT INTO Pharmacy.DispensedItems (DispensationId, ItemId, DispensedQuantity) VALUES ".implode(", ", $dispensedItems);
                            
             $result = (
                 DBConnectionFactory::getConnection()
                 ->exec($query)
             );
 
-            return ['lastInsertId'=>$id];
+            return $result;
         }
         catch (\PDOException $e)
         {
