@@ -25,7 +25,7 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  *
  * PatientRepository Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 19/08/2016 13:35
  */
 class PatientRepository
@@ -44,6 +44,7 @@ class PatientRepository
         $location = "bin/records/patient-repositories";
         if (!empty($_FILES)) {
             $files = $_FILES["file"];
+            return $files;
             foreach ($files["name"] as $key=>$files)
             {
                 $tempFile = $files['tmp_name'][$key];    
