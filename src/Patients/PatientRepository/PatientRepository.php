@@ -45,6 +45,7 @@ class PatientRepository
         if (!empty($_FILES)) {
             foreach ($_FILES as $key=>$files)
             {
+                return [$key, $files];
                 $tempFile = $files['file'][$key]['tmp_name'];    
                 $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
                 $targetFile =  $url. $files['file']['name'];
