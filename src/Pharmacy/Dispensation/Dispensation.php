@@ -38,7 +38,7 @@ class Dispensation
     public static function create(array $data)
     {
        // $DispensedItem = $data['eligibleDispensories'] ?? null;
-        $dispensedItem = $data['dispensedItem'] ?? null;
+        $dispensedItem = $data['dispensedItems'] ?? null;
         $dispenseeType = $data['dispenseeType'] ?? null;
         $dispenseeTypeId = $data['dispenseeTypeId'] ?? null;
         $eligibleDispensory = $data['eligibleDispensory'] ?? null;
