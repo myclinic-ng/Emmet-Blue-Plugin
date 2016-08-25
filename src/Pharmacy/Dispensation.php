@@ -43,13 +43,13 @@ class Dispensation
 		return Dispensation\storeInventory::delete($resourceId);
 	}
 
-	public static function editDispensation(int $resourceId, array $data)
+	public static function editEligibleDispensory(int $resourceId, array $data)
     {
         $result = Dispensation\Dispensation::editEligibleDispensory($resourceId, $data);
 
         return $result;
     }
-    public static function editDispensation(int $resourceId, array $data)
+    public static function editDispensee(int $resourceId, array $data)
     {
         $result = Dispensation\Dispensation::editDispensee($resourceId, $data);
 
@@ -61,7 +61,7 @@ class Dispensation
 
         return $result;
     }
-     public static function editDispensation(int $resourceId, array $data)
+     public static function editDispensedItems(int $resourceId, array $data)
     {
         $result = Dispensation\Dispensation::editDispenseditems($resourceId, $data);
 
