@@ -43,7 +43,7 @@ class Tags
 
         try
         {
-            $tadsResult = DBQueryFactory::insert('Consultancy.Tags', [
+            $result = DBQueryFactory::insert('Consultancy.Tags', [
                 'TagName'=>QB::wrapString($tagName, "'"),
                 'TagDescription'=>QB::wrapString($tagDescription, "'"),
             ]);
@@ -55,7 +55,7 @@ class Tags
                 'Tags',
                 (string)(serialize($result))
             );
-            $Id = $tagsResult['lastInsertId'];
+            $Id = $result['lastInsertId'];
             return $id;
         }
         catch (\PDOException $e)
