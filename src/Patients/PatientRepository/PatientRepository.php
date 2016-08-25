@@ -43,6 +43,7 @@ class PatientRepository
         $description = $data["description"] ?? null;
         $location = "bin/records/patient-repositories";
         if (!empty($_FILES)) {
+            return $_FILES;
             foreach ($_FILES["name"] as $key=>$files)
             {
                 $tempFile = $files['file']['tmp_name'][$key];    
