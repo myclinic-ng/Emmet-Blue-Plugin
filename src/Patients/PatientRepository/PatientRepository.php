@@ -43,11 +43,12 @@ class PatientRepository
         $description = $data["description"] ?? null;
         $location = "bin/records/patient-repositories";
         if (!empty($_FILES)) {
-            foreach ($_FILES["file"]["name"] as $key=>$files)
+            $files = $_FILES["file"];
+            foreach ($files["name"] as $key=>$files)
             {
-                $tempFile = $files['file']['tmp_name'][$key];    
+                $tempFile = $files['tmp_name'][$key];    
                 $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
-                $ext = explode(".", $files['file']['name'][$key])[1];
+                $ext = explode(".", $files['name'][$key])[1];
                 $targetFile =  $url. $key.".".$ext;
                 return $targetFile;
                 move_uploaded_file($tempFile,$targetFile);
