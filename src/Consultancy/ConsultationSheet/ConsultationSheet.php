@@ -51,13 +51,7 @@ class ConsultationSheet
                 'Meta'=>QB::wrapString($meta, "'")
             ]);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Consultancy',
-                'ConsultationSheet',
-                (string)$selectBuilder
-            );
+           
 
             return $id = $result['lastInsertId'];
 
@@ -67,14 +61,6 @@ class ConsultationSheet
 
             $query = "INSERT INTO Consultancy.ConsultationSheetTags (SheetID, TagName) 
                             VALUES ".implode(", ", $consultationSheetTags);
-
-                DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Consultancy',
-                'ConsultationSheet',
-                (string)$selectBuilder
-            );
                            
             $result = (
                 DBConnectionFactory::getConnection()
