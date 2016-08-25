@@ -44,8 +44,7 @@ class PatientRepository
         $location = "bin/records/patient-repositories";
         if (!empty($_FILES)) {
             $files = $_FILES["file"];
-            return $files;
-            foreach ($files["name"] as $key=>$files)
+            foreach ($files["name"] as $key=>$null)
             {
                 $tempFile = $files['tmp_name'][$key];    
                 $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
