@@ -48,6 +48,7 @@ class PatientRepository
             {
                 $tempFile = $files['tmp_name'][$key];    
                 $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
+                mkdir($url);
                 $ext = explode(".", $files['name'][$key])[1];
                 $targetFile =  $url. $key.".".$ext;
                 move_uploaded_file($tempFile,$targetFile);
