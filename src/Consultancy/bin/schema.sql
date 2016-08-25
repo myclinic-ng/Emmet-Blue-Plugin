@@ -2,9 +2,9 @@ CREATE SCHEMA Consultancy;
 GO
 
 CREATE TABLE Consultancy.Tags(
-	TagID,
-	TagName,
-	TagDescription
+	TagID INTEGER PRIMARY KEY IDENTITY,
+	TagName VARCHAR(50),
+	TagDescription VARCHAR(50)
 )
 GO
 
@@ -21,6 +21,8 @@ GO
 CREATE TABLE Consultancy.ConsultationSheetTags (
 	ConsultationSheetTagID INT PRIMARY KEY IDENTITY,
 	SheetID INT,
-	TagID INT
+	TagNameINT
+	FOREIGN KEY (SheetID) REFERENCES Consultancy.ConsultationSheet(ConsultationSheetID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (TagName) REFERENCES Consultancy.Tags(TagName) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO

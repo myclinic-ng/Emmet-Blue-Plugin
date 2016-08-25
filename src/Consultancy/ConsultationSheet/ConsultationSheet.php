@@ -38,16 +38,17 @@ class ConsultationSheet
     public static function create(array $data)
     {
         
+        $tags = $data['tags'] ?? null;
         $consultantId = $data['consultantId'] ?? null;
-        $note = $data['note'];
-        $meta = $data['meta'];
+        $note = $data['note'] ?? null;
+        $meta = $data['meta'] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Consultancy.ConsultationSheet', [
-                'ConsultantID'=>$consultantId,
-                'Note'=>$note,
-                'Meta'=>$meta
+                'ConsultantID'=>QB::wrapString($consultantId, "'"),
+                'Note'=>QB::wrapString($note, "'"),
+                'Meta'=>QB::wrapString($meta, "'")
             ]);
 
             DatabaseLog::log(
@@ -55,10 +56,30 @@ class ConsultationSheet
                 Constant::EVENT_SELECT,
                 'Consultancy',
                 'ConsultationSheet',
-                (string)(serialize($result))
+                (string)$selectBuilder
             );
-            
-            return $result;
+
+            return $id = $result['lastInsertId'];
+
+            foreach ($tags as $datum){
+                $consultationSheetTags[] = "($id, ".QB::wrapString($datum['tagName'], "'").")";
+            }
+
+            $query = "INSERT INTO Consultancy.ConsultationSheetTags (SheetID, TagName) 
+                            VALUES ".implode(", ", $consultationSheetTags);
+
+                DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'ConsultationSheet',
+                (string)$selectBuilder
+            );
+                           
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->exec($query)
+            );
         }
         catch (\PDOException $e)
         {
@@ -68,10 +89,11 @@ class ConsultationSheet
             ), Constant::UNDEFINED);
         }
     }
+
     /**
      * view consultation data
      */
-    public static function view(int $resourceId)
+    public static function viewConsultationSheet(int $resourceId)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
@@ -112,10 +134,55 @@ class ConsultationSheet
             
         }
     }
+
+     /**
+     * view consultation sheet tags
+     */
+    public static function viewConsultancySheetTags(int $resourceId)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('*')
+            ->from('Consultancy.ConsultationSheetTags');
+        if ($resourceId != 0){
+            $selectBuilder->where('consultationSheetTagID ='.$resourceId);
+        }
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'ConsultationSheetTags',
+                (string)$selectBuilder
+            );
+
+            if(count($viewOperation) > 0)
+            {
+                return $viewOperation;
+            }
+            else
+            {
+                return null;
+            }           
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
     /**
      * Modifies the content of a consultation note
      */
-    public static function edit(int $resourceId, array $data)
+    public static function editConsultationSheet(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
@@ -135,6 +202,43 @@ class ConsultationSheet
                 Constant::EVENT_SELECT,
                 'Consultancy',
                 'ConsultationSheet',
+                (string)(serialize($result))
+            );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+     /**
+     * Modifies the content of a consultation note
+     */
+    public static function editConsultancySheetTag(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            $updateBuilder->table("Consultancy.Tags");
+            $updateBuilder->set($data);
+            $updateBuilder->where("TagID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$updateBuilder)
+                );
+            //logging
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'Tags',
                 (string)(serialize($result))
             );
 
@@ -184,38 +288,5 @@ class ConsultationSheet
             ), Constant::UNDEFINED);
         }
     }
-    /**
-     * Assigning consultation sheet operation to patient
-     */
-    public static function assignToPatient(array $data)
-    {
-        $patientId = $data['patientId'] ?? null;
-        $link = $data['link'];
-        $meta = $data['meta'];
-        try
-        {
-            $result = DBQueryFactory::insert('Patients.PatientTransaction', [
-                'PatientID'=>$consultantId,
-                'Link'=>$note,
-                'Meta'=>$meta
-            ]);
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'PatientTransaction',
-                (string)(serialize($result))
-            );
-            
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process request %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }
-    }
+    
 }

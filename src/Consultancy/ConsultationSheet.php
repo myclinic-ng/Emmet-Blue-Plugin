@@ -51,11 +51,30 @@ class ConsultationSheet
     }
 
     /**
+     * Selects ConsultationSheetTags
+     */
+    public static function viewConsultationSheetTags(int $resourceId=0)
+    {
+        $result = ConsultationSheet\ConsultationSheet::viewConsultationSheetTags($resourceId);
+
+        return $result;
+    }
+
+    /**
      * edit ConsultationSheet
      */
     public static function editConsultationSheet(int $resourceId=0, array $data)
     {
-        $result = ConsultationSheet\ConsultationSheet::view($resourceId, $data);
+        $result = ConsultationSheet\ConsultationSheet::editConsultationSheet($resourceId, $data);
+
+        return $result;
+    }
+    /**
+     * edit ConsultationSheetTags
+     */
+    public static function editConsultationSheetTags(int $resourceId=0, array $data)
+    {
+        $result = ConsultationSheet\ConsultationSheet::editConsultationSheetTags($resourceId, $data);
 
         return $result;
     }
