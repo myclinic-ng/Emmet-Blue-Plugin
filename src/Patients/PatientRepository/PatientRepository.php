@@ -42,23 +42,33 @@ class PatientRepository
         $number = substr(str_shuffle(MD5(microtime())), 0, 40);
         $name = $data["name"] ?? null;
         $description = $data["description"] ?? null;
-        $url;
-        $files = $_FILES;
+        $location = $data["location"] ?? null;
+        if (!empty($_FILES)) {
+            foreach ($_FILES as $key=>$files)
+            {
+                $tempFile = $files['file'][$key]['tmp_name'];    
+                $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
+                $targetFile =  $url. $files['file']['name'];
+                move_uploaded_file($tempFile,$targetFile);
+
+                return $targetFile;
+            } 
+
+        }
         try
         {
-            $result = DBQueryFactory::insert('PatientRepositorys.PatientRepository', [
-                'PatientRepositoryFirstName'=>(is_null($firstName)) ? 'NULL' : QB::wrapString($firstName, "'"),
-                'PatientRepositoryLastName'=>(is_null($lastName)) ? 'NULL' : QB::wrapString($lastName, "'"),
-                'PatientRepositoryDateOfBirth'=>(is_null($dateOfBirth)) ? 'NULL' : QB::wrapString($dateOfBirth, "'"),
-                'PatientRepositoryAddress'=>(is_null($address)) ? 'NULL' : QB::wrapString($address, "'"),
-                'PatientRepositoryPhoneNumber'=>(is_null($phoneNumber)) ? 'NULL' : QB::wrapString($phoneNumber, "'"),
-                'PatientRepositoryUUID'=>QB::wrapString($patientUuid, "'")
+            $result = DBQueryFactory::insert('Patients.PatientRepository', [
+                'PatientID'=>$patient,
+                'RepositoryItemNumber'=>QB::wrapString($number, "'"),
+                'RepositoryItemName'=>(is_null($name)) ? 'NULL' : QB::wrapString($name, "'"),
+                'RepositoryItemDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString($description, "'"),
+                'RepositoryItemUrl'=>(is_null($url)) ? 'NULL' : QB::wrapString($url, "'")
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'PatientRepositorys',
+                'Patients',
                 'PatientRepository',
                 (string)(serialize($result))
             );
@@ -81,7 +91,7 @@ class PatientRepository
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('PatientRepositorys.PatientRepository');
+            ->from('Patients.PatientRepository');
         if ($resourceId != 0){
             $selectBuilder->where('PatientRepositoryUUID ='.$resourceId);
         }
@@ -92,7 +102,7 @@ class PatientRepository
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'PatientRepositorys',
+                'Patients',
                 'PatientRepository',
                 (string)$selectBuilder
             );
@@ -127,7 +137,7 @@ class PatientRepository
         try
         {
             $deleteBuilder
-                ->from("PatientRepositorys.PatientRepository")
+                ->from("Patients.PatientRepository")
                 ->where("PatientRepositoryID = $resourceId");
             
             $result = (
@@ -138,7 +148,7 @@ class PatientRepository
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'PatientRepositorys',
+                'Patients',
                 'PatientRepository',
                 (string)$deleteBuilder
             );
