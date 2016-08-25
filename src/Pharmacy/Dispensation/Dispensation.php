@@ -37,11 +37,12 @@ class Dispensation
 
     public static function create(array $data)
     {
-        $eligibleDispensories = $data['eligibleDispensories'] ?? null;
-        $dispensedItems = $data['DispensedItems'] ?? null;
+       // $DispensedItem = $data['eligibleDispensories'] ?? null;
+        $dispensedItem = $data['DispensedItem'] ?? null;
         $dispenseeType = $data['dispenseeType'] ?? null;
         $dispenseeTypeId = $data['dispenseeTypeId'] ?? null;
-        $eligibleDispensory = $data['eligible dispensory'] ?? null;
+        $eligibleDispensory = $data['eligibleDispensory'] ?? null;
+        $dispensingStore = $data['dispensingStore'] ?? null;
 
         try
         {
@@ -60,14 +61,24 @@ class Dispensation
                 'DispenseeTypeId'=>QB::wrapString($dispenseeTypeId, "'")
                 ]);
             
-            $DispenseeId = $eligibleResult['lastInsertId'];
-//from here
-            foreach ($storeInventoryTags as $datum){
-                $inventoryTags[] = "($id, ".QB::wrapString($datum['tagTitle'], "'").",".QB::wrapString($datum['tagName'], "'").")";
+            $dispenseeId = $eligibleResult['lastInsertId'];
+
+            //dispensation query
+             $dispensationResult = DBQueryFactory::insert('Pharmacy.Dispensation', [
+
+                'DispensingStore'=>QB::wrapString($dispensingStore, "'"),
+                'EligibleDispensory'=>QB::wrapString($eligibleDispensory, "'"),
+                'DispenseeId'=>$dispenseeId
+                ]);
+            
+            $dispensationId = $dispensationResult['lastInsertId'];
+            //foreach dispensed item
+            foreach ($dispensedItem as $datum){
+                $dispensedItem[] = "($dispensationId, ".QB::wrapString($datum['itemId'], "'").",".QB::wrapString($datum['dispensedQuantity'], "'").")";
             }
 
-            $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
-                            VALUES ".implode(", ", $inventoryTags);
+            $query = "INSERT INTO Pharmacy.DispensedItems (DispensationId, ItemId, DispensedQuantity) 
+                            VALUES ".implode(", ", $dispensedItems);
                            
             $result = (
                 DBConnectionFactory::getConnection()
@@ -86,24 +97,21 @@ class Dispensation
     }
 
     /**
-     * Modifies the content of a store
+     * Modifies the content of a Eligible Dispensory
      */
-    public static function editStoreInventory(int $resourceId, array $data)
+    public static function editEligibleDispensory(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
-            if (isset($data['ItemName'])){
-                $data['ItemName'] = QB::wrapString($data['ItemName'], "'");
-            }
-            if (isset($data['ItemQuantity'])){
-                $data['ItemQuantity'] = QB::wrapString($data['ItemQuantity'], "'");
+            if (isset($data['EligibleDispensory'])){
+                $data['EligibleDispensory'] = QB::wrapString($data['EligibleDispensory'], "'");
             }
 
-            $updateBuilder->table("Pharmacy.StoreInventory");
+            $updateBuilder->table("Pharmacy.EligibleDispensory");
             $updateBuilder->set($data);
-            $updateBuilder->where("ItemID = $resourceId");
+            $updateBuilder->where("EligibleDispensoryID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -122,24 +130,93 @@ class Dispensation
     }
 
      /**
-     * Modifies the content of a store Inventory Properties
+     * Modifies the content of a Dispensee
      */
-    public static function editStoreInventoryTags(int $resourceId, array $data)
+    public static function editDispensee(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
-            if (isset($data['TagTitle'])){
-                $data['TagTitle'] = QB::wrapString($data['TagTitle'], "'");
+            if (isset($data['DispenseeType'])){
+                $data['DispenseeType'] = QB::wrapString($data['DispenseeType'], "'");
             }
-            if (isset($data['TagName'])){
-                $data['TagName'] = QB::wrapString($data['TagName'], "'");
+            if (isset($data['DispenseeId'])){
+                $data['DispenseeId'] = QB::wrapString($data['DispenseeId'], "'");
             }
 
-            $updateBuilder->table("Pharmacy.StoreInventoryTags");
+            $updateBuilder->table("Pharmacy.Dispensee");
             $updateBuilder->set($data);
-            $updateBuilder->where("TagID = $resourceId");
+            $updateBuilder->where("DispenseeID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$updateBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    /**
+     * Modifies the content of a Dispensation
+     */
+    public static function editDispensation(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            if (isset($data['DispensingStore'])){
+                $data['DispensingStore'] = QB::wrapString($data['DispensingStore'], "'");
+            }
+            if (isset($data['EligibleDispensory'])){
+                $data['EligibleDispensory'] = QB::wrapString($data['EligibleDispensory'], "'");
+            }
+            
+            $updateBuilder->table("Pharmacy.EligibleDispensory");
+            $updateBuilder->set($data);
+            $updateBuilder->where("EligibleDispensoryID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$updateBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    /**
+     * Modifies the content of a DispensedItems
+     */
+    public static function editDispenseditems(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            if (isset($data['DispensedQuantity'])){
+                $data['DispensedQuantity'] = QB::wrapString($data['DispensedQuantity'], "'");
+            }
+            
+            $updateBuilder->table("Pharmacy.DispensedItems");
+            $updateBuilder->set($data);
+            $updateBuilder->where("DispensedItemsID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -175,21 +252,47 @@ class Dispensation
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Pharmacy.StoreInventory");
+            //selecting the from eligible dispensory table
+            $selectBuilder->from("Pharmacy.EligibleDispensory");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("ItemID = $resourceId");
+                $selectBuilder->where("ELigibleDispensoryID = $resourceId");
             }
 
-            $result = (
+            $eligibleDispeonsoryResult = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
 
-            foreach ($result as $key=>$storeItem)
+            //selecting from Dispensee table
+            $selectBuilder->from("Pharmacy.Dispensee");
+
+            if ($resourceId !== 0){
+                $selectBuilder->where("DispenseeID = $resourceId");
+            }
+
+            $dispenseeResult = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$selectBuilder)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+            // selecting from dispensation table
+            $selectBuilder->from("Pharmacy.Dispensation");
+
+            if ($resourceId !== 0){
+                $selectBuilder->where("DispensationID = $resourceId");
+            }
+
+            $dispensationResult = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$selectBuilder)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+
+            foreach ($dispensationResult as $key=>$item)
             {
-                $id = $storeItem["ItemID"];
-                $query = "SELECT * FROM Pharmacy.StoreInventoryTags WHERE TagID = $id";
+                $id = $item["DispensationID"];
+                $query = "SELECT * FROM Pharmacy.DispensedItems WHERE DispensedItemsID = $id";
 
                 $queryResult = (
                     DBConnectionFactory::getConnection()
@@ -211,7 +314,7 @@ class Dispensation
     }
 
     /**
-     * deletes store resource
+     * deletes dispensedItems resource
      */
 
     public static function delete(int $resourceId)
@@ -221,8 +324,8 @@ class Dispensation
         try
         {
             $deleteBuilder
-                ->from("Pharmacy.StoreInventory")
-                ->where("ItemID = $resourceId");
+                ->from("Pharmacy.DispensedItems")
+                ->where("DispensedItemID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
