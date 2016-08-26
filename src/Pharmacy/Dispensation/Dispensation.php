@@ -38,7 +38,7 @@ class Dispensation
     public static function create(array $data)
     {
        // $DispensedItem = $data['eligibleDispensories'] ?? null;
-        $dispensedItem = $data['dispensedItems'] ?? null;
+        $dispensedItems = $data['dispensedItems'] ?? null;
         $dispenseeType = $data['dispenseeType'] ?? null;
         $dispenseeTypeId = $data['dispenseeTypeId'] ?? null;
         $eligibleDispensory = $data['eligibleDispensory'] ?? null;
@@ -59,7 +59,7 @@ class Dispensation
                 'DispenseeTypeId'=>QB::wrapString($dispenseeTypeId, "'")
             ]);
             
-            $dispenseeId = $eligibleResult['lastInsertId'];
+            $dispenseeId = $dispenseeResult['lastInsertId'];
 
             //dispensation query
              $dispensationResult = DBQueryFactory::insert('Pharmacy.Dispensation', [
@@ -70,12 +70,12 @@ class Dispensation
             
             $dispensationId = $dispensationResult['lastInsertId'];
             //foreach dispensed item
-            foreach ($dispensedItem as $datum){
+            foreach ($dispensedItems as $datum){
                 $dispensedItem[] = "($dispensationId, ".QB::wrapString($datum['itemId'], "'").",".QB::wrapString($datum['dispensedQuantity'], "'").")";
             }
 
-            $query = "INSERT INTO Pharmacy.DispensedItems (DispensationId, ItemId, DispensedQuantity) VALUES ".implode(", ", $dispensedItems);
-                           
+            $query = "INSERT INTO Pharmacy.DispensedItems (DispensationId, ItemId, DispensedQuantity) VALUES ".implode(", ", $dispensedItem);
+                        
             $result = (
                 DBConnectionFactory::getConnection()
                 ->exec($query)
