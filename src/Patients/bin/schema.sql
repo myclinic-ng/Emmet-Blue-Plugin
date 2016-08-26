@@ -1,16 +1,36 @@
 CREATE SCHEMA Patients;
 GO
 
+CREATE TABLE Patients.FieldTitleType (
+	TypeID,
+	TypeName,
+	TypeDescription
+)
+GO
+
+CREATE TABLE Patients.PatientRecordsFieldTitle (
+	FieldTitleID,
+	FieldTitleName,
+	FieldTitleType,
+	FieldTitleDescription
+)
+GO
+
 CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
-	PatientFirstName VARCHAR(20),
-	PatientLastName VARCHAR(20),
-	PatientDateOfBirth DATE,
-	PatientAddress VARCHAR(100),
+	PatientFullName VARCHAR(50),
 	PatientPhoneNumber VARCHAR(20),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
-GO
+GO;
+
+CREATE TABLE Patients.PatientRecordsFieldValue (
+	FieldValueID,
+	PatientID,
+	FieldTitle,
+	FieldValue VARCHAR(MAX)
+)
+GO;
 
 CREATE TABLE Patients.PatientDepartment (
 	PatientDepartmentID INT PRIMARY KEY IDENTITY NOT NULL,
