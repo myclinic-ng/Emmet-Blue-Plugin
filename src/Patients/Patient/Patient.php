@@ -38,17 +38,22 @@ class Patient
     public static function create(array $data)
     {
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
-        $fullName = $data["fullName"] ?? null;
-        $phoneNumber = $data["phoneNumber"] ?? null;
+        $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
+        $passport = $data["patientPassport"];
+        unset($data["patientPassport"]);
 
-        //fields value $data
-        $patientRecordsFieldValue = $data['patientRecordsFieldValue'] ?? null;
+        $values = [];
+        foreach ($data as $key=>$value){
+            $values[] = "(1".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
+        }
+
+        return "INSERT INTO [tbl] VALUES ".implode(",", $values);
 
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
-                'PatientPhoneNumber'=>(is_null($phoneNumber)) ? 'NULL' : QB::wrapString($phoneNumber, "'"),
+                'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
@@ -187,6 +192,8 @@ class Patient
                 'Patient',
                 (string)serialize($selectBuilder)
             );
+
+            return $viewPatients;
                 //$patientId = $viewPatients['PatientID'];
                 $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
@@ -208,7 +215,7 @@ class Patient
         {
             throw new SQLException(
                 sprintf(
-                    "Error procesing request"
+                    "Error processing request"
                 ),
                 Constant::UNDEFINED
             );

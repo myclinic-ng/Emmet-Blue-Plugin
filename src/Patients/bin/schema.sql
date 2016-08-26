@@ -20,7 +20,8 @@ GO
 CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
 	PatientFullName VARCHAR(50),
-	PatientPhoneNumber VARCHAR(20),
+	PatientPicture VARCHAR(MAX),
+	PatientIdentificationDocumentUrl VARCHAR(300),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
 GO
