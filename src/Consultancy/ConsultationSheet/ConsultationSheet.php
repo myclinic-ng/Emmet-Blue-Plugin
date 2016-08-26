@@ -73,7 +73,7 @@ class ConsultationSheet
                 Constant::EVENT_SELECT,
                 'Consultancy',
                 'ConsultationSheet',
-                (string)$selectBuilder
+                (string)serialize($query)
             );
                            
             $result = (

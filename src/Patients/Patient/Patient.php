@@ -26,7 +26,7 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  * Patient Controller
  *
  * @author Bardeson Lucky <flashup4all@gmail.com>
- * @since v0.0.1 19/08/2016 13:35
+ * @since v0.0.1 26/08/2016 12:33
  */
 class Patient
 {
@@ -37,24 +37,22 @@ class Patient
      */
     public static function create(array $data)
     {
-        
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
-        $firstName = $data["firstName"] ?? null;
-        $lastName = $data["lastName"] ?? null;
-        $dateOfBirth = $data["dateOfBirth"] ?? null;
-        $address = $data["address"] ?? null;
+        $fullName = $data["firstName"] ?? null;
         $phoneNumber = $data["phoneNumber"] ?? null;
+
+        //fields value $data
+        $patientRecordsFieldValue = $data['patientRecordsFieldValue'] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
-                'PatientFirstName'=>(is_null($firstName)) ? 'NULL' : QB::wrapString($firstName, "'"),
-                'PatientLastName'=>(is_null($lastName)) ? 'NULL' : QB::wrapString($lastName, "'"),
-                'PatientDateOfBirth'=>(is_null($dateOfBirth)) ? 'NULL' : QB::wrapString($dateOfBirth, "'"),
-                'PatientAddress'=>(is_null($address)) ? 'NULL' : QB::wrapString($address, "'"),
+                'PatientFullName'=>(is_null($firstName)) ? 'NULL' : QB::wrapString($firstName, "'"),
                 'PatientPhoneNumber'=>(is_null($phoneNumber)) ? 'NULL' : QB::wrapString($phoneNumber, "'"),
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
+
+            $id = $result['LastInsertId'];
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -62,6 +60,20 @@ class Patient
                 'Patients',
                 'Patient',
                 (string)(serialize($result))
+            );
+             foreach ($patientRecordsFieldValue as $datum){
+                $fieldsValue[] = "($id, ".QB::wrapString($datum['fieldType'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
+            }
+
+            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) 
+                            VALUES ".implode(", ", $fieldsValue);
+
+                DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'PatientRecordsFieldValue',
+                (string)serialize($query)
             );
             
             return $result;
@@ -74,6 +86,80 @@ class Patient
             ), Constant::UNDEFINED);
         }
     }
+
+/**
+     * Modifies the content of a field title type
+     */
+    public static function edit(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            if (isset($data['FullName'])){
+                $data['PatientFullName'] = QB::wrapString($data['FullName'], "'");
+            }
+            if (isset($data['PatientPhoneNumber'])){
+                $data['PatientPhoneNumber'] = QB::wrapString($data['PatientPhoneNumber'], "'");
+            }
+
+            $updateBuilder->table("Patients.Patient");
+            $updateBuilder->set($data);
+            $updateBuilder->where("TypeID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$updateBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    /**
+     * Modifies the content of a field title type
+     */
+    public static function editPatientRecordsFieldValue(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            if (isset($data['FieldTitle'])){
+                $data['FieldTitle'] = QB::wrapString($data['FieldTitle'], "'");
+            }
+            if (isset($data['FieldValue'])){
+                $data['FieldValue'] = QB::wrapString($data['FieldValue'], "'");
+            }
+
+            $updateBuilder->table("Patients.PatientRecordsFieldValue");
+            $updateBuilder->set($data);
+            $updateBuilder->where("TypeID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$updateBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+
     /**
      * view patients UUID
      */
@@ -88,19 +174,26 @@ class Patient
         }
         try
         {
-            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            $viewPatients = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
                 'Patient',
-                (string)$selectBuilder
+                (string)serialize($selectBuilder)
             );
+                $patientId = $viewPatients['PatientID'];
+                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $patientId";
 
-            if(count($viewOperation) > 0)
+                $viewPatientsRecords = (
+                    DBConnectionFactory::getConnection()
+                    ->query($query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            if(count($viewPatients) > 0)
             {
-                return $viewOperation;
+                return array_merge($viewOperation,$viewPatientsRecords);
             }
             else
             {

@@ -49,6 +49,25 @@ class Patient
 
         return $result;
     }
+    /**
+     * edits Patient
+     */
+    public static function editPatient(int $resourceId=0)
+    {
+        $result = Patient\Patient::edit($resourceId);
+
+        return $result;
+    }
+
+    /**
+     * edits Patient
+     */
+    public static function editPatientRecordsFieldValue(int $resourceId=0)
+    {
+        $result = Patient\Patient::editPatientRecordsFieldValue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ($resourceId);
+
+        return $result;
+    }
 
     /**
      * Deletes a Patient UUID
