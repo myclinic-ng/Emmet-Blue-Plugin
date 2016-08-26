@@ -13,7 +13,7 @@ CREATE TABLE Patients.PatientRecordsFieldTitle (
 	FieldTitleName VARCHAR(50) UNIQUE,
 	FieldTitleType VARCHAR(50),
 	FieldTitleDescription VARCHAR(50),
-	FOREIGN KEY (FieldTitleType) REFERENCES Patients.FieldTitleType(TypeName) ON UPDATE ON DELETE NO ACTION
+	FOREIGN KEY (FieldTitleType) REFERENCES Patients.FieldTitleType(TypeName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO
 
@@ -23,17 +23,17 @@ CREATE TABLE Patients.Patient (
 	PatientPhoneNumber VARCHAR(20),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
-GO;
+GO
 
 CREATE TABLE Patients.PatientRecordsFieldValue (
 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,
 	FieldTitle VARCHAR(50),
-	FieldValue VARCHAR(MAX)
+	FieldValue VARCHAR(max),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 	FOREIGN KEY (FieldTitle) REFERENCES Patients.PatientRecordsFieldTitle(FieldTitleName) ON UPDATE CASCADE ON DELETE CASCADE
 )
-GO;
+GO
 
 CREATE TABLE Patients.PatientDepartment (
 	PatientDepartmentID INT PRIMARY KEY IDENTITY NOT NULL,

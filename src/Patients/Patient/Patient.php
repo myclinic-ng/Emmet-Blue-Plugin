@@ -38,7 +38,7 @@ class Patient
     public static function create(array $data)
     {
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
-        $fullName = $data["firstName"] ?? null;
+        $fullName = $data["fullName"] ?? null;
         $phoneNumber = $data["phoneNumber"] ?? null;
 
         //fields value $data
@@ -47,14 +47,14 @@ class Patient
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
-                'PatientFullName'=>(is_null($firstName)) ? 'NULL' : QB::wrapString($firstName, "'"),
+                'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
                 'PatientPhoneNumber'=>(is_null($phoneNumber)) ? 'NULL' : QB::wrapString($phoneNumber, "'"),
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
-            $id = $result['LastInsertId'];
+            $id = $result['lastInsertId'];
 
-            DatabaseLog::log(
+                DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
@@ -62,7 +62,7 @@ class Patient
                 (string)(serialize($result))
             );
              foreach ($patientRecordsFieldValue as $datum){
-                $fieldsValue[] = "($id, ".QB::wrapString($datum['fieldType'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
+                $fieldsValue[] = "($id, ".QB::wrapString($datum['fieldTitle'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
             }
 
             $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) 
@@ -74,6 +74,10 @@ class Patient
                 'Patients',
                 'PatientRecordsFieldValue',
                 (string)serialize($query)
+            );
+            $result = (
+            DBConnectionFactory::getConnection()
+            ->exec($query)
             );
             
             return $result;
@@ -170,7 +174,7 @@ class Patient
             ->columns('*')
             ->from('Patients.Patient');
         if ($resourceId != 0){
-            $selectBuilder->where('PatientUUID ='.$resourceId);
+            $selectBuilder->where('PatientID ='.$resourceId);
         }
         try
         {
@@ -183,8 +187,8 @@ class Patient
                 'Patient',
                 (string)serialize($selectBuilder)
             );
-                $patientId = $viewPatients['PatientID'];
-                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $patientId";
+                //$patientId = $viewPatients['PatientID'];
+                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
                 $viewPatientsRecords = (
                     DBConnectionFactory::getConnection()
@@ -193,7 +197,7 @@ class Patient
 
             if(count($viewPatients) > 0)
             {
-                return array_merge($viewOperation,$viewPatientsRecords);
+                return array_merge($viewPatients,$viewPatientsRecords);
             }
             else
             {
