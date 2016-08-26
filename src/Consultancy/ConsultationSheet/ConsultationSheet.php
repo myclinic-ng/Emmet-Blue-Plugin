@@ -51,9 +51,15 @@ class ConsultationSheet
                 'Meta'=>QB::wrapString($meta, "'")
             ]);
 
-           
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'ConsultationSheet',
+                (string)serialize($result)
+            );
 
-            return $id = $result['lastInsertId'];
+            $id = $result['lastInsertId'];
 
             foreach ($tags as $datum){
                 $consultationSheetTags[] = "($id, ".QB::wrapString($datum['tagName'], "'").")";
@@ -61,11 +67,20 @@ class ConsultationSheet
 
             $query = "INSERT INTO Consultancy.ConsultationSheetTags (SheetID, TagName) 
                             VALUES ".implode(", ", $consultationSheetTags);
+
+                DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'ConsultationSheet',
+                (string)$selectBuilder
+            );
                            
             $result = (
                 DBConnectionFactory::getConnection()
                 ->exec($query)
             );
+            return ['lastInsertId'=>$id];
         }
         catch (\PDOException $e)
         {
@@ -79,7 +94,7 @@ class ConsultationSheet
     /**
      * view consultation data
      */
-    public static function viewConsultationSheet(int $resourceId)
+    public static function view(int $resourceId)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder

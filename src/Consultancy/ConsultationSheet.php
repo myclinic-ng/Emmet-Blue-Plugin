@@ -28,11 +28,11 @@ use EmmetBlue\Core\Constant;
  */
 class ConsultationSheet
 {
-	/**
-	 * Creates a new Consultancy sheet
-	 *
-	 * @param $_POST
-	 */
+    /**
+     * Creates a new Consultancy sheet
+     *
+     * @param $_POST
+     */
     public static function newConsultationSheet(array $data)
     {
         $result = ConsultationSheet\ConsultationSheet::create($data);
@@ -84,8 +84,8 @@ class ConsultationSheet
      */
     public static function deleteConsultationSheet(int $resourceId)
     {
-    	$result = ConsultationSheet\ConsultationSheet::delete($resourceId);
+        $result = ConsultationSheet\ConsultationSheet::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
 }
