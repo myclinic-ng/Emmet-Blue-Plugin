@@ -207,6 +207,13 @@ class Patient
 
             $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
+            $path = $viewPatients[0]['PatientIdentificationDocumentUrl']."/0.jpg";
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+            $viewPatients["PatientIdentificationDocumentUrl"][] = $base64;
+
             $viewPatientsRecords = (
                 DBConnectionFactory::getConnection()
                 ->query($query)
