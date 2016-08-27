@@ -36,83 +36,67 @@ class NewBody
 		$dateOfDeath = $data['dateOfDeath'] ?? 'NULL';
 		$placeOfDeath = $data['placeOfDeath'] ?? 'NULL';
 
+		// body info
+		$bodyFirstName = $data['firstName'] ?? 'NULL';
+		$bodyOtherNames = $data['otherNames'] ?? 'NULL';
+		$bodyDateOfBirth = $data['dateOfBirth'] ?? 'NULL';
+		$bodyGender = $data['gender'] ?? 'NULL';
+		// depositors info
+		$depositorFirstName = $data['depositorFirstName'] ?? 'NULL';
+		$depositorotherName = $data['depositorOtherNames'] ?? 'NULL';
+		$depositorAddress = $data['depositorAddress'] ?? 'NULL';
+		$depositorRelationshipType = $data['depositorRelationshipType'] ?? 'NULL';
+		$depositorphoneNumber = $data['depositorOtherNames'] ?? 'NULL';
+		//next of kin info
+		$nextOfKinFirstName = $data['nextOfKinFirstName'] ?? 'NULL';
+		$nextOfKinotherNames = $data['nextOfKinOtherNames'] ?? 'NULL';
+		$nextOfKinAddress = $data['nextOfKinAddress'] ?? 'NULL';
+		$nextOfKinRelationshipType = $data['nextOfKinRelationshipType'] ?? 'NULL';
+		$nextOfKinphoneNumber = $data['nextOfKinOtherNames'] ?? 'NULL';
+		//body tag query
 		$packed = [
-			'DeathPhysicianID'=>$physicianId
+			'DeathPhysicianID'=>$physicianId,
 			'BodyTag'=>($tag !== 'NULL') ? QB::wrapString($tag, "'") : $tag,
 			'DateOfDeath'=>($dateOfDeath !== 'NULL') ? QB::wrapString($dateOfDeath, "'") : $dateOfDeath,
 			'PlaceOfDeath'=>($placeOfDeath !== 'NULL') ? QB::wrapString($placeOfDeath, "'") : $placeOfDeath,
 			
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.Body', $packed);
-		return $result;
-	}
-
-	public static function info(array $data)
-	{
-		$bodyId = $data['id'] ?? 'NULL';
-		$bodyFirstName = $data['firstName'] ?? 'NULL';
-		$bodyotherName = $data['otherNames'] ?? 'NULL';
-		$bodyDateOfBirth = $data['dateOfBirth'] ?? 'NULL';
-		$bodyGender = $data['gender'] ?? 'NULL';
-
+		$bodyTagResult = DatabaseQueryFactory::insert('Mortuary.Body', $packed);
+		$bodyId = $bodyTagResult['lastInsertId'];
+		//body info query
 		$packed = [
 			'BodyID'=>$bodyId,
 			'BodyFirstName'=>($bodyFirstName !== 'NULL') ? QB::wrapString($bodyFirstName, "'") : $bodyFirstName,
-			'BodyLastName'=>($bodyLastName !== 'NULL') ? QB::wrapString($bodyotherName, "'") : $bodyLastName,
+			'BodyOtherNames'=>($bodyOtherNames !== 'NULL') ? QB::wrapString($bodyOtherNames, "'") : $bodyOtherNames,
 			'BodyDateOfBirth'=>($bodyDateOfBirth !== 'NULL') ? QB::wrapString($bodyDateOfBirth, "'") : $bodyDateOfBirth,
 			'BodyGender'=>($bodyGender !== 'NULL') ? QB::wrapString($bodyGender, "'") : $bodyGender
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.BodyInformation', $packed);
-		return $result;
-	}
-	/**
-	 * method depositorDetails
-	 */
-	public static function depositorDetails(array $data)
-	{
-		$bodyId = $data['id'] ?? 'NULL';
-		$depositorFirstName = $data['depositorFirstName'] ?? 'NULL';
-		$depositorotherName = $data['depositorOtherNames'] ?? 'NULL';
-		$depositorAddress = $data['depositorAddress'] ?? 'NULL';
-		$depositorRelationshipType = $data['depositorRelationshipType'] ?? 'NULL';
-		$depositorphoneNumber = $data['depositorOtherNames'] ?? 'NULL';
-
+		$bodyInfoResult = DatabaseQueryFactory::insert('Mortuary.BodyInformation', $packed);
+		//depositors info query
 		$packed = [
 			'BodyID'=>$bodyId,
 			'DepositorFirstName'=>($depositorFirstName !== 'NULL') ? QB::wrapString($depositorFirstName, "'") : $depositorFirstName,
 			'DepositorOtherLastName'=>($depositorOtherName !== 'NULL') ? QB::wrapString($depositorOtherName, "'") : $depositorOtherName,
 			'DepositorAddress'=>($depositorAddress !== 'NULL') ? QB::wrapString($depositorAddress, "'") : $depositorAddress,
-			'depositorRelationshipType'=>($depositorRelationshipType !== 'NULL') ? QB::wrapString($depositorRelationshipType, "'") : $depositorRelationshipType
+			'depositorRelationshipType'=>($depositorRelationshipType !== 'NULL') ? QB::wrapString($depositorRelationshipType, "'") : $depositorRelationshipType,
 			'depositorPhoneNumber'=>($depositorPhoneNumber !== 'NULL') ? QB::wrapString($depositorPhoneNumber, "'") : $depositorPhoneNumber
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
-		return $result;
-	}
-	/**
-	 * method nextOfKinDetails
-	 */
-	public static function nextOfKinDetails(array $data)
-	{
-		$bodyId = $data['id'] ?? 'NULL';
-		$nextOfKinFirstName = $data['nextOfKinFirstName'] ?? 'NULL';
-		$nextOfKinotherNames = $data['nextOfKinOtherNames'] ?? 'NULL';
-		$nextOfKinAddress = $data['nextOfKinAddress'] ?? 'NULL';
-		$nextOfKinRelationshipType = $data['nextOfKinRelationshipType'] ?? 'NULL';
-		$nextOfKinphoneNumber = $data['nextOfKinOtherNames'] ?? 'NULL';
-
+		$depositorInfoResult = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
+		//next of kin query
 		$packed = [
 			'BodyID'=>$bodyId,
 			'NextOfKinFirstName'=>($nextOfKinFirstName !== 'NULL') ? QB::wrapString($nextOfKinFirstName, "'") : $nextOfKinFirstName,
 			'NextOfKinOtherLastName'=>($nextOfKinOtherName !== 'NULL') ? QB::wrapString($nextOfKinOtherName, "'") : $nextOfKinOtherName,
 			'NextOfKinAddress'=>($nextOfKinAddress !== 'NULL') ? QB::wrapString($nextOfKinAddress, "'") : $nextOfKinAddress,
-			'NextOfKinRelationshipType'=>($nextOfKinRelationshipType !== 'NULL') ? QB::wrapString($nextOfKinRelationshipType, "'") : $nextOfKinRelationshipType
+			'NextOfKinRelationshipType'=>($nextOfKinRelationshipType !== 'NULL') ? QB::wrapString($nextOfKinRelationshipType, "'") : $nextOfKinRelationshipType,
 			'NextOfKinPhoneNumber'=>($nextOfKinPhoneNumber !== 'NULL') ? QB::wrapString($nextOfKinPhoneNumber, "'") : $nextOfKinPhoneNumber
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.NextOfKinDetails', $packed);
-		return $result;
+		$nextOfKinResult = DatabaseQueryFactory::insert('Mortuary.NextOfKinDetails', $packed);
+		return array_merge($bodyTagResult, $bodyInfoResult, $depositorInfoResult, $nextOfKinResult);
+
 	}
 }

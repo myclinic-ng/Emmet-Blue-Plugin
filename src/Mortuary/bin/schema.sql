@@ -15,7 +15,7 @@ CREATE TABLE Mortuary.BodyInformation (
 	BodyID INTEGER,
 	BodyFirstName VARCHAR(20) NOT NULL,
 	BodyOtherNames VARCHAR(20),
-	BodyDateOfBirth DATETIME,
+	BodyDateOfBirth DATE,
 	BodyGender VARCHAR(10) NOT NULL,
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
