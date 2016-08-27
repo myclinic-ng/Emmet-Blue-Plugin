@@ -82,7 +82,7 @@ class Patient
             }
 
 
-            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $fieldsValue);
+            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
 
             $queryResult = (
                 DBConnectionFactory::getConnection()
