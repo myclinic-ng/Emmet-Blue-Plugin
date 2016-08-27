@@ -37,29 +37,74 @@ class ViewBody
 	 */
 	public static function viewBodyInfo(int $bodyId)
 	{
-		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-		$selectBuilder
+		$bodyBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+		$bodyBuilder
 			->columns('*')
-			->from('Mortuary.BodyInformation');
+			->from('Mortuary.Body');
 		if ($bodyId != 0){
 
-			$selectBuilder->where('BodyID ='.$bodyId);
+			$bodyBuilder->where('BodyID ='.$bodyId);
 		}
 		try
 		{
-			$viewBodyOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+			$viewBodyOperation = (DBConnectionFactory::getConnection()->query((string)$bodyBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
 			DatabaseLog::log(
 				Session::get('USER_ID'),
 				Constant::EVENT_SELECT,
 				'Mortuary',
+				'Body',
+				(string)$bodyBuilder
+			);
+			//selecting all body info
+			$bodyInfoBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+			$bodyInfoBuilder
+			->columns('*')
+			->from('Mortuary.BodyInformation')
+			->where('BodyID ='.$bodyId);
+			$viewBodyInfo = (DBConnectionFactory::getConnection()->query((string)$bodyInfoBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+			//selecting all body info
+			DatabaseLog::log(
+				Session::get('USER_ID'),
+				Constant::EVENT_SELECT,
+				'Mortuary',
 				'BodyInformation',
-				(string)$selectBuilder
+				(string)$bodyInfoBuilder
+			);
+			//selecting all body depositors info
+			$bodyDepositorBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+			$bodyDepositorBuilder
+			->columns('*')
+			->from('Mortuary.DepositorDetails')
+			->where('BodyID ='.$bodyId);
+			$viewBodyDepositor = (DBConnectionFactory::getConnection()->query((string)$bodyDepositorBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+			//selecting all body info
+			DatabaseLog::log(
+				Session::get('USER_ID'),
+				Constant::EVENT_SELECT,
+				'Mortuary',
+				'DepositorDetails',
+				(string)$bodyDepositorBuilder
+			);
+			//selecting all body depositors info
+			$bodyNextOfKinBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+			$bodyNextOfKinBuilder
+			->columns('*')
+			->from('Mortuary.DepositorDetails')
+			->where('BodyID ='.$bodyId);
+			$viewBodyNextOfKin = (DBConnectionFactory::getConnection()->query((string)$bodyNextOfKinBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+			//selecting all body info
+			DatabaseLog::log(
+				Session::get('USER_ID'),
+				Constant::EVENT_SELECT,
+				'Mortuary',
+				'DepositorDetails',
+				(string)$bodyNextOfKinBuilder
 			);
 
 			if(count($viewBodyOperation) > 0)
 			{
-				return $viewBodyOperation;
+				return array_merge($viewBodyOperation, $viewBodyinfo, $viewBodyDepositor, $viewBodyNextOfKin);
 			}
 			else
 			{
@@ -75,135 +120,6 @@ class ViewBody
 				Constant::UNDEFINED
 			);
 			
-		}
-	}
-
-	public static function viewBody(int $bodyId)
-	{
-		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-		$selectBuilder
-			->columns('*')
-			->from('Mortuary.Body');
-		if ($bodyId != 0){
-			$selectBuilder->where('BodyID ='.$bodyId);
-		}
-		try
-		{
-			$viewBodyOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Mortuary',
-				'Body',
-				(string)$selectBuilder
-			);
-
-			if(count($viewBodyOperation) > 0)
-			{
-				return $viewBodyOperation;
-			}
-			else
-			{
-				return null;
-			}			
-		} 
-		catch (\PDOException $e) 
-		{
-			throw new SQLException(
-				sprintf(
-					"Error procesing request"
-				),
-				Constant::UNDEFINED
-			);			
-		}
-	}
-	/**
-	 * body depositor info
-	 * method view depositorDetails
-	 */
-	public static function viewDepositorDetails(int $bodyId)
-	{
-		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-		$selectBuilder
-			->columns('*')
-			->from('Mortuary.DepositorDetails');
-		if ($bodyId != 0){
-			$selectBuilder->where('BodyID ='.$bodyId);
-		}
-		try
-		{
-			$viewDepositorDetailsOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Mortuary',
-				'Body',
-				(string)$selectBuilder
-			);
-
-			if(count($viewDepositorDetailsOperation) > 0)
-			{
-				return $viewDepositorDetailsOperation;
-			}
-			else
-			{
-				return null;
-			}			
-		} 
-		catch (\PDOException $e) 
-		{
-			throw new SQLException(
-				sprintf(
-					"Error procesing request"
-				),
-				Constant::UNDEFINED
-			);			
-		}
-	}
-	/**
-	 * next of kin details
-	 * method viewNextOfKin
-	 */
-	public static function viewNextOfKin(int $bodyId)
-	{
-		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-		$selectBuilder
-			->columns('*')
-			->from('Mortuary.NextOfKinDetails');
-		if ($bodyId != 0){
-			$selectBuilder->where('BodyID ='.$bodyId);
-		}
-		try
-		{
-			$viewNextOfKinOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Mortuary',
-				'Body',
-				(string)$selectBuilder
-			);
-
-			if(count($viewNextOfKinOperation) > 0)
-			{
-				return $viewNextOfKinOperation;
-			}
-			else
-			{
-				return null;
-			}			
-		} 
-		catch (\PDOException $e) 
-		{
-			throw new SQLException(
-				sprintf(
-					"Error procesing request"
-				),
-				Constant::UNDEFINED
-			);			
 		}
 	}
 }

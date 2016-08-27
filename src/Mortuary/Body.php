@@ -33,19 +33,14 @@ class Body
 		return Body\NewBody::default($data);
 	}
 
-	public static function newBodyInfo(array $data)
-	{
-		return Body\NewBody::info($data);
-	}
-
 	public static function viewBody(int $body)
 	{
 		return Body\ViewBody::viewBody($body);
 	}
 
-	public static function viewBodyInfo(int $body)
+	public static function editBody(int $body)
 	{
-		return Body\ViewBody::viewBodyInfo($body);
+		return Body\EditBody::edit($body);
 	}
 
 	public static function deleteBody(int $body)
