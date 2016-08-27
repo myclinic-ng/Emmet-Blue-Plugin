@@ -61,7 +61,7 @@ class Patient
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
-                'PatientPicture'=>(is_null($patientssport)) ? 'NULL' : QB::wrapString($passport, "'"),
+                'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
                 'PatientIdentificationDocumentUrl'=>QB::wrapString($url, "'") ?? 'NULL',
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
