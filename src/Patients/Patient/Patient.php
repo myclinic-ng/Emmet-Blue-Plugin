@@ -42,20 +42,31 @@ class Patient
         $passport = $data["patientPassport"];
         unset($data["patientPassport"]);
 
-        $values = [];
-        foreach ($data as $key=>$value){
-            $values[] = "(1".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
-        }
+         if (!empty($_FILES)) {
+            $files = $_FILES["file"];
+            $location = "bin/data/records/patient/identification-documents";   
+            $url = $location.DIRECTORY_SEPARATOR.$patientUuid.DIRECTORY_SEPARATOR;
+            mkdir($url);
+            foreach ($files["name"] as $key=>$null)
+            {
+                $tempFile = $files['tmp_name'][$key]; 
+                $ext = explode(".", $files['name'][$key])[1];
+                $targetFile =  $url. $key.".".$ext;
+                move_uploaded_file($tempFile,$targetFile);
+            } 
 
-        return "INSERT INTO [tbl] VALUES ".implode(",", $values);
+        }
 
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
                 'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
+                'PatientIdentificationDocumentUrl'=>QB::wrapString($url, "'") ?? 'NULL',
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
+
+            return $result;
 
             $id = $result['lastInsertId'];
 
@@ -69,6 +80,14 @@ class Patient
              foreach ($patientRecordsFieldValue as $datum){
                 $fieldsValue[] = "($id, ".QB::wrapString($datum['fieldTitle'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
             }
+
+            $values = [];
+            foreach ($data as $key=>$value){
+                $values[] = "(1".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
+            }
+
+
+        return "INSERT INTO [tbl] VALUES ".implode(",", $values);
 
             $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) 
                             VALUES ".implode(", ", $fieldsValue);
