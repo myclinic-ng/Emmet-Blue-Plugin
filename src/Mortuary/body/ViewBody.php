@@ -35,7 +35,7 @@ class ViewBody
 	 * @param int $bodyId
 	 * @author bardeson Lucky <Ahead!!> <flashup4all@gmail.com>
 	 */
-	public static function viewBodyInfo(int $bodyId)
+	public static function viewBody(int $bodyId)
 	{
 		$bodyBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
 		$bodyBuilder
@@ -90,7 +90,7 @@ class ViewBody
 			$bodyNextOfKinBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
 			$bodyNextOfKinBuilder
 			->columns('*')
-			->from('Mortuary.DepositorDetails')
+			->from('Mortuary.NextOfKinDetails')
 			->where('BodyID ='.$bodyId);
 			$viewBodyNextOfKin = (DBConnectionFactory::getConnection()->query((string)$bodyNextOfKinBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 			//selecting all body info
@@ -104,7 +104,7 @@ class ViewBody
 
 			if(count($viewBodyOperation) > 0)
 			{
-				return array_merge($viewBodyOperation, $viewBodyinfo, $viewBodyDepositor, $viewBodyNextOfKin);
+				return array_merge($viewBodyOperation, $viewBodyInfo, $viewBodyDepositor, $viewBodyNextOfKin);
 			}
 			else
 			{
