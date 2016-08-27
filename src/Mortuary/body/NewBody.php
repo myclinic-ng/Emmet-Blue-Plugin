@@ -37,7 +37,7 @@ class NewBody
 		$placeOfDeath = $data['placeOfDeath'] ?? 'NULL';
 		//body Info
 		$bodyFirstName = $data['firstName'] ?? 'NULL';
-		$bodyotherName = $data['otherNames'] ?? 'NULL';
+		$bodyOtherName = $data['otherNames'] ?? 'NULL';
 		$bodyDateOfBirth = $data['dateOfBirth'] ?? 'NULL';
 		$bodyGender = $data['gender'] ?? 'NULL';
 		//depositors data
@@ -45,13 +45,13 @@ class NewBody
 		$depositorotherName = $data['depositorOtherNames'] ?? 'NULL';
 		$depositorAddress = $data['depositorAddress'] ?? 'NULL';
 		$depositorRelationshipType = $data['depositorRelationshipType'] ?? 'NULL';
-		$depositorphoneNumber = $data['depositorOtherNames'] ?? 'NULL';
+		$depositorphoneNumber = $data['depositorPhoneNumber'] ?? 'NULL';
 		//next of kin data
 		$nextOfKinFirstName = $data['nextOfKinFirstName'] ?? 'NULL';
 		$nextOfKinotherNames = $data['nextOfKinOtherNames'] ?? 'NULL';
 		$nextOfKinAddress = $data['nextOfKinAddress'] ?? 'NULL';
 		$nextOfKinRelationshipType = $data['nextOfKinRelationshipType'] ?? 'NULL';
-		$nextOfKinphoneNumber = $data['nextOfKinOtherNames'] ?? 'NULL';
+		$nextOfKinphoneNumber = $data['nextOfKinPhoneNumber'] ?? 'NULL';
 
 		$packed = [
 			'DeathPhysicianID'=>$physicianId
@@ -67,7 +67,7 @@ class NewBody
 		$packed = [
 			'BodyID'=>$bodyId,
 			'BodyFirstName'=>($bodyFirstName !== 'NULL') ? QB::wrapString($bodyFirstName, "'") : $bodyFirstName,
-			'BodyLastName'=>($bodyLastName !== 'NULL') ? QB::wrapString($bodyotherName, "'") : $bodyLastName,
+			'BodyOtherNames'=>($bodyOtherName !== 'NULL') ? QB::wrapString($bodyOtherName, "'") : $bodyLastName,
 			'BodyDateOfBirth'=>($bodyDateOfBirth !== 'NULL') ? QB::wrapString($bodyDateOfBirth, "'") : $bodyDateOfBirth,
 			'BodyGender'=>($bodyGender !== 'NULL') ? QB::wrapString($bodyGender, "'") : $bodyGender
 		];
@@ -79,7 +79,7 @@ class NewBody
 			'DepositorFirstName'=>($depositorFirstName !== 'NULL') ? QB::wrapString($depositorFirstName, "'") : $depositorFirstName,
 			'DepositorOtherLastName'=>($depositorOtherName !== 'NULL') ? QB::wrapString($depositorOtherName, "'") : $depositorOtherName,
 			'DepositorAddress'=>($depositorAddress !== 'NULL') ? QB::wrapString($depositorAddress, "'") : $depositorAddress,
-			'depositorRelationshipType'=>($depositorRelationshipType !== 'NULL') ? QB::wrapString($depositorRelationshipType, "'") : $depositorRelationshipType
+			'depositorRelationshipType'=>($depositorRelationshipType !== 'NULL') ? QB::wrapString($depositorRelationshipType, "'") : $depositorRelationshipType,
 			'depositorPhoneNumber'=>($depositorPhoneNumber !== 'NULL') ? QB::wrapString($depositorPhoneNumber, "'") : $depositorPhoneNumber
 		];
 
@@ -90,7 +90,7 @@ class NewBody
 			'NextOfKinFirstName'=>($nextOfKinFirstName !== 'NULL') ? QB::wrapString($nextOfKinFirstName, "'") : $nextOfKinFirstName,
 			'NextOfKinOtherLastName'=>($nextOfKinOtherName !== 'NULL') ? QB::wrapString($nextOfKinOtherName, "'") : $nextOfKinOtherName,
 			'NextOfKinAddress'=>($nextOfKinAddress !== 'NULL') ? QB::wrapString($nextOfKinAddress, "'") : $nextOfKinAddress,
-			'NextOfKinRelationshipType'=>($nextOfKinRelationshipType !== 'NULL') ? QB::wrapString($nextOfKinRelationshipType, "'") : $nextOfKinRelationshipType
+			'NextOfKinRelationshipType'=>($nextOfKinRelationshipType !== 'NULL') ? QB::wrapString($nextOfKinRelationshipType, "'") : $nextOfKinRelationshipType,
 			'NextOfKinPhoneNumber'=>($nextOfKinPhoneNumber !== 'NULL') ? QB::wrapString($nextOfKinPhoneNumber, "'") : $nextOfKinPhoneNumber
 		];
 
