@@ -20,7 +20,8 @@ GO
 CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
 	PatientFullName VARCHAR(50),
-	PatientPhoneNumber VARCHAR(20),
+	PatientPicture VARCHAR(MAX),
+	PatientIdentificationDocumentUrl VARCHAR(300),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
 GO
@@ -30,7 +31,7 @@ CREATE TABLE Patients.PatientRecordsFieldValue (
 	PatientID INT,
 	FieldTitle VARCHAR(50),
 	FieldValue VARCHAR(max),
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (FieldTitle) REFERENCES Patients.PatientRecordsFieldTitle(FieldTitleName) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO

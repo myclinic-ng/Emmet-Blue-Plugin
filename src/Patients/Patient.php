@@ -64,7 +64,7 @@ class Patient
      */
     public static function editPatientRecordsFieldValue(int $resourceId=0)
     {
-        $result = Patient\Patient::editPatientRecordsFieldValue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ($resourceId);
+        $result = Patient\Patient::editPatientRecordsFieldValue($resourceId);
 
         return $result;
     }

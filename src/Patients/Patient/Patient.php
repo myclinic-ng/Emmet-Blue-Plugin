@@ -38,46 +38,66 @@ class Patient
     public static function create(array $data)
     {
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
-        $fullName = $data["fullName"] ?? null;
-        $phoneNumber = $data["phoneNumber"] ?? null;
+        $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
+        $passport = $data["patientPassport"];
+        unset($data["patientPassport"]);
 
-        //fields value $data
-        $patientRecordsFieldValue = $data['patientRecordsFieldValue'] ?? null;
+         if (!empty($_FILES)) {
+            $files = $_FILES["file"];
+            $location = "bin/data/records/patient/identification-documents";   
+            $url = $location.DIRECTORY_SEPARATOR.$patientUuid.DIRECTORY_SEPARATOR;
+            mkdir($url);
+            foreach ($files["name"] as $key=>$null)
+            {
+                $tempFile = $files['tmp_name'][$key]; 
+                $ext = explode(".", $files['name'][$key])[1];
+                $targetFile =  $url. $key.".".$ext;
+                move_uploaded_file($tempFile,$targetFile);
+            } 
+
+        }
 
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
-                'PatientPhoneNumber'=>(is_null($phoneNumber)) ? 'NULL' : QB::wrapString($phoneNumber, "'"),
+                'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
+                'PatientIdentificationDocumentUrl'=>QB::wrapString($url, "'") ?? 'NULL',
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
             $id = $result['lastInsertId'];
 
-                DatabaseLog::log(
+            DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'Patients',
                 'Patient',
                 (string)(serialize($result))
             );
-             foreach ($patientRecordsFieldValue as $datum){
-                $fieldsValue[] = "($id, ".QB::wrapString($datum['fieldTitle'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
+            
+            $values = [];
+            foreach ($data as $key=>$value){
+                $values[] = "($id, ".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
             }
 
-            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) 
-                            VALUES ".implode(", ", $fieldsValue);
 
-                DatabaseLog::log(
+            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
+
+            echo $query;
+            die();
+
+            $queryResult = (
+                DBConnectionFactory::getConnection()
+                ->exec($query)
+            );
+
+            DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'Patients',
                 'PatientRecordsFieldValue',
-                (string)serialize($query)
-            );
-            $result = (
-            DBConnectionFactory::getConnection()
-            ->exec($query)
+                $query
             );
             
             return $result;
@@ -187,6 +207,8 @@ class Patient
                 'Patient',
                 (string)serialize($selectBuilder)
             );
+
+            return $viewPatients;
                 //$patientId = $viewPatients['PatientID'];
                 $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
@@ -208,7 +230,7 @@ class Patient
         {
             throw new SQLException(
                 sprintf(
-                    "Error procesing request"
+                    "Error processing request"
                 ),
                 Constant::UNDEFINED
             );
