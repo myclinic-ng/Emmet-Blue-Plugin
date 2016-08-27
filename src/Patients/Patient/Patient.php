@@ -108,7 +108,7 @@ class Patient
         }
     }
 
-/**
+    /**
      * Modifies the content of a field title type
      */
     public static function edit(int $resourceId, array $data)
@@ -205,23 +205,21 @@ class Patient
                 (string)serialize($selectBuilder)
             );
 
-            return $viewPatients;
-                //$patientId = $viewPatients['PatientID'];
-                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
+            $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
-                $viewPatientsRecords = (
-                    DBConnectionFactory::getConnection()
-                    ->query($query)
-                )->fetchAll(\PDO::FETCH_ASSOC);
+            $viewPatientsRecords = (
+                DBConnectionFactory::getConnection()
+                ->query($query)
+            )->fetchAll(\PDO::FETCH_ASSOC);
 
-            if(count($viewPatients) > 0)
-            {
-                return array_merge($viewPatients,$viewPatientsRecords);
+            $fields = [];
+            foreach ($viewPatientsRecords as $field){
+                $fields[$field["FieldTitle"]] = $field["FieldValue"];
             }
-            else
-            {
-                return null;
-            }           
+
+            $records = array_merge($viewPatients, $fields);
+
+            return $records;    
         } 
         catch (\PDOException $e) 
         {
