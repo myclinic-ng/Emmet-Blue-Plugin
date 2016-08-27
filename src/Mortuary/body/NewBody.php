@@ -62,7 +62,7 @@ class NewBody
 		];
 
 		$bodyResult = DatabaseQueryFactory::insert('Mortuary.Body', $packed);
-		return $result;
+		return $bodyResult['lastInsertId'];
 		//body info query
 		$packed = [
 			'BodyID'=>$bodyId,
