@@ -214,8 +214,7 @@ class Patient
 
             $fields = [];
             foreach ($viewPatientsRecords as $field){
-                $title = preg_split("/(?=[A-Z])/", $field["FieldTitle"]);
-                $fields[$title] = $field["FieldValue"];
+                $fields[$field["FieldTitle"]] = $field["FieldValue"];
             }
 
 
