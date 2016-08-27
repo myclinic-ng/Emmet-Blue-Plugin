@@ -66,44 +66,35 @@ class Patient
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
-            print_r($result);
-            die();
-            return $result;
-
             $id = $result['lastInsertId'];
 
-                DatabaseLog::log(
+            DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'Patients',
                 'Patient',
                 (string)(serialize($result))
             );
-             foreach ($patientRecordsFieldValue as $datum){
-                $fieldsValue[] = "($id, ".QB::wrapString($datum['fieldTitle'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
-            }
-
+            
             $values = [];
             foreach ($data as $key=>$value){
-                $values[] = "(1".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
+                $values[] = "($id, ".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
             }
 
 
-        return "INSERT INTO [tbl] VALUES ".implode(",", $values);
+            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $fieldsValue);
 
-            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) 
-                            VALUES ".implode(", ", $fieldsValue);
+            $queryResult = (
+                DBConnectionFactory::getConnection()
+                ->exec($query)
+            );
 
-                DatabaseLog::log(
+            DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'Patients',
                 'PatientRecordsFieldValue',
-                (string)serialize($query)
-            );
-            $result = (
-            DBConnectionFactory::getConnection()
-            ->exec($query)
+                $query
             );
             
             return $result;
