@@ -98,31 +98,4 @@ class NewBody
 		return array_merge($bodyResult, $bodyInfoResult, $bodyDepositorResult, $bodyNextOfKinResult);
 		
 	}
-
-
-	
-	/**
-	 * method nextOfKinDetails
-	 */
-	public static function nextOfKinDetails(array $data)
-	{
-		$bodyId = $data['id'] ?? 'NULL';
-		$nextOfKinFirstName = $data['nextOfKinFirstName'] ?? 'NULL';
-		$nextOfKinotherNames = $data['nextOfKinOtherNames'] ?? 'NULL';
-		$nextOfKinAddress = $data['nextOfKinAddress'] ?? 'NULL';
-		$nextOfKinRelationshipType = $data['nextOfKinRelationshipType'] ?? 'NULL';
-		$nextOfKinphoneNumber = $data['nextOfKinOtherNames'] ?? 'NULL';
-
-		$packed = [
-			'BodyID'=>$bodyId,
-			'NextOfKinFirstName'=>($nextOfKinFirstName !== 'NULL') ? QB::wrapString($nextOfKinFirstName, "'") : $nextOfKinFirstName,
-			'NextOfKinOtherLastName'=>($nextOfKinOtherName !== 'NULL') ? QB::wrapString($nextOfKinOtherName, "'") : $nextOfKinOtherName,
-			'NextOfKinAddress'=>($nextOfKinAddress !== 'NULL') ? QB::wrapString($nextOfKinAddress, "'") : $nextOfKinAddress,
-			'NextOfKinRelationshipType'=>($nextOfKinRelationshipType !== 'NULL') ? QB::wrapString($nextOfKinRelationshipType, "'") : $nextOfKinRelationshipType
-			'NextOfKinPhoneNumber'=>($nextOfKinPhoneNumber !== 'NULL') ? QB::wrapString($nextOfKinPhoneNumber, "'") : $nextOfKinPhoneNumber
-		];
-
-		$result = DatabaseQueryFactory::insert('Mortuary.NextOfKinDetails', $packed);
-		return $result;
-	}
 }
