@@ -25,7 +25,7 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  *
  * Patient Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <Samueladeshina73@gmail.com>
  * @since v0.0.1 26/08/2016 12:33
  */
 class Patient
@@ -214,8 +214,10 @@ class Patient
 
             $fields = [];
             foreach ($viewPatientsRecords as $field){
-                $fields[$field["FieldTitle"]] = $field["FieldValue"];
+                $title = preg_split("/(?=[A-Z])/", $field["FieldTitle"]);
+                $fields[$title] = $field["FieldValue"];
             }
+
 
             $records = array_merge($viewPatients, $fields);
 
