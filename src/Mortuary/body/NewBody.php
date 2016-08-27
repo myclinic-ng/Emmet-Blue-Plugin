@@ -35,6 +35,23 @@ class NewBody
 		$tag = $data['tag'] ?? 'NULL';
 		$dateOfDeath = $data['dateOfDeath'] ?? 'NULL';
 		$placeOfDeath = $data['placeOfDeath'] ?? 'NULL';
+		//body Info
+		$bodyFirstName = $data['firstName'] ?? 'NULL';
+		$bodyotherName = $data['otherNames'] ?? 'NULL';
+		$bodyDateOfBirth = $data['dateOfBirth'] ?? 'NULL';
+		$bodyGender = $data['gender'] ?? 'NULL';
+		//depositors data
+		$depositorFirstName = $data['depositorFirstName'] ?? 'NULL';
+		$depositorotherName = $data['depositorOtherNames'] ?? 'NULL';
+		$depositorAddress = $data['depositorAddress'] ?? 'NULL';
+		$depositorRelationshipType = $data['depositorRelationshipType'] ?? 'NULL';
+		$depositorphoneNumber = $data['depositorOtherNames'] ?? 'NULL';
+		//next of kin data
+		$nextOfKinFirstName = $data['nextOfKinFirstName'] ?? 'NULL';
+		$nextOfKinotherNames = $data['nextOfKinOtherNames'] ?? 'NULL';
+		$nextOfKinAddress = $data['nextOfKinAddress'] ?? 'NULL';
+		$nextOfKinRelationshipType = $data['nextOfKinRelationshipType'] ?? 'NULL';
+		$nextOfKinphoneNumber = $data['nextOfKinOtherNames'] ?? 'NULL';
 
 		$packed = [
 			'DeathPhysicianID'=>$physicianId
@@ -44,18 +61,9 @@ class NewBody
 			
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.Body', $packed);
+		$bodyResult = DatabaseQueryFactory::insert('Mortuary.Body', $packed);
 		return $result;
-	}
-
-	public static function info(array $data)
-	{
-		$bodyId = $data['id'] ?? 'NULL';
-		$bodyFirstName = $data['firstName'] ?? 'NULL';
-		$bodyotherName = $data['otherNames'] ?? 'NULL';
-		$bodyDateOfBirth = $data['dateOfBirth'] ?? 'NULL';
-		$bodyGender = $data['gender'] ?? 'NULL';
-
+		//body info query
 		$packed = [
 			'BodyID'=>$bodyId,
 			'BodyFirstName'=>($bodyFirstName !== 'NULL') ? QB::wrapString($bodyFirstName, "'") : $bodyFirstName,
@@ -64,21 +72,8 @@ class NewBody
 			'BodyGender'=>($bodyGender !== 'NULL') ? QB::wrapString($bodyGender, "'") : $bodyGender
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.BodyInformation', $packed);
-		return $result;
-	}
-	/**
-	 * method depositorDetails
-	 */
-	public static function depositorDetails(array $data)
-	{
-		$bodyId = $data['id'] ?? 'NULL';
-		$depositorFirstName = $data['depositorFirstName'] ?? 'NULL';
-		$depositorotherName = $data['depositorOtherNames'] ?? 'NULL';
-		$depositorAddress = $data['depositorAddress'] ?? 'NULL';
-		$depositorRelationshipType = $data['depositorRelationshipType'] ?? 'NULL';
-		$depositorphoneNumber = $data['depositorOtherNames'] ?? 'NULL';
-
+		$bodyInfoResult = DatabaseQueryFactory::insert('Mortuary.BodyInformation', $packed);
+		//depositors query
 		$packed = [
 			'BodyID'=>$bodyId,
 			'DepositorFirstName'=>($depositorFirstName !== 'NULL') ? QB::wrapString($depositorFirstName, "'") : $depositorFirstName,
@@ -88,9 +83,24 @@ class NewBody
 			'depositorPhoneNumber'=>($depositorPhoneNumber !== 'NULL') ? QB::wrapString($depositorPhoneNumber, "'") : $depositorPhoneNumber
 		];
 
-		$result = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
-		return $result;
+		$bodyDepositorResult = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
+		//next of kin query
+		$packed = [
+			'BodyID'=>$bodyId,
+			'NextOfKinFirstName'=>($nextOfKinFirstName !== 'NULL') ? QB::wrapString($nextOfKinFirstName, "'") : $nextOfKinFirstName,
+			'NextOfKinOtherLastName'=>($nextOfKinOtherName !== 'NULL') ? QB::wrapString($nextOfKinOtherName, "'") : $nextOfKinOtherName,
+			'NextOfKinAddress'=>($nextOfKinAddress !== 'NULL') ? QB::wrapString($nextOfKinAddress, "'") : $nextOfKinAddress,
+			'NextOfKinRelationshipType'=>($nextOfKinRelationshipType !== 'NULL') ? QB::wrapString($nextOfKinRelationshipType, "'") : $nextOfKinRelationshipType
+			'NextOfKinPhoneNumber'=>($nextOfKinPhoneNumber !== 'NULL') ? QB::wrapString($nextOfKinPhoneNumber, "'") : $nextOfKinPhoneNumber
+		];
+
+		$bodyNextOfKinResult = DatabaseQueryFactory::insert('Mortuary.NextOfKinDetails', $packed);
+		return array_merge($bodyResult, $bodyInfoResult, $bodyDepositorResult, $bodyNextOfKinResult);
+		
 	}
+
+
+	
 	/**
 	 * method nextOfKinDetails
 	 */
