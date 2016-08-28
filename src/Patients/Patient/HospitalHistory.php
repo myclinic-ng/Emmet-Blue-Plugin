@@ -39,9 +39,7 @@ class HospitalHistory
         $selectBuilder
             ->columns('*')
             ->from('Patients.PatientHospitalHistory');
-        if ($resourceId != 0){
-            $selectBuilder->where('PatientID ='.$resourceId);
-        }
+        $selectBuilder->where('PatientID ='.$patientId);
         try
         {
             $viewPatients = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
