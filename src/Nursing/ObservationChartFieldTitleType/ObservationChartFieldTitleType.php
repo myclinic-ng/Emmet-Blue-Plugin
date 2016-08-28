@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\ObserationChartTitleType;
+namespace EmmetBlue\Plugins\Nursing\ObservationChartFieldTitleType;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -21,14 +21,14 @@ use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
- * class ObserationChartTitleType.
+ * class ObservationChartFieldTitleType.
  *
- * ObserationChartTitleTypeController
+ * ObservationChartFieldTitleTypeController
  *
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 25/08/2016 13:35
  */
-class ObserationChartTitleType
+class ObservationChartFieldTitleType
 {
     /**
      * creats new Observation Chart Field Title Type
@@ -55,7 +55,7 @@ class ObserationChartTitleType
                 'ObservationChartFieldTitleType',
                 (string)(serialize($result))
             );
-            $Id = $result['lastInsertId'];
+            $id = $result['lastInsertId'];
             return $id;
         }
         catch (\PDOException $e)

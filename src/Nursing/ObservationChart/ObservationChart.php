@@ -38,15 +38,16 @@ class ObservationChart
     public static function create(array $data)
     {
         
-        $observationChartFieldValue = $data['observationChartFieldValue'] ?? null;
+        
         $patientId = $data['patientId'] ?? null;
         $staffId = $data['staffId'] ?? null;
+        $observationChartFieldValue = $data['observationChartFieldValue'] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Nursing.ObservationChart', [
-                'PatientID'=>QB::wrapString($patientId, "'"),
-                'StaffID'=>QB::wrapString($staffId, "'")
+                'PatientID'=>$patientId,
+                'StaffID'=>$staffId
             ]);
 
             DatabaseLog::log(
