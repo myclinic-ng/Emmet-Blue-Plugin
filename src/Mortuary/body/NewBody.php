@@ -31,7 +31,7 @@ class NewBody
 {
 	public static function default(array $data)
 	{
-		$physicianId = $data['physicianId'] ?? 'NULL';
+		$physicianId = 3;//$data['physicianId'] ?? 'NULL';
 		$tag = $data['tag'] ?? 'NULL';
 		$dateOfDeath = $data['dateOfDeath'] ?? 'NULL';
 		$placeOfDeath = $data['placeOfDeath'] ?? 'NULL';
