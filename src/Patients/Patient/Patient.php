@@ -228,10 +228,10 @@ class Patient
                 }
 
 
-                $records = array_merge($viewPatients, $fields);
+                return array_merge($viewPatients, $fields);
             }
 
-            return $records;    
+            return $viewPatients;    
         } 
         catch (\PDOException $e) 
         {
