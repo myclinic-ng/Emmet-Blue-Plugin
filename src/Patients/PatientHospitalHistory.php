@@ -35,7 +35,7 @@ class PatientHospitalHistory
 	 */
     public static function newPatientHospitalHistory(array $data)
     {
-        $result = Patients\PatientHospitalHistory::create($data);
+        $result = PatientHospitalHistory\PatientHospitalHistory::create($data);
 
         return $result;
     }
@@ -45,7 +45,7 @@ class PatientHospitalHistory
      */
     public static function viewPatientHospitalHistory(int $resourceId=0)
     {
-        $result = Patients\PatientHospitalHistory::view($resourceId);
+        $result = PatientHospitalHistory\PatientHospitalHistory::view($resourceId);
 
         return $result;
     }
@@ -54,7 +54,7 @@ class PatientHospitalHistory
      */
     public static function editPatientHospitalHistory(int $resourceId=0)
     {
-        $result = Patients\PatientHospitalHistory::edit($resourceId);
+        $result = PatientHospitalHistory\PatientHospitalHistory::edit($resourceId);
 
         return $result;
     }
@@ -64,7 +64,7 @@ class PatientHospitalHistory
      */
     public static function deletePatientHospitalHistory(int $resourceId)
     {
-    	$result = Patients\PatientHospitalHistory::delete($resourceId);
+    	$result = PatientHospitalHistory\PatientHospitalHistory::delete($resourceId);
 
     	return $result;
     }
