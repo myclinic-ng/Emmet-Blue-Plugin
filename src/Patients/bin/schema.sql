@@ -6,7 +6,6 @@ CREATE TABLE Patients.FieldTitleType (
 	TypeName VARCHAR(50) UNIQUE,
 	TypeDescription VARCHAR(50)
 )
-GO
 
 CREATE TABLE Patients.PatientRecordsFieldTitle (
 	FieldTitleID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -15,7 +14,6 @@ CREATE TABLE Patients.PatientRecordsFieldTitle (
 	FieldTitleDescription VARCHAR(50),
 	FOREIGN KEY (FieldTitleType) REFERENCES Patients.FieldTitleType(TypeName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
-GO
 
 CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
@@ -24,7 +22,6 @@ CREATE TABLE Patients.Patient (
 	PatientIdentificationDocumentUrl VARCHAR(300),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
-GO
 
 CREATE TABLE Patients.PatientRecordsFieldValue (
 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -34,7 +31,45 @@ CREATE TABLE Patients.PatientRecordsFieldValue (
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (FieldTitle) REFERENCES Patients.PatientRecordsFieldTitle(FieldTitleName) ON UPDATE CASCADE ON DELETE CASCADE
 )
-GO
+
+CREATE TABLE Patients.PatientHospitalHistory (
+	HospitalHistoryID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT NOT NULL,
+	DateAttended DATETIME NOT NULL,
+	ReferredBy VARCHAR(50),
+	Physician VARCHAR(50),
+	Ward VARCHAR(50),
+	DateDischarged DATETIME,
+	DischargedTo VARCHAR(50),
+	Condition VARCHAR(50),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Patients.PatientDiagnosis (
+	DiagnosisID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT NOT NULL,
+	DaignosisDate DATETIME,
+	CodeNumber VARCHAR(50),
+	DiagnosisType VARCHAR(20),
+	Diagnosis VARCHAR(MAX),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CHECK (DiagnosisType = 'operation' OR DiagnosisType = 'diagnosis')
+)
+
+CREATE TABLE Patients.PatientProcessCheck (
+	ProcessCheckID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT NOT NULL,
+	ProcessCheck VARCHAR(50),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Patients.PatientProcessCheckDates (
+	ProcessCheckDateID INT PRIMARY KEY IDENTITY NOT NULL,
+	ProcessCheckID INT NOT NULL,
+	ProcessCheckDateTitle VARCHAR(50),
+	ProcessCheckDate DATE,
+	FOREIGN KEY (ProcessCheckID) REFERENCES Patients.PatientProcessCheck(ProcessCheckID) ON UPDATE CASCADE ON DELETE CASCADE
+)
 
 CREATE TABLE Patients.PatientDepartment (
 	PatientDepartmentID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -42,7 +77,6 @@ CREATE TABLE Patients.PatientDepartment (
 	DepartmentID INT,
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
-GO
 
 CREATE TABLE Patients.PatientTransaction(
 	PatientTransactionID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -51,7 +85,6 @@ CREATE TABLE Patients.PatientTransaction(
 	Meta VARCHAR(max),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
-GO
 
 CREATE TABLE Patients.PatientRepository (
 	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,

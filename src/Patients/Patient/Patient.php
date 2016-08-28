@@ -205,31 +205,33 @@ class Patient
                 (string)serialize($selectBuilder)
             );
 
-            $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
+            if ($viewPatients){
+                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
-            $path = $viewPatients[0]['PatientIdentificationDocumentUrl'];
-            $files = scandir($path);
-            $files = array_diff(scandir($path), array('.', '..'));
-            foreach ($files as $key => $value) {
-                $files[$key] = $viewPatients[0]['PatientIdentificationDocumentUrl'].DIRECTORY_SEPARATOR.$value;
+                $path = $viewPatients[0]['PatientIdentificationDocumentUrl'];
+                $files = scandir($path);
+                $files = array_diff(scandir($path), array('.', '..'));
+                foreach ($files as $key => $value) {
+                    $files[$key] = $viewPatients[0]['PatientIdentificationDocumentUrl'].DIRECTORY_SEPARATOR.$value;
+                }
+
+                $viewPatients[0]["PatientIdentificationDocumentUrl"] = $files;
+
+                $viewPatientsRecords = (
+                    DBConnectionFactory::getConnection()
+                    ->query($query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+                $fields = [];
+                foreach ($viewPatientsRecords as $field){
+                    $fields[$field["FieldTitle"]] = $field["FieldValue"];
+                }
+
+
+                return array_merge($viewPatients, $fields);
             }
 
-            $viewPatients[0]["PatientIdentificationDocumentUrl"] = $files;
-
-            $viewPatientsRecords = (
-                DBConnectionFactory::getConnection()
-                ->query($query)
-            )->fetchAll(\PDO::FETCH_ASSOC);
-
-            $fields = [];
-            foreach ($viewPatientsRecords as $field){
-                $fields[$field["FieldTitle"]] = $field["FieldValue"];
-            }
-
-
-            $records = array_merge($viewPatients, $fields);
-
-            return $records;    
+            return $viewPatients;    
         } 
         catch (\PDOException $e) 
         {
