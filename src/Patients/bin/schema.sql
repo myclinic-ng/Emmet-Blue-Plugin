@@ -28,8 +28,8 @@ CREATE TABLE Patients.PatientRecordsFieldValue (
 	PatientID INT,
 	FieldTitle VARCHAR(50),
 	FieldValue VARCHAR(max),
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (FieldTitle) REFERENCES Patients.PatientRecordsFieldTitle(FieldTitleName) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE/*,
+	FOREIGN KEY (FieldTitle) REFERENCES Patients.PatientRecordsFieldTitle(FieldTitleName) ON UPDATE CASCADE ON DELETE CASCADE*/
 )
 
 CREATE TABLE Patients.PatientHospitalHistory (

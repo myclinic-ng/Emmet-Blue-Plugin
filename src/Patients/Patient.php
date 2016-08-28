@@ -49,6 +49,14 @@ class Patient
 
         return $result;
     }
+
+    public static function viewHospitalHistory(int $patientId)
+    {
+        $result = Patient\HospitalHistory::view($patientId);
+
+        return $result;
+    }
+
     /**
      * edits Patient
      */
