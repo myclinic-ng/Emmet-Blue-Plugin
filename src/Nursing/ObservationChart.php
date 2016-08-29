@@ -33,7 +33,7 @@ class ObservationChart
      *
      * @param $_POST
      */
-    public static function newConsultationSheet(array $data)
+    public static function newObservationChart(array $data)
     {
         $result = ObservationChart\ObservationChart::create($data);
 
