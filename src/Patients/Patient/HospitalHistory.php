@@ -65,4 +65,49 @@ class HospitalHistory
             
         }
     }
+
+    public static function new(int $patientId, array $hospitalHistory){
+        $historyArray = [];
+        if (count($hospitalHistory) >= 1 && is_array($hospitalHistory[0])){
+            foreach ($hospitalHistory as $value){
+                $dateAttended = isset($value["dateAttended"]) ? QB::wrapString($value["dateAttended"], "'") : 'NULL';
+                $referredBy = isset($value["referredBy"]) ? QB::wrapString($value["referredBy"], "'") : 'NULL';
+                $physician = isset($value["physician"]) ? QB::wrapString($value["physician"], "'") : 'NULL';
+                $ward = isset($value["ward"]) ? QB::wrapString($value["ward"], "'") : 'NULL';
+                $dateDischarged = isset($value["dateDischarged"]) ? QB::wrapString($value["dateDischarged"], "'") : 'NULL';
+                $dischargedTo = isset($value["dischargedTo"]) ? QB::wrapString($value["dischargedTo"], "'") : 'NULL';
+                $condition = isset($value["condition"]) ? QB::wrapString($value["condition"], "'") : 'NULL';
+
+                $historyArray[] = "($patientId, $dateAttended, $referredBy, $physician, $ward, $dateDischarged, $dischargedTo, $condition)";
+            }
+        }
+        else {
+            $dateAttended = isset($hospitalHistory["dateAttended"]) ? QB::wrapString($hospitalHistory["dateAttended"], "'") : 'NULL';
+            $referredBy = isset($hospitalHistory["referredBy"]) ? QB::wrapString($hospitalHistory["referredBy"], "'") : 'NULL';
+            $physician = isset($hospitalHistory["physician"]) ? QB::wrapString($hospitalHistory["physician"], "'") : 'NULL';
+            $ward = isset($hospitalHistory["ward"]) ? QB::wrapString($hospitalHistory["ward"], "'") : 'NULL';
+            $dateDischarged = isset($hospitalHistory["dateDischarged"]) ? QB::wrapString($hospitalHistory["dateDischarged"], "'") : 'NULL';
+            $dischargedTo = isset($hospitalHistory["dischargedTo"]) ? QB::wrapString($hospitalHistory["dischargedTo"], "'") : 'NULL';
+            $condition = isset($hospitalHistory["condition"]) ? QB::wrapString($hospitalHistory["condition"], "'") : 'NULL';
+
+            $historyArray[] = "($patientId, $dateAttended, $referredBy, $physician, $ward, $dateDischarged, $dischargedTo, $condition)";
+        }
+
+        $query = "INSERT INTO Patients.PatientHospitalHistory VALUES ".implode(", ", $historyArray);
+        
+        $queryResult = (
+            DBConnectionFactory::getConnection()
+            ->exec($query)
+        );
+
+        DatabaseLog::log(
+            Session::get('USER_ID'),
+            Constant::EVENT_INSERT,
+            'Patients',
+            'PatientHospitalHistory',
+            $query
+        );
+
+        return $queryResult;
+    }
 }
