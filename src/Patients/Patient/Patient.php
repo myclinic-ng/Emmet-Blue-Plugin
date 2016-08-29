@@ -37,6 +37,8 @@ class Patient
      */
     public static function create(array $data)
     {
+        return $data;
+        
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
         $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
         $passport = $data["patientPassport"];
