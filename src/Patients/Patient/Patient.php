@@ -202,15 +202,6 @@ class Patient
             if ($viewPatients){
                 $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
 
-                $path = $viewPatients[0]['PatientIdentificationDocumentUrl'];
-                $files = scandir($path);
-                $files = array_diff(scandir($path), array('.', '..'));
-                foreach ($files as $key => $value) {
-                    $files[$key] = $viewPatients[0]['PatientIdentificationDocumentUrl'].DIRECTORY_SEPARATOR.$value;
-                }
-
-                $viewPatients[0]["PatientIdentificationDocumentUrl"] = $files;
-
                 $viewPatientsRecords = (
                     DBConnectionFactory::getConnection()
                     ->query($query)
