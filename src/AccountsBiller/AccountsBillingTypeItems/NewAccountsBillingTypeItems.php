@@ -37,11 +37,16 @@ class NewAccountsBillingTypeItems
 	*/
 	public static function default(array $data)
 	{
+		return $data;
 		$billingType = $data['billingType'] ?? 'NULL';
 		$billingTypeItemName = $data['billingTypeItemName'] ?? 'NULL';
 		$billingTypeItemPrice = $data['billingTypeItemPrice'] ?? 'NULL';
 		$rateBased = $data['rateBased'] ?? 0;
 		$rateIdentifier = $data['rateIdentifier'] ?? 'NULL';
+		$intervalBased = $data['intervalBased'] ?? 0;
+		if ((bool)$intervalBased == true){
+			$interval = $data["interval"] ?? [];
+		}
 
 		$packed = [
 			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString($billingType, "'") : $billingType,
