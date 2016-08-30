@@ -37,7 +37,6 @@ class NewAccountsBillingTypeItems
 	*/
 	public static function default(array $data)
 	{
-		return $data;
 		$billingType = $data['billingType'] ?? 'NULL';
 		$billingTypeItemName = $data['billingTypeItemName'] ?? 'NULL';
 		$billingTypeItemPrice = $data['billingTypeItemPrice'] ?? 'NULL';
