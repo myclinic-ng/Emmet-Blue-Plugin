@@ -48,11 +48,11 @@ class NewAccountsBillingTypeItems
 		}
 
 		$packed = [
-			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString($billingType, "'") : $billingType,
-			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName,
-			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString($billingTypeItemPrice, "'") : $billingTypeItemPrice,
+			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString((string)$billingType, "'") : $billingType,
+			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString((string)$billingTypeItemName, "'") : $billingTypeItemName,
+			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString((string)$billingTypeItemPrice, "'") : $billingTypeItemPrice,
 			'RateBased'=>$rateBased,
-			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString($rateIdentifier, "'") : $rateIdentifier
+			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString((string)$rateIdentifier, "'") : $rateIdentifier
 		];
 
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
