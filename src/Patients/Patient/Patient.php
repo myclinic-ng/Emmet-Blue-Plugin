@@ -37,6 +37,24 @@ class Patient
      */
     public static function create(array $data)
     {
+        $hospitalHistory = [];
+        $diagnosis = [];
+        foreach ($data as $key=>$value){
+            if (explode("_", $key)[0] == "hospitalHistory"){
+                $exploded = explode("_", $key);
+                $hospitalHistory[$exploded[1]][$exploded[2]] = $value;
+
+                unset($data[$key]);
+            }
+
+            if (explode("_", $key)[0] == "diagnosis"){
+                $exploded = explode("_", $key);
+                $diagnosis[$exploded[1]][$exploded[2]] = $value;
+
+                unset($data[$key]);
+            }
+        }
+
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
         $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
         $passport = $data["patientPassport"];
@@ -96,6 +114,9 @@ class Patient
                 'PatientRecordsFieldValue',
                 $query
             );
+
+            HospitalHistory::new((int)$id, $hospitalHistory);
+            Diagnosis::new((int)$id, $diagnosis);
             
             return $result;
         }
