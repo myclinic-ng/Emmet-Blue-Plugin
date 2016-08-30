@@ -50,8 +50,9 @@ CREATE TABLE Accounts.BillingTypeItemsInterval (
 	BillingTypeItemID INT NOT NULL,
 	Interval INT DEFAULT 1,
 	IntervalIncrementType VARCHAR(50) DEFAULT 'custom',
-	IntervalIncrement INT
-	CHECK (IntervalIncrementType = 'geometric' OR IntervalIncrementType = 'multiplicative' OR IntervalIncrementType = 'additive' OR IntervalIncrementType = 'custom') 
+	IntervalIncrement INT,
+	CHECK (IntervalIncrementType = 'geometric' OR IntervalIncrementType = 'multiplicative' OR IntervalIncrementType = 'additive' OR IntervalIncrementType = 'custom'),
+	FOREIGN KEY (BillingTypeItemID) REFERENCES Accounts.BillingTypeItems(BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE 
 );
 
 CREATE TABLE Accounts.BillingTransactionMeta (
