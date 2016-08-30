@@ -37,44 +37,17 @@ class Patient
      */
     public static function create(array $data)
     {
-        $hospitalHistory = [];
-        $diagnosis = [];
-        foreach ($data as $key=>$value){
-            if (explode("_", $key)[0] == "hospitalHistory"){
-                $exploded = explode("_", $key);
-                $hospitalHistory[$exploded[1]][$exploded[2]] = $value;
-
-                unset($data[$key]);
-            }
-
-            if (explode("_", $key)[0] == "diagnosis"){
-                $exploded = explode("_", $key);
-                $diagnosis[$exploded[1]][$exploded[2]] = $value;
-
-                unset($data[$key]);
-            }
-        }
-
+        $hospitalHistory = $data["hospitalHistory"] ?? [];
+        $diagnosis = $data["diagnosis"] ?? [];
+        
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
         $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
         $passport = $data["patientPassport"];
+        $documents = $data["documents"];
+
         unset($data["patientPassport"]);
-
-         if (!empty($_FILES)) {
-            $files = $_FILES["file"];
-            $location = "bin/data/records/patient/identification-documents";   
-            $url = $location.DIRECTORY_SEPARATOR.$patientUuid.DIRECTORY_SEPARATOR;
-            mkdir($url);
-            foreach ($files["name"] as $key=>$null)
-            {
-                $tempFile = $files['tmp_name'][$key]; 
-                $ext = explode(".", $files['name'][$key])[1];
-                $targetFile =  $url. $key.".".$ext;
-                move_uploaded_file($tempFile,$targetFile);
-            } 
-
-        }
-
+        unset($data["documents"]);
+        
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
