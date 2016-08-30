@@ -39,21 +39,21 @@ class Patient
     {
         $hospitalHistory = $data["hospitalHistory"] ?? [];
         $diagnosis = $data["diagnosis"] ?? [];
+        $operation = $data["operation"] ?? [];
         
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
         $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
         $passport = $data["patientPassport"];
-        $documents = $data["documents"];
+        $documents = $data["documents"] ?? null;
 
-        unset($data["patientPassport"]);
-        unset($data["documents"]);
+        unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"]);
         
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
                 'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
-                'PatientIdentificationDocumentUrl'=>QB::wrapString($url, "'") ?? 'NULL',
+                'PatientIdentificationDocument'=>(is_null($documents)) ? 'NULL' : QB::wrapString($documents, "'"),
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
