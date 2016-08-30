@@ -56,7 +56,7 @@ class ObservationChartFieldTitleType
                 (string)(serialize($result))
             );
             $id = $result['lastInsertId'];
-            return $id;
+            return $result;
         }
         catch (\PDOException $e)
         {
