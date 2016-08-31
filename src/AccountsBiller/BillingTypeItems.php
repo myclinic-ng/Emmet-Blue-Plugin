@@ -38,6 +38,11 @@ class BillingTypeItems
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountsBillingTypeItems($resourceId, $data);
 	}
 
+	public static function viewItemIntervals(int $resourceId=0, array $data = [])
+	{
+		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewItemIntervals($resourceId, $data);
+	}
+
 	public static function deleteBillingTypeItems(int $resourceId)
 	{
 		return AccountsBillingTypeItems\DeleteAccountsBillingTypeitems::delete($resourceId);

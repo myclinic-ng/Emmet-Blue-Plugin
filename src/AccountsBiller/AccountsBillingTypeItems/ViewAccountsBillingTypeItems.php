@@ -68,4 +68,40 @@ class ViewAccountsBillingTypeItems
             ), Constant::UNDEFINED);
         }
     }
+
+
+    public static function viewItemIntervals(int $resourceId, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("*");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Accounts.BillingTypeItemsInterval");
+
+            if ($resourceId !== 0){
+                $selectBuilder->where("BillingTypeItemID = $resourceId");
+            }
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
 }
