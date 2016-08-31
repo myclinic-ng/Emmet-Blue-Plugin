@@ -72,6 +72,8 @@ CREATE TABLE Accounts.BillingTransactionItems (
 	BillingTransactionItemID INT PRIMARY KEY IDENTITY,
 	BillingTransactionMetaID INT NOT NULL,
 	BillingTransactionItemName VARCHAR(100),
+	BillingTransactionItemQuantity INT,
+	BillingTransactionItemPrice MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (BillingTransactionItemName) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemName) ON UPDATE NO ACTION ON DELETE NO ACTION
 )

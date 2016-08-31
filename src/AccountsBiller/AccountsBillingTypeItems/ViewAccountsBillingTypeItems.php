@@ -32,7 +32,7 @@ class ViewAccountsBillingTypeItems
 	/* viewAccountBillingType method
 	 *
 	 * @param int $accountBillingTypeId
-	 * @author bardeson Lucky <Ahead!!> <flashup4all@gmail.com>
+	 * @author Samuel Adeshina <samueladeshina73@gmail.com>
 	 */
 	public static function viewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
     {
