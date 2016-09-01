@@ -50,11 +50,11 @@ class TransactionMeta
         {
             $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
                 'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
-                'BillingType'=>QB::wrapString($type, "'"),
+                'BillingType'=>QB::wrapString((string)$type, "'"),
                 'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
                 'DateCreated'=>'GETDATE()',
-                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString($amount, "'"),
-                'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString($status, "'")
+                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString((string)$amount, "'"),
+                'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString((string)$status, "'")
             ]);
             
             $id = $result['lastInsertId']; 
