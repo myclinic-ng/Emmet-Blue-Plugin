@@ -66,6 +66,9 @@ class TransactionMeta
 
             $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
 
+            echo $query;
+            die();
+
             $result = (
                 DBConnectionFactory::getConnection()
                 ->exec($query)
