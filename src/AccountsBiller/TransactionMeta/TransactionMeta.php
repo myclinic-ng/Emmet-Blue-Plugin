@@ -61,7 +61,7 @@ class TransactionMeta
 
             $itemNames = [];
             foreach ($items as $datum){
-                $itemNames[] = "($id, ".QB::wrapString($datum['itemName'], "'").", ".QB::wrapString($datum['itemQuantity'], "'").QB::wrapString($datum['itemPrice'], "'").")";
+                $itemNames[] = "($id, ".QB::wrapString((string)$datum['itemName'], "'").", ".QB::wrapString((string)$datum['itemQuantity'], "'").QB::wrapString((string)$datum['itemPrice'], "'").")";
             }
 
             $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
