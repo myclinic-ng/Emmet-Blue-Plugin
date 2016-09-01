@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\Ward;
+namespace EmmetBlue\Plugins\Nursing\SectionBed;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -37,14 +37,14 @@ class SectionBed
      */
     public static function create(array $data)
     {
-        $wardSectionID = $data['wardSectionId'];
+        $wardSectionId = $data['wardSectionId'];
         $bedName = $data['bedName'] ?? null;
         $bedDescription = $data['bedDescription'] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Nursing.SectionBed', [
-                'WardID'=>$wardSectionId,
+                'WardSectionID'=>$wardSectionId,
                 'BedName'=>QB::wrapString($bedName, "'"),
                 'BedDescription'=>QB::wrapString($bedDescription, "'")
             ]);

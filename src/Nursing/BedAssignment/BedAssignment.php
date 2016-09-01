@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\Ward;
+namespace EmmetBlue\Plugins\Nursing\BedAssignment;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -43,8 +43,8 @@ class BedAssignment
         try
         {
             $result = DBQueryFactory::insert('Nursing.BedAssignment', [
-                'WardID'=>QB::wrapString($bedName, "'"),
-                'WardSectionName'=>QB::wrapString($assignmentLeased, "'"),
+                'BedName'=>QB::wrapString($bedName, "'"),
+                'AssignmentLeased'=>QB::wrapString($assignmentLeased, "'"),
             ]);
 
             DatabaseLog::log(

@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\Ward;
+namespace EmmetBlue\Plugins\Nursing\WardSection;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -37,7 +37,7 @@ class WardSection
      */
     public static function create(array $data)
     {
-        $wardID = $data['wardId'];
+        $wardId = $data['wardId'];
         $wardSectionName = $data['wardSectionName'] ?? null;
         $wardSectionDescription = $data['wardSectionDescription'] ?? null;
 
@@ -77,7 +77,7 @@ class WardSection
             ->columns('*')
             ->from('Nursing.WardSection');
         if ($resourceId != 0){
-            $selectBuilder->where('WarSectiondID ='.$resourceId);
+            $selectBuilder->where('WardSectionID ='.$resourceId);
         }
         try
         {
@@ -88,7 +88,7 @@ class WardSection
                 Constant::EVENT_SELECT,
                 'Nursing',
                 'WardSection',
-                (string)$selectBuilder
+                (string)serialize($selectBuilder)
             );
 
             if(count($viewOperation) > 0)
