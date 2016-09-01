@@ -39,6 +39,7 @@ class TransactionMeta
 
     public static function create(array $data)
     {
+        $patient = $data['patient'] ?? null;
         $type = $data['type'] ?? null;
         $createdBy = $data['createdBy'] ?? null;
         $items = $data['items'] ?? null;
@@ -50,6 +51,7 @@ class TransactionMeta
         {
             $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
                 'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
+                'PatientID'=>$patient,
                 'BillingType'=>QB::wrapString((string)$type, "'"),
                 'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
                 'DateCreated'=>'GETDATE()',
