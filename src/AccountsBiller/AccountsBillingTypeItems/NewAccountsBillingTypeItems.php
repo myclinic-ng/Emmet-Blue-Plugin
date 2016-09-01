@@ -42,16 +42,42 @@ class NewAccountsBillingTypeItems
 		$billingTypeItemPrice = $data['billingTypeItemPrice'] ?? 'NULL';
 		$rateBased = $data['rateBased'] ?? 0;
 		$rateIdentifier = $data['rateIdentifier'] ?? 'NULL';
+		$intervalBased = $data['intervalBased'] ?? 0;
+		if ((bool)$intervalBased == true){
+			$interval = $data["interval"] ?? [];
+		}
 
 		$packed = [
-			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString($billingType, "'") : $billingType,
-			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName,
-			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString($billingTypeItemPrice, "'") : $billingTypeItemPrice,
+			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString((string)$billingType, "'") : $billingType,
+			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString((string)$billingTypeItemName, "'") : $billingTypeItemName,
+			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString((string)$billingTypeItemPrice, "'") : $billingTypeItemPrice,
 			'RateBased'=>$rateBased,
-			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString($rateIdentifier, "'") : $rateIdentifier
+			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString((string)$rateIdentifier, "'") : $rateIdentifier,
+			'IntervalBased'=>$intervalBased
 		];
 
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
+
+		$id = $result["lastInsertId"];
+
+		$valuesArray = [];
+
+		if (isset($interval)){
+			foreach ($interval as $eachInterval){
+				$name = QB::wrapString((string)$eachInterval["interval"], "'") ?? 'NULL';
+				$type = QB::wrapString((string)$eachInterval["type"], "'") ?? 'NULL';
+				$increment = QB::wrapString((string)$eachInterval["increment"], "'") ?? 'NULL';
+
+				$valuesArray[] = "($id, ".$name.", ".$type.", ".$increment.")";
+			}
+
+			$query = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $valuesArray);
+
+			if (!DBConnectionFactory::getConnection()->exec($query)){
+				$result["intervalCreated"] = false;
+			}
+		}
+
 		return $result;
 	}
 }

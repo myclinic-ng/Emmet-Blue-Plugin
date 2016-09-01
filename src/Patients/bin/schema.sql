@@ -19,7 +19,7 @@ CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
 	PatientFullName VARCHAR(50),
 	PatientPicture VARCHAR(MAX),
-	PatientIdentificationDocumentUrl VARCHAR(300),
+	PatientIdentificationDocument VARCHAR(MAX),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 )
 

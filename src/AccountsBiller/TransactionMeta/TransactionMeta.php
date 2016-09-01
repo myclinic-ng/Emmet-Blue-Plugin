@@ -39,6 +39,7 @@ class TransactionMeta
 
     public static function create(array $data)
     {
+        $patient = $data['patient'] ?? null;
         $type = $data['type'] ?? null;
         $createdBy = $data['createdBy'] ?? null;
         $items = $data['items'] ?? null;
@@ -50,21 +51,22 @@ class TransactionMeta
         {
             $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
                 'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
-                'BillingType'=>QB::wrapString($type, "'"),
+                'PatientID'=>$patient,
+                'BillingType'=>QB::wrapString((string)$type, "'"),
                 'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
                 'DateCreated'=>'GETDATE()',
-                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString($amount, "'"),
-                'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString($status, "'")
+                'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString((string)$amount, "'"),
+                'BillingTransactionStatus'=>(is_null($status)) ? "NULL" : QB::wrapString((string)$status, "'")
             ]);
             
             $id = $result['lastInsertId']; 
 
             $itemNames = [];
             foreach ($items as $datum){
-                $itemNames[] = "($id, ".QB::wrapString($datum['name'], "'").")";
+                $itemNames[] = "($id, ".QB::wrapString((string)$datum['itemName'], "'").", ".QB::wrapString((string)$datum['itemQuantity'], "'").", ".QB::wrapString((string)$datum['itemPrice'], "'").")";
             }
 
-            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName) VALUES ".implode(", ", $itemNames);
+            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
 
             $result = (
                 DBConnectionFactory::getConnection()

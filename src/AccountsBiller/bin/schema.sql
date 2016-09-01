@@ -41,7 +41,18 @@ CREATE TABLE Accounts.BillingTypeItems (
 	BillingTypeItemPrice MONEY NOT NULL,
 	RateBased BIT,
 	RateIdentifier VARCHAR(100),
+	IntervalBased BIT,
 	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeID) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE Accounts.BillingTypeItemsInterval (
+	BillingTypeItemsIntervalID INT PRIMARY KEY IDENTITY,
+	BillingTypeItemID INT NOT NULL,
+	Interval INT DEFAULT 1,
+	IntervalIncrementType VARCHAR(50) DEFAULT 'custom',
+	IntervalIncrement INT,
+	CHECK (IntervalIncrementType = 'geometric' OR IntervalIncrementType = 'multiplicative' OR IntervalIncrementType = 'additive' OR IntervalIncrementType = 'custom'),
+	FOREIGN KEY (BillingTypeItemID) REFERENCES Accounts.BillingTypeItems(BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE 
 );
 
 CREATE TABLE Accounts.BillingTransactionMeta (
@@ -61,6 +72,8 @@ CREATE TABLE Accounts.BillingTransactionItems (
 	BillingTransactionItemID INT PRIMARY KEY IDENTITY,
 	BillingTransactionMetaID INT NOT NULL,
 	BillingTransactionItemName VARCHAR(100),
+	BillingTransactionItemQuantity INT,
+	BillingTransactionItemPrice MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (BillingTransactionItemName) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemName) ON UPDATE NO ACTION ON DELETE NO ACTION
 )

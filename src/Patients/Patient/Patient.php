@@ -37,50 +37,23 @@ class Patient
      */
     public static function create(array $data)
     {
-        $hospitalHistory = [];
-        $diagnosis = [];
-        foreach ($data as $key=>$value){
-            if (explode("_", $key)[0] == "hospitalHistory"){
-                $exploded = explode("_", $key);
-                $hospitalHistory[$exploded[1]][$exploded[2]] = $value;
-
-                unset($data[$key]);
-            }
-
-            if (explode("_", $key)[0] == "diagnosis"){
-                $exploded = explode("_", $key);
-                $diagnosis[$exploded[1]][$exploded[2]] = $value;
-
-                unset($data[$key]);
-            }
-        }
-
+        $hospitalHistory = $data["hospitalHistory"] ?? [];
+        $diagnosis = $data["diagnosis"] ?? [];
+        $operation = $data["operation"] ?? [];
+        
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
         $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
         $passport = $data["patientPassport"];
-        unset($data["patientPassport"]);
+        $documents = $data["documents"] ?? null;
 
-         if (!empty($_FILES)) {
-            $files = $_FILES["file"];
-            $location = "bin/data/records/patient/identification-documents";   
-            $url = $location.DIRECTORY_SEPARATOR.$patientUuid.DIRECTORY_SEPARATOR;
-            mkdir($url);
-            foreach ($files["name"] as $key=>$null)
-            {
-                $tempFile = $files['tmp_name'][$key]; 
-                $ext = explode(".", $files['name'][$key])[1];
-                $targetFile =  $url. $key.".".$ext;
-                move_uploaded_file($tempFile,$targetFile);
-            } 
-
-        }
-
+        unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"]);
+        
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
                 'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
                 'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
-                'PatientIdentificationDocumentUrl'=>QB::wrapString($url, "'") ?? 'NULL',
+                'PatientIdentificationDocument'=>(is_null($documents)) ? 'NULL' : QB::wrapString($documents, "'"),
                 'PatientUUID'=>QB::wrapString($patientUuid, "'")
             ]);
 
@@ -228,15 +201,6 @@ class Patient
 
             if ($viewPatients){
                 $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
-
-                $path = $viewPatients[0]['PatientIdentificationDocumentUrl'];
-                $files = scandir($path);
-                $files = array_diff(scandir($path), array('.', '..'));
-                foreach ($files as $key => $value) {
-                    $files[$key] = $viewPatients[0]['PatientIdentificationDocumentUrl'].DIRECTORY_SEPARATOR.$value;
-                }
-
-                $viewPatients[0]["PatientIdentificationDocumentUrl"] = $files;
 
                 $viewPatientsRecords = (
                     DBConnectionFactory::getConnection()
