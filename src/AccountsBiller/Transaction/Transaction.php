@@ -40,7 +40,7 @@ class Transaction
 
         $query = "SELECT BilledAmountTotal FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID = $metaId";
 
-        $queryResult = DBConnectionFactory::getConnection()->query($query);
+        $queryResult = (DBConnectionFactory::getConnection()->query($query))->fetchAll();
         $totalBilledAmount = (int)$queryResult[0]["BilledAmountTotal"];
         $amountBalance = $amountPaid - $totalBilledAmount;
 
