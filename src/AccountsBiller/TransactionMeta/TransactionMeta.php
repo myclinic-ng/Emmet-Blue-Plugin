@@ -138,8 +138,6 @@ class TransactionMeta
                 $selectBuilder->columns("*");
             }
             else {
-                echo implode(", ", $data);
-                die();
                 $selectBuilder->columns(implode(", ", $data));
             }
             
@@ -148,6 +146,10 @@ class TransactionMeta
             if ($resourceId !== 0){
                 $selectBuilder->where("BillingTransactionMetaID = $resourceId");
             }
+
+
+            echo (string)$selectBuilder;
+            die();
 
             $result = (
                 DBConnectionFactory::getConnection()
