@@ -148,26 +148,25 @@ class TransactionMeta
             }
 
 
-            echo (string)$selectBuilder;
-            die();
-
             $result = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
 
-            foreach ($result as $key=>$metaItem)
-            {
-                $id = $metaItem["BillingTransactionMetaID"];
-                $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
+           if (empty($data){
+                foreach ($result as $key=>$metaItem)
+                {
+                    $id = $metaItem["BillingTransactionMetaID"];
+                    $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
 
-                $queryResult = (
-                    DBConnectionFactory::getConnection()
-                    ->query($query)
-                )->fetchAll(\PDO::FETCH_ASSOC);
+                    $queryResult = (
+                        DBConnectionFactory::getConnection()
+                        ->query($query)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
 
-                $result[$key]["BillingTransactionItems"] = $queryResult;
-            }
+                    $result[$key]["BillingTransactionItems"] = $queryResult;
+                }
+           })
 
             return $result;
         }
