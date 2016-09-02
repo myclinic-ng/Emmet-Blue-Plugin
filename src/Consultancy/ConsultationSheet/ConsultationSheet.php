@@ -40,6 +40,7 @@ class ConsultationSheet
         
         $tags = $data['tags'] ?? null;
         $consultantId = $data['consultantId'] ?? null;
+        $titl = $data['title'] ?? null;
         $note = $data['note'] ?? null;
         $meta = $data['meta'] ?? null;
 
@@ -47,6 +48,7 @@ class ConsultationSheet
         {
             $result = DBQueryFactory::insert('Consultancy.ConsultationSheet', [
                 'ConsultantID'=>QB::wrapString($consultantId, "'"),
+                'Title'=>QB::wrapString($title, "'"),
                 'Note'=>QB::wrapString($note, "'"),
                 'Meta'=>QB::wrapString($meta, "'")
             ]);
