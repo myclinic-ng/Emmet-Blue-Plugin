@@ -34,19 +34,27 @@ class Transaction
         $metaId = $data['metaId'] ?? null;
         $customerName = $data['customerName'] ?? null;
         $customerPhone = $data['customerPhone'] ?? null;
-        $customerAddresskl = $data['customerAddresskl'] ?? null;
+        $customerAddress = $data['customerAddress'] ?? null;
         $paymentMethod = $data['paymentMethod'] ?? null;
-        $amountPaid = $data['amountPaid'] ?? null;
+        $amountPaid = (int)$data['amountPaid'] ?? null;
+
+        $query = "SELECT BilledAmountTotal FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID = $metaId";
+
+        $queryResult = DBConnectionFactory::getConnection()->query($query);
+        $totalBilledAmount = (int)$queryResult[0]["BilledAmountTotal"];
+        $amountBalance = $amountPaid - $totalBilledAmount;
 
         try
         {
             $result = DBQueryFactory::insert('Accounts.BillingTransaction', [
                 'BillingTransactionMetaID'=>$metaId,
                 'BillingTransactionDate'=>'GETDATE()',
-                'BillingTransactionCustomerID'=>(is_null($customerId)) ? "NULL" : QB::wrapString($customerId, "'"),
-                'BillingPaymentMethod'=>(is_null($paymentMethod)) ? "NULL" : QB::wrapString($paymentMethod, "'"),
-                'BillingAmountPaid'=>(is_null($amountPaid)) ? "NULL" : QB::wrapString($amountPaid, "'"),
-                'BillingAmountBalance'=>(is_null($amountBalance)) ? "NULL" : QB::wrapString($amountBalance, "'")
+                'BillingTransactionCustomerName'=>(is_null($customerName)) ? "NULL" : QB::wrapString((string)$customerName, "'"),
+                'BillingTransactionCustomerPhone'=>(is_null($customerPhone)) ? "NULL" : QB::wrapString((string)$customerPhone, "'"),
+                'BillingTransactionCustomerAddress'=>(is_null($customerAddress)) ? "NULL" : QB::wrapString((string)$customerAddress, "'"),
+                'BillingPaymentMethod'=>(is_null($paymentMethod)) ? "NULL" : QB::wrapString((string)$paymentMethod, "'"),
+                'BillingAmountPaid'=>(is_null($amountPaid)) ? "NULL" : QB::wrapString((string)$amountPaid, "'"),
+                'BillingAmountBalance'=>(is_null($amountBalance)) ? "NULL" : QB::wrapString((string)$amountBalance, "'")
             ]);
 
             return $result;
@@ -70,16 +78,16 @@ class Transaction
         try
         {
             if (isset($data['BillingTransactionCustomerID'])){
-                $data['BillingTransactionCustomerID'] = QB::wrapString($data['BillingTransactionCustomerID'], "'");
+                $data['BillingTransactionCustomerID'] = QB::wrapString((string)$data['BillingTransactionCustomerID'], "'");
             }
             if (isset($data['BillingPaymentMethod'])){
-                $data['BillingPaymentMethod'] = QB::wrapString($data['BillingPaymentMethod'], "'");
+                $data['BillingPaymentMethod'] = QB::wrapString((string)$data['BillingPaymentMethod'], "'");
             }
             if (isset($data['BillingAmountPaid'])){
-                $data['BillingAmountPaid'] = QB::wrapString($data['BillingAmountPaid'], "'");
+                $data['BillingAmountPaid'] = QB::wrapString((string)$data['BillingAmountPaid'], "'");
             }
             if (isset($data['BillingAmountBalance'])){
-                $data['BillingAmountBalance'] = QB::wrapString($data['BillingAmountBalance'], "'");
+                $data['BillingAmountBalance'] = QB::wrapString((string)$data['BillingAmountBalance'], "'");
             }
 
             $updateBuilder->table("Accounts.BillingTransaction");
