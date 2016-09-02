@@ -153,7 +153,7 @@ class TransactionMeta
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
 
-           if (empty($data){
+           if (empty($data)){
                 foreach ($result as $key=>$metaItem)
                 {
                     $id = $metaItem["BillingTransactionMetaID"];
@@ -166,7 +166,7 @@ class TransactionMeta
 
                     $result[$key]["BillingTransactionItems"] = $queryResult;
                 }
-           })
+           }
 
             return $result;
         }
