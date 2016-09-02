@@ -138,6 +138,8 @@ class TransactionMeta
                 $selectBuilder->columns("*");
             }
             else {
+                echo implode(", ", $data);
+                die();
                 $selectBuilder->columns(implode(", ", $data));
             }
             

@@ -32,10 +32,11 @@ class Transaction
     public static function create(array $data)
     {
         $metaId = $data['metaId'] ?? null;
-        $customerId = $data['customerId'] ?? null;
+        $customerName = $data['customerName'] ?? null;
+        $customerPhone = $data['customerPhone'] ?? null;
+        $customerAddresskl = $data['customerAddresskl'] ?? null;
         $paymentMethod = $data['paymentMethod'] ?? null;
         $amountPaid = $data['amountPaid'] ?? null;
-        $amountBalance = $data['amountBalance'] ?? null;
 
         try
         {
