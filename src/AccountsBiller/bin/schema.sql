@@ -91,7 +91,7 @@ CREATE TABLE Accounts.BillingTransaction (
 	BillingTransactionCustomerName VARCHAR(50),
 	BillingTransactionCustomerPhone VARCHAR(20),
 	BillingTransactionCustomerAddress VARCHAR(500),
-	BillingPaymentMethod VARCHAR(20) NOT NULL,
+	BillingPaymentMethod VARCHAR(20),
 	BillingAmountPaid MONEY NOT NULL,
 	BillingAmountBalance MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE SET NULL,

@@ -36,13 +36,13 @@ class Transaction
         $customerPhone = $data['customerPhone'] ?? null;
         $customerAddress = $data['customerAddress'] ?? null;
         $paymentMethod = $data['paymentMethod'] ?? null;
-        $amountPaid = (int)$data['amountPaid'] ?? null;
+        $amountPaid = $data['amountPaid'] ?? 0;
 
         $query = "SELECT BilledAmountTotal FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID = $metaId";
 
         $queryResult = (DBConnectionFactory::getConnection()->query($query))->fetchAll();
         $totalBilledAmount = (int)$queryResult[0]["BilledAmountTotal"];
-        $amountBalance = $amountPaid - $totalBilledAmount;
+        $amountBalance = (int)$amountPaid - $totalBilledAmount;
 
         try
         {
