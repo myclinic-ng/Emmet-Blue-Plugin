@@ -17,6 +17,9 @@ CREATE TABLE Mortuary.BodyInformation (
 	BodyOtherNames VARCHAR(20),
 	BodyDateOfBirth DATE,
 	BodyGender VARCHAR(10) NOT NULL,
+	BodyNextOfKinFullName VARCHAR(50),
+	BodyNextOfKinAddress VARCHAR(100),
+	BodyNextOfKinPhoneNumber VARCHAR(15)
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
@@ -31,6 +34,8 @@ CREATE TABLE Mortuary.DepositorDetails(
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
+
+--DEPRECATED: Remove this
 CREATE TABLE Mortuary.NextOfKinDetails(
 	NextOfKinID INTEGER PRIMARY KEY IDENTITY NOT NULL,
 	BodyID INTEGER,
@@ -42,3 +47,4 @@ CREATE TABLE Mortuary.NextOfKinDetails(
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
+-- /DEPRECATED

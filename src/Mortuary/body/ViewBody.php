@@ -57,11 +57,8 @@ class ViewBody
 				(string)$bodyBuilder
 			);
 			//selecting all body info
-			$bodyInfoBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-			$bodyInfoBuilder
-			->columns('*')
-			->from('Mortuary.BodyInformation')
-			->where('BodyID ='.$bodyId);
+			$bodyInfoBuilder = ((new Builder('QueryBuilder','Select'))->getBuilder())->columns('*')->from('Mortuary.BodyInformation')->where('BodyID ='.$bodyId);
+
 			$viewBodyInfo = (DBConnectionFactory::getConnection()->query((string)$bodyInfoBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 			//selecting all body info
 			DatabaseLog::log(
@@ -72,11 +69,7 @@ class ViewBody
 				(string)$bodyInfoBuilder
 			);
 			//selecting all body depositors info
-			$bodyDepositorBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-			$bodyDepositorBuilder
-			->columns('*')
-			->from('Mortuary.DepositorDetails')
-			->where('BodyID ='.$bodyId);
+			$bodyDepositorBuilder = ((new Builder('QueryBuilder','Select'))->getBuilder())->columns('*')->from('Mortuary.DepositorDetails')->where('BodyID ='.$bodyId);
 			$viewBodyDepositor = (DBConnectionFactory::getConnection()->query((string)$bodyDepositorBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 			//selecting all body info
 			DatabaseLog::log(
