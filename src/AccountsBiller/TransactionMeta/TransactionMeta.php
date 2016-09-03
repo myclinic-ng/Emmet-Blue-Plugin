@@ -185,7 +185,7 @@ class TransactionMeta
                     }
 
                     $result[$key]["BillingTransactionItems"] = $queryResult;
-                    $result[$key]["Patient"] = $queryResult2;
+                    $result[$key]["PatientName"] = $name;
                 }
            }
 
