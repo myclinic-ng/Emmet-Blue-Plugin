@@ -135,6 +135,9 @@ class Transaction
             
             $selectBuilder->from("Accounts.BillingTransaction a")->innerJoin("Patients.Patient b", "a.PatientID = b.PatientID");
 
+            echo (string)$selectBuilder;
+            die();
+
             if ($resourceId !== 0){
                 $selectBuilder->where("BillingTransactionID = $resourceId");
             }
