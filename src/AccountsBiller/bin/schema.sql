@@ -67,6 +67,7 @@ CREATE TABLE Accounts.BillingTransactionMeta (
 	BilledAmountTotal MONEY,
 	CreatedByUUID VARCHAR(20),
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateCreatedDateOnly DATE DEFAULT Cast(DateAdd(day, datediff(day, 0, GETDATE()), 0) as Date),
 	BillingTransactionStatus VARCHAR(20) NOT NULL DEFAULT 'Unknown',
 	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeName) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (PatientID) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE CASCADE ON DELETE NO ACTION,

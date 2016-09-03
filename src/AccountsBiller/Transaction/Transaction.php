@@ -133,7 +133,7 @@ class Transaction
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransaction a");
+            $selectBuilder->from("Accounts.BillingTransaction a")->innerJoin("Patients.Patient b", "a.PatientID = b.PatientID");
 
             if ($resourceId !== 0){
                 $selectBuilder->where("BillingTransactionID = $resourceId");

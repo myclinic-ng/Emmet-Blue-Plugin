@@ -69,7 +69,7 @@ class Patient
             
             $values = [];
             foreach ($data as $key=>$value){
-                $values[] = "($id, ".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString($value, "'").")";
+                $values[] = "($id, ".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
             }
 
 
