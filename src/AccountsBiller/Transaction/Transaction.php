@@ -37,6 +37,7 @@ class Transaction
         $customerAddress = $data['customerAddress'] ?? null;
         $paymentMethod = $data['paymentMethod'] ?? null;
         $amountPaid = $data['amountPaid'] ?? 0;
+        $transactionStatus = $data["transactionStatus"] ?? "";
 
         $query = "SELECT BilledAmountTotal FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID = $metaId";
 
@@ -56,6 +57,10 @@ class Transaction
                 'BillingAmountPaid'=>(is_null($amountPaid)) ? "NULL" : QB::wrapString((string)$amountPaid, "'"),
                 'BillingAmountBalance'=>(is_null($amountBalance)) ? "NULL" : QB::wrapString((string)$amountBalance, "'")
             ]);
+
+            $id = $result["lastInsertId"];
+            $query = "SELECT * FROM Accounts.BillingTransaction WHERE BillingTransactionID = $id";
+            $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll();
 
             return $result;
         }
