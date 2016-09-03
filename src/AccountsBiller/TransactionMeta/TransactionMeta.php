@@ -154,8 +154,6 @@ class TransactionMeta
             )->fetchAll(\PDO::FETCH_ASSOC);
 
            if (empty($data)){
-                print_r($result);
-                die();
                 foreach ($result as $key=>$metaItem)
                 {
                     $id = $metaItem["BillingTransactionMetaID"];
@@ -174,7 +172,7 @@ class TransactionMeta
                     )->fetchAll(\PDO::FETCH_ASSOC);
 
                     $name = "";
-                    foreach ($queryResult2 as $key => $value){
+                    foreach ($queryResult2 as $value){
                         if ($value["FieldTitle"] == 'Title'){
                             $name .= $value["FieldValue"];
                         }
