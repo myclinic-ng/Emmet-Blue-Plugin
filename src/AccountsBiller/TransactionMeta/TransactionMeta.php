@@ -141,7 +141,7 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a")->innerJoin("Patients.Patient b", "a.PatientID = b.PatientID");
+            $selectBuilder->from("Accounts.BillingTransactionMeta a");
 
             if ($resourceId !== 0){
                 $selectBuilder->where("BillingTransactionMetaID = $resourceId");
@@ -157,14 +157,22 @@ class TransactionMeta
                 foreach ($result as $key=>$metaItem)
                 {
                     $id = $metaItem["BillingTransactionMetaID"];
+                    $patient = $metaItem["PatientID"];
                     $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
+                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient"
 
                     $queryResult = (
                         DBConnectionFactory::getConnection()
                         ->query($query)
                     )->fetchAll(\PDO::FETCH_ASSOC);
 
+                    $queryResult2 = (
+                        DBConnectionFactory::getConnection()
+                        ->query($query2)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+
                     $result[$key]["BillingTransactionItems"] = $queryResult;
+                    $result[$key]["Patient"] = $queryResult2;
                 }
            }
 
