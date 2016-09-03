@@ -41,7 +41,7 @@ class Transaction
 
         $query = "SELECT BilledAmountTotal FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID = $metaId";
 
-        $queryResult = (DBConnectionFactory::getConnection()->query($query))->fetchAll();
+        $queryResult = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
         $totalBilledAmount = (int)$queryResult[0]["BilledAmountTotal"];
         $amountBalance = (int)$amountPaid - $totalBilledAmount;
 
@@ -60,7 +60,7 @@ class Transaction
 
             $id = $result["lastInsertId"];
             $query = "SELECT * FROM Accounts.BillingTransaction WHERE BillingTransactionID = $id";
-            $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll();
+            $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
 
             return $result;
         }
