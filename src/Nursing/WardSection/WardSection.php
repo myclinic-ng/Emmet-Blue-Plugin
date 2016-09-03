@@ -75,8 +75,8 @@ class WardSection
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Nursing. a');
-            $selectBuilder->innerJoin("Nursng.Ward b", "a.WardID = b.WardID");
+            ->from('Nursing.WardSection a');
+            $selectBuilder->innerJoin("Nursing.Ward b", "a.WardID = b.WardID");
         if ($resourceId != 0){
             $selectBuilder->where('WardSectionID ='.$resourceId);
         }
