@@ -66,7 +66,7 @@ class TransactionMeta
                 $itemNames[] = "($id, ".QB::wrapString((string)$datum['itemName'], "'").", ".QB::wrapString((string)$datum['itemQuantity'], "'").", ".QB::wrapString((string)$datum['itemPrice'], "'").")";
             }
 
-            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
+            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillisngTransactionItemName, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -141,7 +141,7 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a");
+            $selectBuilder->from("Accounts.BillingTransactionMeta a")->innerJoin("Patients.Patient b", "a.PatientID = b.PatientID");
 
             if ($resourceId !== 0){
                 $selectBuilder->where("BillingTransactionMetaID = $resourceId");
