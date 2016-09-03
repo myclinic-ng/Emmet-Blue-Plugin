@@ -159,7 +159,7 @@ class TransactionMeta
                     $id = $metaItem["BillingTransactionMetaID"];
                     $patient = $metaItem["PatientID"];
                     $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
-                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient"
+                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient";
 
                     $queryResult = (
                         DBConnectionFactory::getConnection()
