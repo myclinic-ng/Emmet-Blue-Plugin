@@ -43,18 +43,20 @@ class Patient
         
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
         $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
+        $type = $data["patientType"] ?? null;
         $passport = $data["patientPassport"];
         $documents = $data["documents"] ?? null;
 
-        unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"]);
+        unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"],$data["patientType"]);
         
         try
         {
             $result = DBQueryFactory::insert('Patients.Patient', [
-                'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString($fullName, "'"),
-                'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString($passport, "'"),
-                'PatientIdentificationDocument'=>(is_null($documents)) ? 'NULL' : QB::wrapString($documents, "'"),
-                'PatientUUID'=>QB::wrapString($patientUuid, "'")
+                'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
+                'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString((string)$passport, "'"),
+                'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
+                'PatientIdentificationDocument'=>(is_null($documents)) ? 'NULL' : QB::wrapString((string)$documents, "'"),
+                'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
             ]);
 
             $id = $result['lastInsertId'];
@@ -69,7 +71,7 @@ class Patient
             
             $values = [];
             foreach ($data as $key=>$value){
-                $values[] = "($id, ".QB::wrapString(ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
+                $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
             }
 
 
@@ -112,10 +114,10 @@ class Patient
         try
         {
             if (isset($data['FullName'])){
-                $data['PatientFullName'] = QB::wrapString($data['FullName'], "'");
+                $data['PatientFullName'] = QB::wrapString((string)$data['FullName'], "'");
             }
             if (isset($data['PatientPhoneNumber'])){
-                $data['PatientPhoneNumber'] = QB::wrapString($data['PatientPhoneNumber'], "'");
+                $data['PatientPhoneNumber'] = QB::wrapString((string)$data['PatientPhoneNumber'], "'");
             }
 
             $updateBuilder->table("Patients.Patient");
@@ -148,10 +150,10 @@ class Patient
         try
         {
             if (isset($data['FieldTitle'])){
-                $data['FieldTitle'] = QB::wrapString($data['FieldTitle'], "'");
+                $data['FieldTitle'] = QB::wrapString((string)$data['FieldTitle'], "'");
             }
             if (isset($data['FieldValue'])){
-                $data['FieldValue'] = QB::wrapString($data['FieldValue'], "'");
+                $data['FieldValue'] = QB::wrapString((string)$data['FieldValue'], "'");
             }
 
             $updateBuilder->table("Patients.PatientRecordsFieldValue");

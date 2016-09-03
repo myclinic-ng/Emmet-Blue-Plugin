@@ -15,12 +15,20 @@ CREATE TABLE Patients.PatientRecordsFieldTitle (
 	FOREIGN KEY (FieldTitleType) REFERENCES Patients.FieldTitleType(TypeName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 
+CREATE TABLE Patients.PatientType (
+	PatientTypeID INT PRIMARY KEY IDENTITY,
+	PatientTypeName VARCHAR(50) UNIQUE,
+	PatientTypeDescription VARCHAR(500)
+)
+
 CREATE TABLE Patients.Patient (
 	PatientID INT PRIMARY KEY IDENTITY,
 	PatientFullName VARCHAR(50),
 	PatientPicture VARCHAR(MAX),
+	PatientType VARCHAR(50),
 	PatientIdentificationDocument VARCHAR(MAX),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
+	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeName) ON UPDATE CASCADE ON DELETE SET NULL
 )
 
 CREATE TABLE Patients.PatientRecordsFieldValue (
