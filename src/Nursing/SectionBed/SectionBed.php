@@ -75,7 +75,8 @@ class SectionBed
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Nursing.SectionBed');
+            ->from('Nursing.SectionBed a');
+            $selectBuilder->innerion('Nursing.WardSection b', 'a.WardSectionID = b.WardSectionID');
         if ($resourceId != 0){
             $selectBuilder->where('SectionBedID ='.$resourceId);
         }
