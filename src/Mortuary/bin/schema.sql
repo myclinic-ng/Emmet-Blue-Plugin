@@ -6,8 +6,10 @@ CREATE TABLE Mortuary.Body (
 	DeathPhysicianID INTEGER,
 	BodyTag VARCHAR(50) NOT NULL,
 	DateOfDeath DATE NOT NULL,
-	PlaceOfDeath VARCHAR(100) NOT NULL
+	PlaceOfDeath VARCHAR(100) NOT NULL,
 	BodyStatus BIT,
+	CreationDate DATETIME NOT NULL DEFAULT GETDATE(),
+	LastModified DATETIME NOT NULL DEFAULT GETDATE()
 )
 GO
 

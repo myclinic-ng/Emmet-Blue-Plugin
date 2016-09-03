@@ -37,13 +37,13 @@ class ViewBody
 	 */
 	public static function viewBody(int $bodyId)
 	{
-		$bodyStatus = '1';
+		$bodyStatus = '0';
 		$bodyBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
 		$bodyBuilder
 			->columns('*')
 			->from('Mortuary.Body a');
 			
-			$bodyBuilder->innerJoin('Mortuary.BodyIformation b','a.BodyID = b.BodyID')->where('BodyStatus = '.$bodyStatus);
+			$bodyBuilder->innerJoin("Mortuary.BodyInformation b","a.BodyID = b.BodyID");//->where('BodyStatus = '.$bodyStatus);
 			$bodyBuilder->innerJoin('Mortuary.DepositorDetails c', 'a.BodyID = c.BodyID');
 		if ($bodyId != 0){
 
