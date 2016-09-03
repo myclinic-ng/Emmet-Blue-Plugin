@@ -7,11 +7,13 @@ CREATE TABLE Accounts.BillingType (
 	BillingTypeDescription VARCHAR (100)
 );
 
+-- DEPRECATED
 CREATE TABLE Accounts.BillingTypeCustomerCategories (
 	CustomerCategoryID INT PRIMARY KEY IDENTITY,
 	CustomerCategoryName VARCHAR(100) UNIQUE NOT NULL,
 	CustomerCategoryDescription VARCHAR(250)
 )
+-- /DEPRECATED
 
 CREATE TABLE Accounts.BillingTransactionStatuses (
 	StatusID INT PRIMARY KEY IDENTITY,
@@ -25,6 +27,7 @@ CREATE TABLE Accounts.BillingPaymentMethods (
 	PaymentMethodDescription VARCHAR(250)
 )
 
+-- DEPRECATED
 CREATE TABLE Accounts.BillingCustomerInfo (
 	CustomerContactID INT PRIMARY KEY IDENTITY,
 	CustomerCategoryID INT,
@@ -33,6 +36,7 @@ CREATE TABLE Accounts.BillingCustomerInfo (
 	CustomerContactAddress VARCHAR(500),
 	FOREIGN KEY (CustomerCategoryID) REFERENCES [Accounts].[BillingTypeCustomerCategories] (CustomerCategoryID) ON UPDATE CASCADE ON DELETE SET NULL
 )
+-- /DEPRECATED
 
 CREATE TABLE Accounts.BillingTypeItems (
 	BillingTypeItemID INT PRIMARY KEY IDENTITY,
@@ -58,12 +62,14 @@ CREATE TABLE Accounts.BillingTypeItemsInterval (
 CREATE TABLE Accounts.BillingTransactionMeta (
 	BillingTransactionMetaID INT PRIMARY KEY IDENTITY,
 	BillingTransactionNumber VARCHAR(15) UNIQUE NOT NULL,
+	PatientID INT,
 	BillingType VARCHAR(50) NOT NULL,
 	BilledAmountTotal MONEY,
 	CreatedByUUID VARCHAR(20),
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
 	BillingTransactionStatus VARCHAR(20) NOT NULL DEFAULT 'Unknown',
 	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeName) ON UPDATE CASCADE ON DELETE NO ACTION,
+	FOREIGN KEY (PatientID) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (CreatedByUUID) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (BillingTransactionStatus) REFERENCES [Accounts].[BillingTransactionStatuses] (StatusName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
@@ -82,12 +88,13 @@ CREATE TABLE Accounts.BillingTransaction (
 	BillingTransactionID INT PRIMARY KEY IDENTITY,
 	BillingTransactionMetaID INT,
 	BillingTransactionDate DATETIME NOT NULL DEFAULT GETDATE(),
-	BillingTransactionCustomerID INT,
+	BillingTransactionCustomerName VARCHAR(50),
+	BillingTransactionCustomerPhone VARCHAR(20),
+	BillingTransactionCustomerAddress VARCHAR(500),
 	BillingPaymentMethod VARCHAR(20) NOT NULL,
 	BillingAmountPaid MONEY NOT NULL,
 	BillingAmountBalance MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (BillingTransactionCustomerID) REFERENCES [Accounts].[BillingCustomerInfo] (CustomerContactID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (BillingPaymentMethod) REFERENCES [Accounts].[BillingPaymentMethods] (PaymentMethodName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO
