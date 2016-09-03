@@ -7,6 +7,7 @@ CREATE TABLE Mortuary.Body (
 	BodyTag VARCHAR(50) NOT NULL,
 	DateOfDeath DATE NOT NULL,
 	PlaceOfDeath VARCHAR(100) NOT NULL
+	BodyStatus BIT,
 )
 GO
 
@@ -16,9 +17,9 @@ CREATE TABLE Mortuary.BodyInformation (
 	BodyFullName VARCHAR(20) NOT NULL,
 	BodyDateOfBirth DATE,
 	BodyGender VARCHAR(10) NOT NULL,
-	BodyStatus BIT,
-	BodyNextOfKinFullName VARCHAR(50),
+	BodyNextOfKinFullName VARCHAR(100),
 	BodyNextOfKinAddress VARCHAR(100),
+	BodyNextOfKinRelationshipType VARCHAR(20),
 	BodyNextOfKinPhoneNumber VARCHAR(15)
 	FOREIGN KEY (BodyID) REFERENCES Mortuary.Body(BodyID) ON UPDATE CASCADE ON DELETE CASCADE
 )

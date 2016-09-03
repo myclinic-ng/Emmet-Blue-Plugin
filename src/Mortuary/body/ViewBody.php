@@ -37,10 +37,14 @@ class ViewBody
 	 */
 	public static function viewBody(int $bodyId)
 	{
+		$bodyStatus = '1';
 		$bodyBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
 		$bodyBuilder
 			->columns('*')
-			->from('Mortuary.Body');
+			->from('Mortuary.Body a');
+			
+			$bodyBuilder->innerJoin('Mortuary.BodyIformation b','a.BodyID = b.BodyID')->where('BodyStatus = '.$bodyStatus);
+			$bodyBuilder->innerJoin('Mortuary.DepositorDetails c', 'a.BodyID = c.BodyID');
 		if ($bodyId != 0){
 
 			$bodyBuilder->where('BodyID ='.$bodyId);
@@ -56,7 +60,7 @@ class ViewBody
 				'Body',
 				(string)$bodyBuilder
 			);
-			//selecting all body info
+			/*//selecting all body info
 			$bodyInfoBuilder = ((new Builder('QueryBuilder','Select'))->getBuilder())->columns('*')->from('Mortuary.BodyInformation')->where('BodyID ='.$bodyId);
 
 			$viewBodyInfo = (DBConnectionFactory::getConnection()->query((string)$bodyInfoBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -94,10 +98,10 @@ class ViewBody
 				'DepositorDetails',
 				(string)$bodyNextOfKinBuilder
 			);
-
+*/
 			if(count($viewBodyOperation) > 0)
 			{
-				return array_merge($viewBodyOperation, $viewBodyInfo, $viewBodyDepositor, $viewBodyNextOfKin);
+				return $viewBodyOperation;
 			}
 			else
 			{
