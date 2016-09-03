@@ -171,6 +171,19 @@ class TransactionMeta
                         ->query($query2)
                     )->fetchAll(\PDO::FETCH_ASSOC);
 
+                    $name = "";
+                    foreach ($queryResult2 as $key => $value){
+                        if ($value["FieldTitle"] == 'Title'){
+                            $name .= $value["FieldValue"];
+                        }
+                        else if ($value["FieldTitle"] == 'FirstName'){
+                            $name .= " ".$value["FieldValue"];
+                        }
+                        else if ($value["FieldTitle"] == 'LastName'){
+                            $name .= " ".$value["FieldValue"];
+                        }
+                    }
+
                     $result[$key]["BillingTransactionItems"] = $queryResult;
                     $result[$key]["Patient"] = $queryResult2;
                 }
