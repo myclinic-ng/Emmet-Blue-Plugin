@@ -60,45 +60,7 @@ class ViewBody
 				'Body',
 				(string)$bodyBuilder
 			);
-			/*//selecting all body info
-			$bodyInfoBuilder = ((new Builder('QueryBuilder','Select'))->getBuilder())->columns('*')->from('Mortuary.BodyInformation')->where('BodyID ='.$bodyId);
-
-			$viewBodyInfo = (DBConnectionFactory::getConnection()->query((string)$bodyInfoBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-			//selecting all body info
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Mortuary',
-				'BodyInformation',
-				(string)$bodyInfoBuilder
-			);
-			//selecting all body depositors info
-			$bodyDepositorBuilder = ((new Builder('QueryBuilder','Select'))->getBuilder())->columns('*')->from('Mortuary.DepositorDetails')->where('BodyID ='.$bodyId);
-			$viewBodyDepositor = (DBConnectionFactory::getConnection()->query((string)$bodyDepositorBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-			//selecting all body info
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Mortuary',
-				'DepositorDetails',
-				(string)$bodyDepositorBuilder
-			);
-			//selecting all body depositors info
-			$bodyNextOfKinBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-			$bodyNextOfKinBuilder
-			->columns('*')
-			->from('Mortuary.NextOfKinDetails')
-			->where('BodyID ='.$bodyId);
-			$viewBodyNextOfKin = (DBConnectionFactory::getConnection()->query((string)$bodyNextOfKinBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-			//selecting all body info
-			DatabaseLog::log(
-				Session::get('USER_ID'),
-				Constant::EVENT_SELECT,
-				'Mortuary',
-				'DepositorDetails',
-				(string)$bodyNextOfKinBuilder
-			);
-*/
+			
 			if(count($viewBodyOperation) > 0)
 			{
 				return $viewBodyOperation;
