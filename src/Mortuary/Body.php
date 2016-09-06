@@ -33,18 +33,22 @@ class Body
 		return Body\NewBody::default($data);
 	}
 
-	public static function viewBody(int $body)
+	public static function viewBody(int $resourceId=0)
 	{
-		return Body\ViewBody::viewBody($body);
+		return Body\ViewBody::viewBody($resourceId);
 	}
 
-	public static function editBody(int $body)
+	public static function editBody(int $resourceId, array $data)
 	{
-		return Body\EditBody::edit($body);
+		return Body\EditBody::edit($resourceId, $body);
 	}
 
-	public static function deleteBody(int $body)
+	public static function deleteBody(int $resourceId)
 	{
-		return Body\DeleteBody::delete($body);
+		return Body\DeleteBody::delete($resourceId);
+	}
+	public static function logOutBody(int $resourceId, array $data)
+	{
+		return Body\LogOutBody::logOut($resourceId, $data);
 	}
 }
