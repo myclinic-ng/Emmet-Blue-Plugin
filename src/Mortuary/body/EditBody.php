@@ -30,7 +30,7 @@ use EmmetBlue\Core\Constant;
  */
 class EditBody
 {
-	 /**
+     /**
      * Modifies the content of a consultation note
      */
     public static function edit(int $resourceId, array $data)
@@ -38,7 +38,7 @@ class EditBody
         $body = $data['body'] ?? null;
         $bodyInfo = $data['bodyInformation'] ?? null;
         $depositorsInfo = $data['depositorDetails'] ?? null;
-        $nextOfKinInfo = $data['nextOfKinDetails'] ?? null;
+        //$nextOfKinInfo = $data['nextOfKinDetails'] ?? null;
         if($body)
         {
             $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
@@ -72,7 +72,7 @@ class EditBody
             ), Constant::UNDEFINED);
         }
         }
-        //if BodyInfo
+        /*//if BodyInfo
         If($bodyInfo)
         {
              $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
@@ -139,9 +139,9 @@ class EditBody
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-        }
+        }*/
         //if next of kin details
-        If($nextOfKinInfo)
+        /*If($nextOfKinInfo)
         {
              $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
@@ -173,7 +173,7 @@ class EditBody
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-        }
+        }*/
        
     }
 
