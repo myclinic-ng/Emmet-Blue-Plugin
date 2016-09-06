@@ -35,6 +35,7 @@ class LogOutBody
      */
     public static function logOut(int $resourceId, array $data)
     {
+        $data['BodyStatus') = 0;
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try

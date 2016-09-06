@@ -33,7 +33,7 @@ class Body
 		return Body\NewBody::default($data);
 	}
 
-	public static function viewBody(int $resourceId=0)
+	public static function viewBody(int $resourceId)
 	{
 		return Body\ViewBody::viewBody($resourceId);
 	}
@@ -47,8 +47,8 @@ class Body
 	{
 		return Body\DeleteBody::delete($resourceId);
 	}
-	public static function logOutBody(int $resourceId, array $data)
+	public static function logOutBody(int $resourceId)
 	{
-		return Body\LogOutBody::logOut($resourceId, $data);
+		return Body\LogOutBody::logOut($resourceId);
 	}
 }
