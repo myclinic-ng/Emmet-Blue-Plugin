@@ -33,7 +33,7 @@ class LogOutBody
     /**
      * Modifies the content of a store
      */
-    public static function logOut(int $resourceId, array $data)
+    public static function logOut(int $resourceId)
     {
         $data['BodyStatus') = 0;
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
