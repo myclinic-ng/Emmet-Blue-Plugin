@@ -37,6 +37,14 @@ class Body
 	{
 		return Body\ViewBody::viewBody($resourceId);
 	}
+	public static function viewLoggedInBody()
+	{
+		return Body\ViewBody::viewLoggedInBody();
+	}
+	public static function viewLoggedOutBody()
+	{
+		return Body\ViewBody::viewLoggedOutBody();
+	}
 
 	public static function editBody(int $resourceId, array $data)
 	{
