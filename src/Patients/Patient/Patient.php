@@ -51,7 +51,7 @@ class Patient
             return false;
         }
         if (!mkdir($profileDir) || !mkdir($repoDir)){
-            unlink($patientDir)
+            unlink($patientDir);
             return false;
         }
 
