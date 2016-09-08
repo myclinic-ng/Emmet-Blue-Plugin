@@ -87,14 +87,14 @@ class Patient
 
                     if ($queryResult){
                         if (!HospitalHistory::new((int)$id, $hospitalHistory) || !Diagnosis::new((int)$id, $diagnosis)){
-                            self::delete((string)$id);
+                            self::delete((int)$id);
                         }
                         else{
                             //upload documents now
                         }
                     }
                     else {
-                        self::delete((string)$id);
+                        self::delete((int)$id);
                     }
 
                     DatabaseLog::log(
@@ -119,7 +119,7 @@ class Patient
             }
             catch (\PDOException $e)
             {
-                self::delete((string)$id);
+                self::delete((int)$id);
                 throw new SQLException(sprintf(
                     "Unable to process request (patient not created), %s",
                     $e->getMessage()
