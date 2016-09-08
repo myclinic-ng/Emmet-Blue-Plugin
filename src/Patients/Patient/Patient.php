@@ -40,7 +40,7 @@ class Patient
         if (isset($data["patientName"])){
             $fullName = $data["patientName"];
             $type = $data["patientType"] ?? null;
-            $passport = $data["patientPassport"];
+            $passport = $data["patientPassport"] ?? null;
             $documents = $data["documents"] ?? null;
 
             $hospitalHistory = $data["hospitalHistory"] ?? [];
