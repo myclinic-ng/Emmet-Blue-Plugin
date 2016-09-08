@@ -72,7 +72,7 @@ class Patient
         $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
         fwrite($handler, (!is_null($passport)) ? $passport : "");
         fclose($handler);
-        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents", "w");
+        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
         fwrite($handler, (!is_null($documents)) ? $documents : "");
         fclose($handler);
 
@@ -314,7 +314,10 @@ class Patient
      */
     public static function delete(int $resourceId)
     {
+        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $resourceId";
+        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
+        unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid);
 
         try
         {
