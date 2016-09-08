@@ -64,6 +64,21 @@ class Patient
         return true;
     }
 
+    protected static function uploadPhotoAndDocuments($passport, $documents){
+        if (!isset(self::$patientFolders["profile"]) || is_null(self::$patientFolders["profile"])){
+            return false;
+        }
+
+        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
+        fwrite($handler, $passport);
+        fclose($handler);
+        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents", "w");
+        fwrite($handler, $documents);
+        fclose($handler);
+
+        return true;
+    }
+
     public static function create(array $data)
     {
         if (isset($data["patientName"])){
@@ -120,7 +135,14 @@ class Patient
                         }
                         else{
                             //upload documents now
-                            self::createPatientFolders($patientUuid);
+                            if(!self::createPatientFolders($patientUuid)){
+                                self::delete((int)$id);
+                            }
+                            else {
+                                if (!self::uploadPhotoAndDocuments($passport, $documents)){
+                                    self::delete((int)$id);
+                                }
+                            }
                         }
                     }
                     else {
