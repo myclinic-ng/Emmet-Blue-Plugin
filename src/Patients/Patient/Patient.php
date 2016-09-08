@@ -317,7 +317,10 @@ class Patient
         $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $resourceId";
         $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
-        unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid);
+
+        if (is_dir(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid)){
+            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid);
+        }
 
         try
         {
