@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Patients\PatientType;
+namespace EmmetBlue\Plugins\Patients\PatientTypeCategory;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -21,14 +21,14 @@ use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
- * class PatientType.
+ * class PatientTypeCategory.
  *
- * PatientType Controller
+ * PatientTypeCategory Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 26/08/2016 12:33
  */
-class PatientType
+class PatientTypeCategory
 {
     /**
      * creats new Patient Records field titles
@@ -38,23 +38,21 @@ class PatientType
     public static function create(array $data)
     {
         
-        $patientTypeName = $data["patientTypeName"] ?? null;
-        $patientTypeCategory = $data["patientTypeCategory"] ?? null;
-        $patientTypeDescription = $data["patientTypeDescription"] ?? null;
+        $categoryName = $data["categoryName"] ?? null;
+        $categoryDescription = $data["categoryDescription"] ?? null;
         
         try
         {
-            $result = DBQueryFactory::insert('Patients.PatientType', [
-                'CategoryName'=>(is_null($patientTypeCategory)) ? 'NULL' : QB::wrapString((string)$patientTypeCategory, "'"),
-                'PatientTypeName'=>(is_null($patientTypeName)) ? 'NULL' : QB::wrapString((string)$patientTypeName, "'"),
-                'PatientTypeDescription'=>(is_null($patientTypeDescription)) ? 'NULL' : QB::wrapString((string)$patientTypeDescription, "'")
+            $result = DBQueryFactory::insert('Patients.PatientTypeCategories', [
+                'CategoryName'=>(is_null($categoryName)) ? 'NULL' : QB::wrapString((string)$categoryName, "'"),
+                'CategoryDescription'=>(is_null($categoryDescription)) ? 'NULL' : QB::wrapString((string)$categoryDescription, "'")
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
-                'PatientType',
+                'PatientTypeCategories',
                 (string)(serialize($result))
             );
             
@@ -78,19 +76,16 @@ class PatientType
 
         try
         {
-            if (isset($data['PatientTypeName'])){
-                $data['PatientTypeName'] = QB::wrapString($data['PatientTypeName'], "'");
-            }
             if (isset($data['CategoryName'])){
                 $data['CategoryName'] = QB::wrapString($data['CategoryName'], "'");
             }
-            if (isset($data['PatientTypeDescription'])){
-                $data['PatientTypeDescription'] = QB::wrapString($data['PatientTypeDescription'], "'");
+            if (isset($data['CategoryDescription'])){
+                $data['CategoryDescription'] = QB::wrapString($data['CategoryDescription'], "'");
             }
 
-            $updateBuilder->table("Patients.PatientType");
+            $updateBuilder->table("Patients.PatientTypeCategories");
             $updateBuilder->set($data);
-            $updateBuilder->where("PatientTypeID = $resourceId");
+            $updateBuilder->where("CategoryID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -116,9 +111,9 @@ class PatientType
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Patients.PatientType');
+            ->from('Patients.PatientTypeCategories');
         if ($resourceId != 0){
-            $selectBuilder->where('PatientTypeID ='.$resourceId);
+            $selectBuilder->where('CategoryID ='.$resourceId);
         }
         try
         {
@@ -128,7 +123,7 @@ class PatientType
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
-                'PatientType',
+                'PatientTypeCategories',
                 (string)$selectBuilder
             );
 
@@ -162,8 +157,8 @@ class PatientType
         try
         {
             $deleteBuilder
-                ->from("Patients.PatientType")
-                ->where("PatientTypeID = $resourceId");
+                ->from("Patients.PatientTypeCategories")
+                ->where("CategoryID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
@@ -174,7 +169,7 @@ class PatientType
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
-                'PatientType',
+                'PatientTypeCategories',
                 (string)$deleteBuilder
             );
 
