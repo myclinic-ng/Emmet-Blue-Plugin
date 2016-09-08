@@ -37,20 +37,27 @@ class Patient
      */
     public static function create(array $data)
     {
-        $hospitalHistory = $data["hospitalHistory"] ?? [];
-        $diagnosis = $data["diagnosis"] ?? [];
-        $operation = $data["operation"] ?? [];
-        
-        $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
-        if (isset($data["firstName"])){
-            $title = $data["title"] ?? null;
-            $lastname = $data["lastName"] ?? null;
-            $fullName = $title." ".$data["firstName"]." ".$lastname;
+        if (isset($data["patientName"])){
+            $fullName = $data["patientName"];
             $type = $data["patientType"] ?? null;
             $passport = $data["patientPassport"];
             $documents = $data["documents"] ?? null;
 
-            unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"],$data["patientType"]);
+            $hospitalHistory = $data["hospitalHistory"] ?? [];
+            $diagnosis = $data["diagnosis"] ?? [];
+            $operation = $data["operation"] ?? [];
+            
+            $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
+
+            unset(
+                $data["patientPassport"],
+                $data["documents"],
+                $data["hospitalHistory"],
+                $data["diagnosis"],
+                $data["operation"],
+                $data["patientType"],
+                $data["patientName"]
+            );
             
             try
             {
@@ -62,7 +69,9 @@ class Patient
                     'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
                 ]);
 
-                $id = $result['lastInsertId'];
+                if ($result){
+                    $id = $result['lastInsertId'];
+                }
 
                 DatabaseLog::log(
                     Session::get('USER_ID'),
@@ -85,6 +94,18 @@ class Patient
                     ->exec($query)
                 );
 
+                if ($queryResult){
+                    if (!HospitalHistory::new((int)$id, $hospitalHistory) || !Diagnosis::new((int)$id, $diagnosis)){
+                        self::delete($id);
+                    }
+                    else{
+                        //upload documents now
+                    }
+                }
+                else {
+                    self::delete($id);
+                }
+
                 DatabaseLog::log(
                     Session::get('USER_ID'),
                     Constant::EVENT_INSERT,
@@ -92,9 +113,6 @@ class Patient
                     'PatientRecordsFieldValue',
                     $query
                 );
-
-                HospitalHistory::new((int)$id, $hospitalHistory);
-                Diagnosis::new((int)$id, $diagnosis);
                 
                 return $result;
             }
@@ -240,7 +258,7 @@ class Patient
      */
     public static function delete(int $resourceId)
     {
-        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+        $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
         try
         {

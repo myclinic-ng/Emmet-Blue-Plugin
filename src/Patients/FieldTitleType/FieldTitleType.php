@@ -44,7 +44,7 @@ class FieldTitleType
         try
         {
             $result = DBQueryFactory::insert('Patients.FieldTitleType', [
-                'TypeName'=>(is_null($typeName)) ? 'NULL' : QB::wrapString($typeName, "'"),
+                'TypeName'=>(is_null($typeName)) ? 'NULL' : QB::wrapString(strtolower($typeName), "'"),
                 'TypeDescription'=>(is_null($typeDescription)) ? 'NULL' : QB::wrapString($typeDescription, "'")
             ]);
 
