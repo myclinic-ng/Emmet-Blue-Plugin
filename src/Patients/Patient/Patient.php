@@ -120,7 +120,7 @@ class Patient
                         }
                         else{
                             //upload documents now
-                            self::createPatientFolders();
+                            self::createPatientFolders($patientUuid);
                         }
                     }
                     else {
