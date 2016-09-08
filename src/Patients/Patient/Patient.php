@@ -42,65 +42,69 @@ class Patient
         $operation = $data["operation"] ?? [];
         
         $patientUuid = substr(str_shuffle(MD5(microtime())), 0, 20);
-        $fullName = $data["title"]." ".$data["firstName"]." ".$data["lastName"];
-        $type = $data["patientType"] ?? null;
-        $passport = $data["patientPassport"];
-        $documents = $data["documents"] ?? null;
+        if (isset($data["firstName"])){
+            $title = $data["title"] ?? null;
+            $lastname = $data["lastName"] ?? null;
+            $fullName = $title." ".$data["firstName"]." ".$lastname;
+            $type = $data["patientType"] ?? null;
+            $passport = $data["patientPassport"];
+            $documents = $data["documents"] ?? null;
 
-        unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"],$data["patientType"]);
-        
-        try
-        {
-            $result = DBQueryFactory::insert('Patients.Patient', [
-                'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
-                'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString((string)$passport, "'"),
-                'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
-                'PatientIdentificationDocument'=>(is_null($documents)) ? 'NULL' : QB::wrapString((string)$documents, "'"),
-                'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
-            ]);
-
-            $id = $result['lastInsertId'];
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_INSERT,
-                'Patients',
-                'Patient',
-                (string)(serialize($result))
-            );
+            unset($data["patientPassport"],$data["documents"],$data["hospitalHistory"],$data["diagnosis"],$data["operation"],$data["patientType"]);
             
-            $values = [];
-            foreach ($data as $key=>$value){
-                $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString(((string)$value, "'").")";
+            try
+            {
+                $result = DBQueryFactory::insert('Patients.Patient', [
+                    'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
+                    'PatientPicture'=>(is_null($passport)) ? 'NULL' : QB::wrapString((string)$passport, "'"),
+                    'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
+                    'PatientIdentificationDocument'=>(is_null($documents)) ? 'NULL' : QB::wrapString((string)$documents, "'"),
+                    'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
+                ]);
+
+                $id = $result['lastInsertId'];
+
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_INSERT,
+                    'Patients',
+                    'Patient',
+                    (string)(serialize($result))
+                );
+                
+                $values = [];
+                foreach ($data as $key=>$value){
+                    $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString(((string)$value, "'").")";
+                }
+
+
+                $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
+
+                $queryResult = (
+                    DBConnectionFactory::getConnection()
+                    ->exec($query)
+                );
+
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_INSERT,
+                    'Patients',
+                    'PatientRecordsFieldValue',
+                    $query
+                );
+
+                HospitalHistory::new((int)$id, $hospitalHistory);
+                Diagnosis::new((int)$id, $diagnosis);
+                
+                return $result;
             }
-
-
-            $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
-
-            $queryResult = (
-                DBConnectionFactory::getConnection()
-                ->exec($query)
-            );
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_INSERT,
-                'Patients',
-                'PatientRecordsFieldValue',
-                $query
-            );
-
-            HospitalHistory::new((int)$id, $hospitalHistory);
-            Diagnosis::new((int)$id, $diagnosis);
-            
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process request (patient not created), %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+            catch (\PDOException $e)
+            {
+                throw new SQLException(sprintf(
+                    "Unable to process request (patient not created), %s",
+                    $e->getMessage()
+                ), Constant::UNDEFINED);
+            }
         }
     }
 

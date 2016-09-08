@@ -39,11 +39,13 @@ class PatientType
     {
         
         $patientTypeName = $data["patientTypeName"] ?? null;
+        $patientTypeCategory = $data["patientTypeCategory"] ?? null;
         $patientTypeDescription = $data["patientTypeDescription"] ?? null;
         
         try
         {
             $result = DBQueryFactory::insert('Patients.PatientType', [
+                'CategoryName'=>(is_null($patientTypeCategory)) ? 'NULL' : QB::wrapString((string)$patientTypeCategory, "'"),
                 'PatientTypeName'=>(is_null($patientTypeName)) ? 'NULL' : QB::wrapString((string)$patientTypeName, "'"),
                 'PatientTypeDescription'=>(is_null($patientTypeDescription)) ? 'NULL' : QB::wrapString((string)$patientTypeDescription, "'")
             ]);
@@ -78,6 +80,9 @@ class PatientType
         {
             if (isset($data['PatientTypeName'])){
                 $data['PatientTypeName'] = QB::wrapString($data['PatientTypeName'], "'");
+            }
+            if (isset($data['CategoryName'])){
+                $data['CategoryName'] = QB::wrapString($data['CategoryName'], "'");
             }
             if (isset($data['PatientTypeDescription'])){
                 $data['PatientTypeDescription'] = QB::wrapString($data['PatientTypeDescription'], "'");
