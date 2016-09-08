@@ -71,6 +71,39 @@ class Patient
 
                 if ($result){
                     $id = $result['lastInsertId'];
+
+                    $values = [];
+                    foreach ($data as $key=>$value){
+                        $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
+                    }
+
+
+                    $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
+
+                    $queryResult = (
+                        DBConnectionFactory::getConnection()
+                        ->exec($query)
+                    );
+
+                    if ($queryResult){
+                        if (!HospitalHistory::new((int)$id, $hospitalHistory) || !Diagnosis::new((int)$id, $diagnosis)){
+                            self::delete($id);
+                        }
+                        else{
+                            //upload documents now
+                        }
+                    }
+                    else {
+                        self::delete($id);
+                    }
+
+                    DatabaseLog::log(
+                        Session::get('USER_ID'),
+                        Constant::EVENT_INSERT,
+                        'Patients',
+                        'PatientRecordsFieldValue',
+                        $query
+                    );                
                 }
 
                 DatabaseLog::log(
@@ -81,43 +114,12 @@ class Patient
                     (string)(serialize($result))
                 );
                 
-                $values = [];
-                foreach ($data as $key=>$value){
-                    $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
-                }
-
-
-                $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
-
-                $queryResult = (
-                    DBConnectionFactory::getConnection()
-                    ->exec($query)
-                );
-
-                if ($queryResult){
-                    if (!HospitalHistory::new((int)$id, $hospitalHistory) || !Diagnosis::new((int)$id, $diagnosis)){
-                        self::delete($id);
-                    }
-                    else{
-                        //upload documents now
-                    }
-                }
-                else {
-                    self::delete($id);
-                }
-
-                DatabaseLog::log(
-                    Session::get('USER_ID'),
-                    Constant::EVENT_INSERT,
-                    'Patients',
-                    'PatientRecordsFieldValue',
-                    $query
-                );
                 
                 return $result;
             }
             catch (\PDOException $e)
             {
+                self::delete($id);
                 throw new SQLException(sprintf(
                     "Unable to process request (patient not created), %s",
                     $e->getMessage()
