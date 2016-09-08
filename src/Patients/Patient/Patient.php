@@ -30,11 +30,40 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class Patient
 {
+    CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
+
+    protected static $patientFolders = [];
     /**
      * creats new patient id and generates a unique user id (UUID)
      *
      * @param array $data
      */
+    protected static function createPatientFolders(string $patientUuid){
+        /**
+         * Create 'profile' and 'repositories' folders inside a folder named
+         * '$patientUuid' which will also be created inside the PATIENT_ARCHIVE_DIR
+         * directory.
+         */
+        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $profileDir = $patientDir.DIRECTORY_SEPARATOR.'profile';
+        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories';
+        if (!mkdir($patientDir)){
+            return false;
+        }
+        if (!mkdir($profileDir) || !mkdir($repoDir)){
+            unlink($patientDir)
+            return false;
+        }
+
+        self::$patientFolders = [
+            "patient" => $patientDir,
+            "profile" => $profileDir,
+            "repo" => $repoDir
+        ];
+
+        return true;
+    }
+
     public static function create(array $data)
     {
         if (isset($data["patientName"])){
@@ -91,6 +120,7 @@ class Patient
                         }
                         else{
                             //upload documents now
+                            self::createPatientFolders();
                         }
                     }
                     else {
