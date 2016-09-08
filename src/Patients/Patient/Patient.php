@@ -124,6 +124,8 @@ class Patient
                 ), Constant::UNDEFINED);
             }
         }
+
+        throw new \Exception("Required data not set");
     }
 
     /**
