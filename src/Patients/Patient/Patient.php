@@ -70,10 +70,10 @@ class Patient
         }
 
         $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
-        fwrite($handler, $passport);
+        fwrite($handler, (!is_null($passport)) ? $passport : "");
         fclose($handler);
         $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents", "w");
-        fwrite($handler, $documents);
+        fwrite($handler, (!is_null($documents)) ? $documents : "");
         fclose($handler);
 
         return true;
