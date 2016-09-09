@@ -43,9 +43,9 @@ class PatientType
     /**
      * edits PatientType
      */
-    public static function editPatientType(int $resourceId=0)
+    public static function editPatientType(int $resourceId=0, array $data)
     {
-        $result = PatientType\PatientType::edit($resourceId);
+        $result = PatientType\PatientType::edit($resourceId, $data);
 
         return $result;
     }

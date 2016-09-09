@@ -43,9 +43,9 @@ class PatientTypeCategory
     /**
      * edits PatientTypeCategory
      */
-    public static function editPatientTypeCategory(int $resourceId=0)
+    public static function editPatientTypeCategory(int $resourceId=0, array $data)
     {
-        $result = PatientTypeCategory\PatientTypeCategory::edit($resourceId);
+        $result = PatientTypeCategory\PatientTypeCategory::edit($resourceId, $data);
 
         return $result;
     }
