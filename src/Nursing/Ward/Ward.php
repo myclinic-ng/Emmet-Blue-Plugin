@@ -40,14 +40,13 @@ class Ward
         
         $wardName = $data['wardName'] ?? null;
         $wardDescription = $data['wardDescription'] ?? null;
-
         try
         {
             $result = DBQueryFactory::insert('Nursing.Ward', [
                 'WardName'=>QB::wrapString($wardName, "'"),
                 'WardDescription'=>QB::wrapString($wardDescription, "'")
             ]);
-
+            
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
@@ -90,14 +89,7 @@ class Ward
                 (string)$selectBuilder
             );
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
+           return $viewOperation;     
         } 
         catch (\PDOException $e) 
         {

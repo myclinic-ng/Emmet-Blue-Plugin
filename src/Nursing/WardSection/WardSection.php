@@ -38,8 +38,8 @@ class WardSection
     public static function create(array $data)
     {
         $wardId = $data['wardId'];
-        $wardSectionName = $data['wardSectionName'] ?? null;
-        $wardSectionDescription = $data['wardSectionDescription'] ?? null;
+        $wardSectionName = $data['sectionName'] ?? null;
+        $wardSectionDescription = $data['sectionDescription'] ?? null;
 
         try
         {
@@ -92,14 +92,7 @@ class WardSection
                 (string)serialize($selectBuilder)
             );
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
+            return $viewOperation;          
         } 
         catch (\PDOException $e) 
         {
