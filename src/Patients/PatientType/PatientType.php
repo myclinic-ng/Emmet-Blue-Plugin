@@ -149,40 +149,44 @@ class PatientType
     public static function viewByCategory(int $resourceId)
     {
         $query = "SELECT CategoryName FROM Patients.PatientTypeCategories WHERE CategoryID = $resourceId";
-        $categoryName = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["CategoryName"];
-
-        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        $selectBuilder
-            ->columns('*')
-            ->from('Patients.PatientType');
-        if ($resourceId != 0){
-            $selectBuilder->where('CategoryName ='.$categoryName);
-        }
-
-        try
-        {
-            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'PatientTypeCategories',
-                (string)$selectBuilder
-            );
-
-            return $viewOperation;        
-        } 
-        catch (\PDOException $e) 
-        {
-            throw new SQLException(
-                sprintf(
-                    "Error procesing request"
-                ),
-                Constant::UNDEFINED
-            );
+        $categoryName = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        if (!empty($categoryName)){
+            $categoryName = $categoryName[0]["CategoryName"];
+            $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+            $selectBuilder
+                ->columns('*')
+                ->from('Patients.PatientType');
+            if ($resourceId != 0){
+                $selectBuilder->where('CategoryName =\''.$categoryName.'\'');
+            }
             
+            try
+            {
+                $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_SELECT,
+                    'Patients',
+                    'PatientTypeCategories',
+                    (string)$selectBuilder
+                );
+
+                return $viewOperation;        
+            } 
+            catch (\PDOException $e) 
+            {
+                throw new SQLException(
+                    sprintf(
+                        "Error procesing request"
+                    ),
+                    Constant::UNDEFINED
+                );
+                
+            }
         }
+
+        return [];
     }
 
     
