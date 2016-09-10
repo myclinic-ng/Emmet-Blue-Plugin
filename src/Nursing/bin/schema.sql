@@ -70,7 +70,7 @@ CREATE TABLE Nursing.BedAssignment(
 )
 GO
 CREATE TABLE Nursing.Admission(
-	AdmissionID INT PRIMARY KEY IDNETITY NOT NULL,
+	AdmissionID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientUUID INT,
 	LeasedBed VARCHAR(50),
 	PhysicianUUID INT,
