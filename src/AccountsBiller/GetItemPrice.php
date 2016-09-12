@@ -29,6 +29,7 @@ use EmmetBlue\Core\Constant;
 class GetItemPrice
 {
 	public static function calculate(int $patient, array $data){
+		return $data;
 		$item = $data["item"] ?? null;
 		$quantity = $data["quantity"] ?? null;
 
