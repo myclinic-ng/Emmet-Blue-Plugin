@@ -69,6 +69,7 @@ class NewAccountsBillingTypeItems
 				}
 				
 				$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
+				$intervalQuery = [];
 			}
 
 			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
