@@ -92,14 +92,7 @@ class SectionBed
                 (string)$selectBuilder
             );
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
+            return $viewOperation;        
         } 
         catch (\PDOException $e) 
         {
