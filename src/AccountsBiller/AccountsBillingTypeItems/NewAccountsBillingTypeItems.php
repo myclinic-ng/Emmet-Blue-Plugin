@@ -59,11 +59,22 @@ class NewAccountsBillingTypeItems
 				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
 			}
 
+			if ($intervalBased){
+				foreach ($priceStructure["interval"] as $interval){
+					$int = $interval["interval"] ?? null;
+					$type = $interval["type"] ?? null;
+					$increment = $interval["increment"] ?? null;
+
+					$intervalQuery[] = "(".$interval.", '".$type."', ".$incremnt.")";
+				}
+			}
+
 			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
+			$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
 		}
 
 		$query = implode(";", $query);
-		$result = DBConnectionFactory::getConnection()->exec($query);
+		$result = DBConnectionFactory::getConnection()->query($query);
 		return $result;
 	}
 }
