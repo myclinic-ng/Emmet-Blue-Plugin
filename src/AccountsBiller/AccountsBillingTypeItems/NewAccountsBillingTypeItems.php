@@ -38,46 +38,44 @@ class NewAccountsBillingTypeItems
 	public static function default(array $data)
 	{
 		$billingType = $data['billingType'] ?? 'NULL';
-		$billingTypeItemName = $data['billingTypeItemName'] ?? 'NULL';
-		$billingTypeItemPrice = $data['billingTypeItemPrice'] ?? 'NULL';
-		$rateBased = $data['rateBased'] ?? 0;
-		$rateIdentifier = $data['rateIdentifier'] ?? 'NULL';
-		$intervalBased = $data['intervalBased'] ?? 0;
-		if ((bool)$intervalBased == true){
-			$interval = $data["interval"] ?? [];
-		}
+		$billingTypeItemName = $data['name'] ?? 'NULL';
 
 		$packed = [
 			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString((string)$billingType, "'") : $billingType,
-			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString((string)$billingTypeItemName, "'") : $billingTypeItemName,
-			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString((string)$billingTypeItemPrice, "'") : $billingTypeItemPrice,
-			'RateBased'=>$rateBased,
-			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString((string)$rateIdentifier, "'") : $rateIdentifier,
-			'IntervalBased'=>$intervalBased
+			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName
 		];
 
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
+		$billingTypeItem = $result["lastInsertId"];
 
-		$id = $result["lastInsertId"];
+		foreach($data["priceStructures"] as $priceStructure){
+			$price = $priceStructure["price"];
+			$patientTypes = $priceStructure["patientTypes"];
+			$intervalBased = !empty($priceStructure["interval"]);
+			$rateBased = isset($priceStructure["rate"]);
+			$rateIdentifier = ($rateBased) ? $priceStructure["rate"] : null;
 
-		$valuesArray = [];
-
-		if (isset($interval)){
-			foreach ($interval as $eachInterval){
-				$name = QB::wrapString((string)$eachInterval["interval"], "'") ?? 'NULL';
-				$type = QB::wrapString((string)$eachInterval["type"], "'") ?? 'NULL';
-				$increment = QB::wrapString((string)$eachInterval["increment"], "'") ?? 'NULL';
-
-				$valuesArray[] = "($id, ".$name.", ".$type.", ".$increment.")";
+			foreach($patientTypes as $patientType){
+				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
 			}
 
-			$query = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $valuesArray);
+			if ($intervalBased){
+				foreach ($priceStructure["interval"] as $interval){
+					$int = $interval["interval"] ?? null;
+					$type = $interval["type"] ?? null;
+					$increment = $interval["increment"] ?? null;
 
-			if (!DBConnectionFactory::getConnection()->exec($query)){
-				$result["intervalCreated"] = false;
+					$intervalQuery[] = "(".$billingTypeItem.", ".$int.", '".$type."', ".$increment.")";
+				}
+				
+				$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
 			}
+
+			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
 		}
 
+		$query = implode(";", $query);
+		$result = DBConnectionFactory::getConnection()->query($query);
 		return $result;
 	}
 }

@@ -140,6 +140,7 @@ class PatientTypeCategory
             
         }
     }
+    
     /**
      * delete field title type
      */

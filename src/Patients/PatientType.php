@@ -61,6 +61,16 @@ class PatientType
     }
 
     /**
+     * Selects PatientType
+     */
+    public static function viewByCategory(int $resourceId=0)
+    {
+        $result = PatientType\PatientType::viewByCategory($resourceId);
+
+        return $result;
+    }
+
+    /**
      * Deletes a PatientType
      */
     public static function deletePatientType(int $resourceId)
