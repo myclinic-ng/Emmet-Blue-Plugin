@@ -51,7 +51,7 @@ class NewAccountsBillingTypeItems
 		foreach($data["priceStructures"] as $priceStructure){
 			$price = $priceStructure["price"];
 			$patientTypes = $priceStructure["patientTypes"];
-			$intervalBased = empty($priceStructure["interval"]);
+			$intervalBased = !empty($priceStructure["interval"]);
 			$rateBased = isset($priceStructure["rate"]);
 			$rateIdentifier = ($rateBased) ? $priceStructure["rate"] : null;
 
@@ -63,7 +63,7 @@ class NewAccountsBillingTypeItems
 		}
 
 		$query = implode(";", $query);
-		$result = DBConnectionFactory::getConnection()->query($query);
+		$result = DBConnectionFactory::getConnection()->exec($query);
 		return $result;
 	}
 }
