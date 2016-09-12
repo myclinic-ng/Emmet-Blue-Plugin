@@ -76,9 +76,9 @@ class SectionBed
         $selectBuilder
             ->columns('*')
             ->from('Nursing.SectionBed a');
-            $selectBuilder->innerion('Nursing.WardSection b', 'a.WardSectionID = b.WardSectionID');
+            $selectBuilder->innerJoin('Nursing.WardSection b', 'a.WardSectionID = b.WardSectionID');
         if ($resourceId != 0){
-            $selectBuilder->where('SectionBedID ='.$resourceId);
+            $selectBuilder->where('a.WardSectionID ='.$resourceId);
         }
         try
         {
