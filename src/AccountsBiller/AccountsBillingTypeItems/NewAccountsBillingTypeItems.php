@@ -53,9 +53,10 @@ class NewAccountsBillingTypeItems
 			$patientTypes = $priceStructure["patientTypes"];
 			$intervalBased = empty($priceStructure["interval"]);
 			$rateBased = isset($priceStructure["rate"]);
+			$rateIdentifier = $priceStructure["rate"];
 
 			foreach($patientTypes as $patientType){
-				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", ".(int)$intervalBased.")";
+				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."' ".(int)$intervalBased.")";
 			}
 
 			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
