@@ -28,7 +28,10 @@ use EmmetBlue\Core\Constant;
  */
 class GetItemPrice
 {
-	public static function calculate(int $patient, int $item, int $quantity){
+	public static function calculate(int $patient, array $data){
+		$item = $data["item"] ?? null;
+		$quantity = $data["quantity"] ?? null;
+
 		$query = "SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient";
 		$patientType = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC)[0]["PatientType"];
 
