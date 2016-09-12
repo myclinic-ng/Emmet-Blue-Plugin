@@ -58,7 +58,7 @@ class NewAccountsBillingTypeItems
 				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", ".(int)$intervalBased.")";
 			}
 
-			$query[] = "INSERT INTO Accounts.BillingTypeItemPrices VALUES ".implode(", ", $queryValue);
+			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
 		}
 
 		$query = implode(";", $query);
