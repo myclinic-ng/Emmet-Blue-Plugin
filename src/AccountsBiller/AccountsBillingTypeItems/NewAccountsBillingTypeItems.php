@@ -38,46 +38,21 @@ class NewAccountsBillingTypeItems
 	public static function default(array $data)
 	{
 		$billingType = $data['billingType'] ?? 'NULL';
-		$billingTypeItemName = $data['billingTypeItemName'] ?? 'NULL';
-		$billingTypeItemPrice = $data['billingTypeItemPrice'] ?? 'NULL';
-		$rateBased = $data['rateBased'] ?? 0;
-		$rateIdentifier = $data['rateIdentifier'] ?? 'NULL';
-		$intervalBased = $data['intervalBased'] ?? 0;
-		if ((bool)$intervalBased == true){
-			$interval = $data["interval"] ?? [];
-		}
+		$billingTypeItemName = $data['name'] ?? 'NULL';
 
 		$packed = [
-			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString((string)$billingType, "'") : $billingType,
-			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString((string)$billingTypeItemName, "'") : $billingTypeItemName,
-			'BillingTypeItemPrice'=>($billingTypeItemPrice !== 'NULL') ? QB::wrapString((string)$billingTypeItemPrice, "'") : $billingTypeItemPrice,
-			'RateBased'=>$rateBased,
-			'RateIdentifier'=>($rateIdentifier !== 'NULL') ? QB::wrapString((string)$rateIdentifier, "'") : $rateIdentifier,
-			'IntervalBased'=>$intervalBased
+			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString($billingType, "'") : $billingType,
+			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName
 		];
 
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
-
-		$id = $result["lastInsertId"];
-
-		$valuesArray = [];
-
-		if (isset($interval)){
-			foreach ($interval as $eachInterval){
-				$name = QB::wrapString((string)$eachInterval["interval"], "'") ?? 'NULL';
-				$type = QB::wrapString((string)$eachInterval["type"], "'") ?? 'NULL';
-				$increment = QB::wrapString((string)$eachInterval["increment"], "'") ?? 'NULL';
-
-				$valuesArray[] = "($id, ".$name.", ".$type.", ".$increment.")";
-			}
-
-			$query = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $valuesArray);
-
-			if (!DBConnectionFactory::getConnection()->exec($query)){
-				$result["intervalCreated"] = false;
-			}
-		}
-
 		return $result;
+
+		foreach($data["priceStructures"] as $priceStructure){
+			$price = $priceStructure["price"];
+			$patientTypes = $priceStructure["patientTypes"];
+			$interval = empty($priceStructure["interval"]) ? false : $priceStructure["interval"];
+			$rate = isset($priceStructure["rate"]) ? false : $priceStructure["rate"];
+		}
 	}
 }
