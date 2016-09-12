@@ -53,7 +53,8 @@ CREATE TABLE Accounts.BillingTypeItemsPrices (
 	RateBased BIT,
 	RateIdentifier VARCHAR(100),
 	IntervalBased BIT,
-	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(BillingTypeItem, PatientType)
 );
 
 CREATE TABLE Accounts.BillingTypeItemsInterval (

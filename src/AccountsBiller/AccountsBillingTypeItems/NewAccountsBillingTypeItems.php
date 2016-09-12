@@ -53,7 +53,7 @@ class NewAccountsBillingTypeItems
 			$patientTypes = $priceStructure["patientTypes"];
 			$intervalBased = empty($priceStructure["interval"]);
 			$rateBased = isset($priceStructure["rate"]);
-			$rateIdentifier = $priceStructure["rate"];
+			$rateIdentifier = ($rateBased) ? $priceStructure["rate"] : null;
 
 			foreach($patientTypes as $patientType){
 				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
