@@ -41,7 +41,7 @@ class NewAccountsBillingTypeItems
 		$billingTypeItemName = $data['name'] ?? 'NULL';
 
 		$packed = [
-			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString($billingType, "'") : $billingType,
+			'BillingType'=>($billingType !== 'NULL') ? QB::wrapString((string)$billingType, "'") : $billingType,
 			'BillingTypeItemName'=>($billingTypeItemName !== 'NULL') ? QB::wrapString($billingTypeItemName, "'") : $billingTypeItemName
 		];
 
