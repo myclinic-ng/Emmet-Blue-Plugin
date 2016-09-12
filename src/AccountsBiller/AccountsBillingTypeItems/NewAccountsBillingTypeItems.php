@@ -65,7 +65,7 @@ class NewAccountsBillingTypeItems
 					$type = $interval["type"] ?? null;
 					$increment = $interval["increment"] ?? null;
 
-					$intervalQuery[] = "(".$interval.", '".$type."', ".$incremnt.")";
+					$intervalQuery[] = "(".$int.", '".$type."', ".$increment.")";
 				}
 			}
 
