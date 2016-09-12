@@ -73,6 +73,7 @@ class NewAccountsBillingTypeItems
 			}
 
 			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
+			$queryValue  = [];
 		}
 
 		$query = implode(";", $query);
