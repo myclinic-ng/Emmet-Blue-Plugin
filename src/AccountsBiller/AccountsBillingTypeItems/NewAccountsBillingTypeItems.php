@@ -77,7 +77,7 @@ class NewAccountsBillingTypeItems
 		}
 
 		$query = implode(";", $query);
-		$result = DBConnectionFactory::getConnection()->query($query);
+		$result = DBConnectionFactory::getConnection()->exec($query);
 		return $result;
 	}
 }
