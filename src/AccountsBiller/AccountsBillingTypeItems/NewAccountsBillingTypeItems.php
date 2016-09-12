@@ -46,13 +46,22 @@ class NewAccountsBillingTypeItems
 		];
 
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
-		$billingTypeItem = $result["lastInsertId"]
+		$billingTypeItem = $result["lastInsertId"];
 
 		foreach($data["priceStructures"] as $priceStructure){
 			$price = $priceStructure["price"];
 			$patientTypes = $priceStructure["patientTypes"];
-			$interval = empty($priceStructure["interval"]) ? false : $priceStructure["interval"];
-			$rate = isset($priceStructure["rate"]) ? false : $priceStructure["rate"];
+			$intervalBased = empty($priceStructure["interval"]);
+			$rateBased = isset($priceStructure["rate"]);
+
+			foreach($patientTypes as $patientType){
+				$queryValue[] = "(".$billingTypeItem, $patientType, '$price', (int)$rateBased, (int)$intervalBased.")";
+			}
+
+			$query[] = "INSERT INTO Accounts.BillingTypeItemPrices VALUES ".implode(", ", $queryValue);
 		}
+
+		echo $query;
+		die();
 	}
 }
