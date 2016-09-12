@@ -56,15 +56,13 @@ class NewAccountsBillingTypeItems
 			$rateIdentifier = $priceStructure["rate"];
 
 			foreach($patientTypes as $patientType){
-				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."' ".(int)$intervalBased.")";
+				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
 			}
 
 			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
 		}
 
 		$query = implode(";", $query);
-		echo ($query);
-		die();
 		$result = DBConnectionFactory::getConnection()->query($query);
 		return $result;
 	}
