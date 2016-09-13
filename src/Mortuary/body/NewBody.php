@@ -32,7 +32,7 @@ class NewBody
 	public static function default(array $data)
 	{
 		$physicianId = 3;//$data['physicianId'] ?? 'NULL';
-		$tag = $data['tag'] ?? 'NULL';
+		$tags = $data['tags'] ?? 'NULL';
 		$dateOfDeath = $data['dateOfDeath'] ?? 'NULL';
 		$placeOfDeath = $data['placeOfDeath'] ?? 'NULL';
 		//body Info
@@ -58,7 +58,6 @@ class NewBody
 
 		$packed = [
 			'DeathPhysicianID'=>$physicianId,
-			'BodyTag'=>($tag !== 'NULL') ? QB::wrapString($tag, "'") : $tag,
 			'DateOfDeath'=>($dateOfDeath !== 'NULL') ? QB::wrapString($dateOfDeath, "'") : $dateOfDeath,
 			'PlaceOfDeath'=>($placeOfDeath !== 'NULL') ? QB::wrapString($placeOfDeath, "'") : $placeOfDeath,
 			'BodyStatus'=>1,
@@ -90,7 +89,28 @@ class NewBody
 		];
 
 		$bodyDepositorResult = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
-		return array_merge($bodyResult, $bodyInfoResult, $bodyDepositorResult);
+		//body tags
+		 foreach ($tags as $datum){
+                $bodyTags[] = "($id, ".QB::wrapString($datum['tags'], "'").")";
+            }
+
+            $bodyTagQuery = "INSERT INTO Mortuary.BodyTag (BodyID, TagName) 
+                            VALUES ".implode(", ", $bodyTags);
+
+                DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Mortuary',
+                'BodyTag',
+                (string)serialize($query)
+            );
+                           
+            $bodyTagResult = (
+                DBConnectionFactory::getConnection()
+                ->exec($bodyTagQuery)
+            );
+           
+		return array_merge($bodyResult, $bodyInfoResult, $bodyDepositorResult, $bodyTagResult);
 		
 	}
 }
