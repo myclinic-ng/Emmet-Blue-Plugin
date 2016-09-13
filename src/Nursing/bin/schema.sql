@@ -69,6 +69,7 @@ CREATE TABLE Nursing.BedAssignment(
 	FOREIGN KEY (BedName) REFERENCES Nursing.SectionBed(BedName) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
+
 -- CREATE TABLE Nursing.Admission(
 -- 	AdmissionID INT PRIMARY KEY IDENTITY NOT NULL,
 -- 	PatientUUID INT,
