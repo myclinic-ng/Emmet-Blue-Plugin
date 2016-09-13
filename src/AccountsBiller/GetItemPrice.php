@@ -59,6 +59,10 @@ class GetItemPrice
 				$increment = $result["IntervalIncrement"];
 
 				$totalPrice += self::calculateIntervalBasedPrice((int)$price, (int)$quantity, (int)$interval, $type, (int)$increment);
+				$quantity -= $interval;
+				if ($quantity <= 0){
+					break;
+				}
 			}
 		}
 		else {
@@ -73,32 +77,38 @@ class GetItemPrice
 	}
 
 	private static function calculateIntervalBasedPrice(int $price, int $quantity, int $interval, string $type, int $increment){
-		$totalPrice = $price;
+		$totalPrice = 0;
 		switch (strtolower($type)){
 			case "additive":{
 				if ($quantity > $interval){
-					$dividend = $quantity / $interval;
+					$dividend = round($quantity / $interval);
 					$modulus = $quantity % $interval;
 					for ($i = 0; $i < $dividend; $i++){
-						$totalPrice += ($totalPrice + $increment) * $interval;
+						$totalPrice += ($price + $increment) * $interval;
 					}
 					if ($modulus > 0){
-						$totalPrice += ($totalPrice + $increment) * $modulus;
+						$totalPrice += ($price + $increment) * $modulus;
 					}
+				}
+				else {
+					$totalPrice += ($price + $increment) * $quantity;
 				}
 				break;
 			}
 
 			case "multiplicative":{
 				if ($quantity > $interval){
-					$dividend = $quantity / $interval;
+					$dividend = round($quantity / $interval);
 					$modulus = $quantity % $interval;
 					for($i = 0; $i < $dividend; $i++){
-						$totalPrice += ($totalPrice * $increment) * $interval;
+						$totalPrice += ($price * $increment) * $interval;
 					}
 					if ($modulus > 0){
-						$totalPrice += ($totalPrice * $increment) * $modulus;
+						$totalPrice += ($price * $increment) * $modulus;
 					}
+				}
+				else {
+					$totalPrice += ($price * $increment) * $quantity;
 				}
 				break;
 			}
@@ -106,7 +116,10 @@ class GetItemPrice
 			case "custom":{
 				$counter = $quantity - $interval;
 				if ($counter > 0){
-					$totalPrice += ($totalPrice + $increment) * $counter;
+					$totalPrice += ($price + $increment) * $interval;
+				}
+				else {
+					$totalPrice += ($price + $increment) * $quantity;
 				}
 				break;
 			}
