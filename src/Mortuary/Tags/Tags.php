@@ -66,7 +66,7 @@ class Tags
     /**
      * view Wards data
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId =0)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
