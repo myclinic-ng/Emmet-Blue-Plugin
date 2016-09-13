@@ -69,13 +69,15 @@ class NewAccountsBillingTypeItems
 				}
 				
 				$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
+				$intervalQuery = [];
 			}
 
 			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
+			$queryValue  = [];
 		}
 
 		$query = implode(";", $query);
-		$result = DBConnectionFactory::getConnection()->query($query);
+		$result = DBConnectionFactory::getConnection()->exec($query);
 		return $result;
 	}
 }
