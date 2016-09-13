@@ -33,7 +33,11 @@ class Tags
 		return Tags\Tags::create($data);
 	}
 
+<<<<<<< HEAD
 	public static function viewTags(int $resourceId = 0)
+=======
+	public static function viewTags(int $resourceId=0)
+>>>>>>> c5287371f425c3074bfb275a29392f35bc7b5097
 	{
 		return Tags\Tags::view($resourceId);
 	}
