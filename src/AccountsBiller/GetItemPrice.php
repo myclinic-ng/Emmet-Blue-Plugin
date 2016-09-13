@@ -58,7 +58,7 @@ class GetItemPrice
 				$type = $result["IntervalIncrementType"];
 				$increment = $result["IntervalIncrement"];
 
-				$totalPrice += self::calculateIntervalBasedPrice($price, $quantity, $interval, $type, $increment);
+				$totalPrice += self::calculateIntervalBasedPrice((int)$price, (int)$quantity, (int)$interval, $type, (int)$increment);
 			}
 		}
 		else {
