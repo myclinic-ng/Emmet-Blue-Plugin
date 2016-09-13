@@ -61,14 +61,7 @@ class ViewBody
 				(string)$bodyBuilder
 			);
 			
-			if(count($viewBodyOperation) > 0)
-			{
-				return $viewBodyOperation;
-			}
-			else
-			{
-				return null;
-			}			
+			return $viewBodyOperation;	
 		} 
 		catch (\PDOException $e) 
 		{
