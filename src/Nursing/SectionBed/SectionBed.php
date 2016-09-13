@@ -45,8 +45,8 @@ class SectionBed
         {
             $result = DBQueryFactory::insert('Nursing.SectionBed', [
                 'WardSectionID'=>$wardSectionId,
-                'BedName'=>QB::wrapString($bedName, "'"),
-                'BedDescription'=>QB::wrapString($bedDescription, "'")
+                'BedName'=>QB::wrapString((string)$bedName, "'"),
+                'BedDescription'=>QB::wrapString((string)$bedDescription, "'")
             ]);
 
             DatabaseLog::log(
@@ -114,6 +114,15 @@ class SectionBed
 
         try
         {
+            if (isset($data['WardSectionID'])){
+                $data['WardSectionID'] = QB::wrapString($data['WardSectionID'], "'");
+            }
+            if (isset($data['BedName'])){
+                $data['BedName'] = QB::wrapString($data['BedName'], "'");
+            }
+            if (isset($data['BedDescription'])){
+                $data['BedDescription'] = QB::wrapString($data['BedDescription'], "'");
+            }
             $updateBuilder->table("Nursing.SectionBed");
             $updateBuilder->set($data);
             $updateBuilder->where("SectionBedID = $resourceId");
@@ -122,7 +131,7 @@ class SectionBed
                     DBConnectionFactory::getConnection()
                     ->query((string)$updateBuilder)
                 );
-            //logging
+            /*//logging
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
@@ -130,7 +139,7 @@ class SectionBed
                 'SectionBed',
                 (string)(serialize($result))
             );
-
+*/
             return $result;
         }
         catch (\PDOException $e)

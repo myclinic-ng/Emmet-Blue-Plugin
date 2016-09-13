@@ -45,8 +45,8 @@ class WardSection
         {
             $result = DBQueryFactory::insert('Nursing.WardSection', [
                 'WardID'=>$wardId,
-                'WardSectionName'=>QB::wrapString($wardSectionName, "'"),
-                'WardSectionDescription'=>QB::wrapString($wardSectionDescription, "'")
+                'WardSectionName'=>QB::wrapString((string)$wardSectionName, "'"),
+                'WardSectionDescription'=>QB::wrapString((string)$wardSectionDescription, "'")
             ]);
 
             DatabaseLog::log(
@@ -114,6 +114,15 @@ class WardSection
 
         try
         {
+            if (isset($data['WardID'])){
+                $data['WardID'] = QB::wrapString($data['WardID'], "'");
+            }
+            if (isset($data['WardSectionName'])){
+                $data['WardSectionName'] = QB::wrapString($data['WardSectionName'], "'");
+            }
+            if (isset($data['WardSectionDescription'])){
+                $data['WardSectionDescription'] = QB::wrapString($data['WardSectionDescription'], "'");
+            }
             $updateBuilder->table("Nursing.WardSection");
             $updateBuilder->set($data);
             $updateBuilder->where("WardSectionID = $resourceId");
@@ -123,13 +132,13 @@ class WardSection
                     ->query((string)$updateBuilder)
                 );
             //logging
-            DatabaseLog::log(
+            /*DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Nursing',
                 'WardSection',
                 (string)(serialize($result))
-            );
+            );*/
 
             return $result;
         }

@@ -28,11 +28,11 @@ use EmmetBlue\Core\Constant;
  */
 class Ward
 {
-	/**
-	 * Creates a new Ward
-	 *
-	 * @param $_POST
-	 */
+    /**
+     * Creates a new Ward
+     *
+     * @param $_POST
+     */
     public static function newWard(array $data)
     {
         $result = Ward\Ward::create($data);
@@ -55,7 +55,7 @@ class Ward
      */
     public static function editWard(int $resourceId=0, array $data)
     {
-        $result = Ward\Ward::view($resourceId, $data);
+        $result = Ward\Ward::edit($resourceId, $data);
 
         return $result;
     }
@@ -65,8 +65,8 @@ class Ward
      */
     public static function deleteWard(int $resourceId)
     {
-    	$result = Ward\Ward::delete($resourceId);
+        $result = Ward\Ward::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
 }
