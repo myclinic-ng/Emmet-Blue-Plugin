@@ -33,7 +33,7 @@ class Tags
 		return Tags\Tags::create($data);
 	}
 
-	public static function viewTags(int $resourceId)
+	public static function viewTags(int $resourceId=0)
 	{
 		return Tags\Tags::view($resourceId);
 	}
