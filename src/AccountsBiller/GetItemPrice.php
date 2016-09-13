@@ -53,10 +53,10 @@ class GetItemPrice
 				throw new \Exception("Interval definition not found.");
 			}
 			$totalPrice = 0;
-			foreach ($results as $result) {
-				$interval = $result["Interval"];
-				$type = $result["IntervalIncrementType"];
-				$increment = $result["IntervalIncrement"];
+			foreach ($results as $_result) {
+				$interval = $_result["Interval"];
+				$type = $_result["IntervalIncrementType"];
+				$increment = $_result["IntervalIncrement"];
 
 				$totalPrice += self::calculateIntervalBasedPrice((int)$price, (int)$quantity, (int)$interval, $type, (int)$increment);
 				$quantity -= $interval;
@@ -69,7 +69,7 @@ class GetItemPrice
 			$totalPrice = self::calculateNonIntervalBasedPrice((int)$price, (int)$quantity);
 		}
 
-		return $totalPrice;
+		return !is_null($result["RateIdentifier"]) ? ["rateIdentifier"=>strtolower($result["RateIdentifier"]), "totalPrice"=>$totalPrice] : ["totalPrice"=>$totalPrice];
 	}
 
 	private static function calculateNonIntervalBasedPrice(int $price, int $quantity){
