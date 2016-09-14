@@ -60,6 +60,17 @@ class ViewBody
 				'Body',
 				(string)$bodyBuilder
 			);
+
+			foreach ($viewBodyOperation as $key => $value) {
+				$id = $value["BodyID"];
+				$tags = [];
+				$query = "SELECT * FROM Mortuary.BodyTag WHERE BodyID = $id";
+				$result = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+				foreach ($result as $value){
+					$tags[] = $value["TagName"];
+				}
+				$viewBodyOperation[$key]["Tags"] = $tags;	
+			}
 			
 			return $viewBodyOperation;	
 		} 
