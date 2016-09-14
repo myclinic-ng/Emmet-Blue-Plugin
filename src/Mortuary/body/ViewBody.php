@@ -45,7 +45,6 @@ class ViewBody
 			
 			$bodyBuilder->innerJoin("Mortuary.BodyInformation b","a.BodyID = b.BodyID");//->where('BodyStatus = '.$bodyStatus);
 			$bodyBuilder->innerJoin('Mortuary.DepositorDetails c', 'a.BodyID = c.BodyID');
-			$bodyBuilder->innerJoin('Mortuary.BodyTag d', 'a.BodyID = d.BodyID');
 		if ($bodyId != 0){
 
 			$bodyBuilder->where('BodyID ='.$bodyId);

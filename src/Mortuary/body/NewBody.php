@@ -109,6 +109,5 @@ class NewBody
         );
            
 		return $bodyResult;
-		
 	}
 }
