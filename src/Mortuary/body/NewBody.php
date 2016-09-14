@@ -94,7 +94,7 @@ class NewBody
         }
 
         $bodyTagQuery = "INSERT INTO Mortuary.BodyTag (BodyID, TagName) VALUES ".implode(", ", $bodyTags);
-        
+
         DatabaseLog::log(
             Session::get('USER_ID'),
             Constant::EVENT_SELECT,
@@ -108,7 +108,7 @@ class NewBody
             ->exec($bodyTagQuery)
         );
            
-		return array_merge($bodyResult, $bodyInfoResult, $bodyDepositorResult, $bodyTagResult);
+		return $bodyResult;
 		
 	}
 }
