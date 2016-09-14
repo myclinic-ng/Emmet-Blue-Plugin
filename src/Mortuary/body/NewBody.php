@@ -91,7 +91,7 @@ class NewBody
 		$bodyDepositorResult = DatabaseQueryFactory::insert('Mortuary.DepositorDetails', $packed);
 		//body tags
 		 foreach ($tags as $datum){
-                $bodyTags[] = "($id, ".QB::wrapString($datum['tags'], "'").")";
+                $bodyTags[] = "($bodyId, ".QB::wrapString($datum['tags'], "'").")";
             }
 
             $bodyTagQuery = "INSERT INTO Mortuary.BodyTag (BodyID, TagName) 
