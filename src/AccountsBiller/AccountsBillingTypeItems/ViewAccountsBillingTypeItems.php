@@ -111,7 +111,7 @@ class ViewAccountsBillingTypeItems
         $q = "SELECT * FROM PatientType FROM Patients.Patient WHERE PatientID = $patientId";
         $type = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC)[0]["PatientType"];
 
-        $query = "SELECT * FROM Accounts.BillingTypeItemsPrices WHERE BillingTypeItem=$item AND PatientType=$patientId";
+        $query = "SELECT * FROM Accounts.BillingTypeItemsPrices WHERE BillingTypeItem=$item AND PatientType=$type";
         $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($result){
