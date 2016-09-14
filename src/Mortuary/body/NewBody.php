@@ -60,7 +60,7 @@ class NewBody
 			'DeathPhysicianID'=>$physicianId,
 			'DateOfDeath'=>($dateOfDeath !== 'NULL') ? QB::wrapString($dateOfDeath, "'") : $dateOfDeath,
 			'PlaceOfDeath'=>($placeOfDeath !== 'NULL') ? QB::wrapString($placeOfDeath, "'") : $placeOfDeath,
-			'BodyStatus'=>'RIP'
+			'BodyStatus'=>QB::wrapString('RIP', "'")
 		];
 
 		$bodyResult = DatabaseQueryFactory::insert('Mortuary.Body', $packed);
