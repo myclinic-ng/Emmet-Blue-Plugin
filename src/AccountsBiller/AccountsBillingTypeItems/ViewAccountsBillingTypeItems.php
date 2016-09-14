@@ -104,4 +104,21 @@ class ViewAccountsBillingTypeItems
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function isRateBased(int $patientId, array $data){
+        $item = $data["item"] ?? null;
+
+        $query = "SELECT * FROM Accounts.BillingTypeItemsPrices WHERE BillingTypeItem=$item AND PatientType=$patientId";
+        $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($result){
+            $rateBased = $result[0]["RateBased"];
+            $rateIdentifier = $result[0]["RateIdentifier"];
+            $intervalBased = $result[0]["IntervalBased"];
+
+            return ["rateBased"=>$rateBased, "rateIdentifier"=>$rateIdentifier, "intervalBased"=>$intervalBased];
+        }
+
+        return [];
+    }
 }

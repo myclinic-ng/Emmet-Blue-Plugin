@@ -43,6 +43,11 @@ class BillingTypeItems
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewItemIntervals($resourceId, $data);
 	}
 
+	public static function isRateBased(int $patientId, array $data)
+	{
+		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::isRateBased($patientId, $data);	
+	}
+
 	public static function deleteBillingTypeItems(int $resourceId)
 	{
 		return AccountsBillingTypeItems\DeleteAccountsBillingTypeitems::delete($resourceId);
