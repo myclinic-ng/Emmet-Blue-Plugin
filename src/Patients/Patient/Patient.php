@@ -139,9 +139,7 @@ class Patient
                                 self::delete((int)$id);
                             }
                             else {
-                                if (!self::uploadPhotoAndDocuments($passport, $documents)){
-                                    self::delete((int)$id);
-                                }
+                                self::uploadPhotoAndDocuments($passport, $documents);
                             }
                         }
                     }
