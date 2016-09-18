@@ -144,5 +144,51 @@ class Account
             ), Constant::UNDEFINED);
         }   
     }
+
+    public static function getStaffRole(int $staffId)
+    {
+        $selectBuilder = (new Builder("QueryBuilder","Select"))->getBuilder();
+
+        try
+        {
+            $selectBuilder
+                ->columns(
+                    "b.Name",
+                )
+                ->from(
+                    "Staffs.StaffRole a"
+                )
+                ->innerJoin("Staffs.Role b", "a.RoleID = b.RoleID")
+                ->where(
+                    "a.StaffID = ".
+                    $staffId
+                );
+
+             $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
+             if (count($result) == 1)
+             {
+                return $result[0]["Name"];
+             }
+
+             throw new UndefinedValueException(
+                sprintf(
+                    "User with ID: %s not found",
+                    $username
+                 ),
+                (int)Session::get('USER_ID')
+             );
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "A database related error has occurred"
+            ), Constant::UNDEFINED);
+        }   
+    }
 	
 }
