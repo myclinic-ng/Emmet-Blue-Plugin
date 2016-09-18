@@ -28,12 +28,12 @@ use EmmetBlue\Core\Constant;
  */
 class Account
 {
-	/**
-	 * Logs a User In
-	 *
-	 * @param string $username
-	 * @param string $password
-	 */
+    /**
+     * Logs a User In
+     *
+     * @param string $username
+     * @param string $password
+     */
     public static function login($data)
     {
         $username = $data["username"];
@@ -149,7 +149,7 @@ class Account
     {
         try
         {
-            $selectBuilder = "SELECT b.* FROM Staffs.Staff a INNER JOIN (Select a.StaffID, b.Name From Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID) b on a.StaffID = b.StaffID WHERE a.StaffUUID = $staffUuid";
+            $selectBuilder = "SELECT b.Name FROM Staffs.Staff a INNER JOIN (Select a.StaffID, b.Name From Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID) b on a.StaffID = b.StaffID WHERE a.StaffUUID = '$staffUuid'";
 
              $result = (
                     DBConnectionFactory::getConnection()
@@ -177,5 +177,5 @@ class Account
             ), Constant::UNDEFINED);
         }   
     }
-	
+    
 }
