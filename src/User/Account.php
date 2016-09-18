@@ -145,7 +145,7 @@ class Account
         }   
     }
 
-    public static function getStaffRole(int $staffUuid)
+    public static function getStaffRole(string $staffUuid)
     {
         try
         {
