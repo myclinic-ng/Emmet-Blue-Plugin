@@ -145,11 +145,15 @@ class Account
         }   
     }
 
-    public static function getStaffRole(string $staffUuid)
+    public static function getStaffRoleAndDepartment(string $staffUuid)
     {
         try
         {
-            $selectBuilder = "SELECT b.Name FROM Staffs.Staff a INNER JOIN (Select a.StaffID, b.Name From Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID) b on a.StaffID = b.StaffID WHERE a.StaffUUID = '$staffUuid'";
+            $selectBuilder = "SELECT a.RoleName, b.Name as DepartmentName FROM (
+                                SELECT a.StaffUUID, b.Name as RoleName, b.DepartmentID FROM Staffs.Staff a INNER JOIN (Select a.StaffID, b.* From Staffs.StaffRole a
+                                INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID) b on a.StaffID = b.StaffID
+                            ) a
+                            INNER JOIN Staffs.Department b ON a.DepartmentID = b.DepartmentID WHERE a.StaffUUID = '$staffUuid'";
 
              $result = (
                     DBConnectionFactory::getConnection()
@@ -159,7 +163,7 @@ class Account
             DatabaseLog::log(CoreSession::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
              if (count($result) == 1)
              {
-                return $result[0]["Name"];
+                return $result[0];
              }
 
              throw new UndefinedValueException(
