@@ -153,7 +153,7 @@ class Account
         {
             $selectBuilder
                 ->columns(
-                    "b.Name",
+                    "b.Name"
                 )
                 ->from(
                     "Staffs.StaffRole a"
