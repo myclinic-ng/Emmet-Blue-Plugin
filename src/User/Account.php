@@ -13,7 +13,7 @@ use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Exception\UndefinedValueException;
-use EmmetBlue\Core\Session\Session;
+use EmmetBlue\Core\Session\Session as CoreSession;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
@@ -77,7 +77,7 @@ class Account
                     ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'StaffPassword', (string)$selectBuilder);
+            DatabaseLog::log(CoreSession::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'StaffPassword', (string)$selectBuilder);
              if (count($result) == 1)
              {
                 return (int)$result[0]['StaffID'];
@@ -88,7 +88,7 @@ class Account
                     "User with ID: %s not found",
                     $username
                  ),
-                (int)Session::get('USER_ID')
+                (int)CoreSession::get('USER_ID')
              );
         }
         catch (\PDOException $e)
@@ -123,7 +123,7 @@ class Account
                     ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
+            DatabaseLog::log(CoreSession::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
              if (count($result) == 1)
              {
                 return $result[0];
@@ -134,7 +134,7 @@ class Account
                     "User with ID: %s not found",
                     $username
                  ),
-                (int)Session::get('USER_ID')
+                (int)CoreSession::get('USER_ID')
              );
         }
         catch (\PDOException $e)
@@ -169,7 +169,7 @@ class Account
                     ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
+            DatabaseLog::log(CoreSession::get('USER_ID'), Constant::EVENT_SELECT, 'Staffs', 'Staff', (string)$selectBuilder);
              if (count($result) == 1)
              {
                 return $result[0]["Name"];
@@ -180,7 +180,7 @@ class Account
                     "User with ID: %s not found",
                     $username
                  ),
-                (int)Session::get('USER_ID')
+                (int)CoreSession::get('USER_ID')
              );
         }
         catch (\PDOException $e)
