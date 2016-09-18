@@ -145,24 +145,11 @@ class Account
         }   
     }
 
-    public static function getStaffRole(int $staffId)
+    public static function getStaffRole(int $staffUuid)
     {
-        $selectBuilder = (new Builder("QueryBuilder","Select"))->getBuilder();
-
         try
         {
-            $selectBuilder
-                ->columns(
-                    "b.Name"
-                )
-                ->from(
-                    "Staffs.StaffRole a"
-                )
-                ->innerJoin("Staffs.Role b", "a.RoleID = b.RoleID")
-                ->where(
-                    "a.StaffID = ".
-                    $staffId
-                );
+            $selectBuilder = "SELECT b.* FROM Staffs.Staff a INNER JOIN (Select a.StaffID, b.Name From Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID) b on a.StaffID = b.StaffID WHERE a.StaffUUID = $staffUuid";
 
              $result = (
                     DBConnectionFactory::getConnection()
