@@ -52,7 +52,7 @@ class Login
         		)
         		->where(
         			"b.StaffUsername = ".
-        			QB::wrapString($username, "'")
+        			QB::wrapString((string)$username, "'")
         		);
 
         	 $result = (
