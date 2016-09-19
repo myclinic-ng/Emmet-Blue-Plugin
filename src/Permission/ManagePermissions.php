@@ -34,6 +34,13 @@ class ManagePermissions
         return true;
     }
 
+    public static function addRole(string $role){
+
+        (new Permission())->add("Role", $role);
+
+        return true;
+    }
+
     public static function setInheritance(array $data)
     {
         (new Permission())->setInheritance($data["parent"], $data["child"]);

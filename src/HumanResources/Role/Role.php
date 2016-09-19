@@ -28,11 +28,11 @@ use EmmetBlue\Core\Constant;
  */
 class Role
 {
-	/**
-	 * Determines if a login data is valid
-	 *
-	 * @param array $data
-	 */
+    /**
+     * Determines if a login data is valid
+     *
+     * @param array $data
+     */
     public static function create(array $data)
     {
         $name = $data['name'];
@@ -41,11 +41,21 @@ class Role
 
         try
         {
-        	$result = DBQueryFactory::insert('Staffs.Role', [
+            $result = DBQueryFactory::insert('Staffs.Role', [
                 'Name'=>QB::wrapString($name, "'"),
                 'DepartmentID'=>$department,
-                'Description'=>(is_null($description)) ? "" : QB::wrapString($description, "'")
+                'Description'=>(is_null($description)) ? "NULL" : QB::wrapString($description, "'")
             ]);
+
+            if ($result){
+                $query = "SELECT Name FROM Staffs.Department WHERE DepartmentID = $department";
+                $department = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC)[0]["Name"];
+                $department = str_replace(" ", "", strtolower($department));
+                $role = str_replace(" ", "", strtolower($name));
+                $aclRole = $department."_".$role;
+
+                \EmmetBlue\Plugins\Permission\ManagePermissions::addRole($aclRole);
+            }
             
             return $result;
         }
