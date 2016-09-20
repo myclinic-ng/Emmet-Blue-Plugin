@@ -41,9 +41,9 @@ class AccessControl
         	foreach ($strings as $key=>$value){
         		$strings[$key] = self::parseCamelString($value);
         	}
-        	$key = $string[0];
-        	unset($string[0]);
-        	$string = implode(" ", $string);
+        	$key = $strings[0];
+        	unset($strings[0]);
+        	$string = implode(" ", $strings);
         	$groupedPermissions[$key][] = $string;
         }
 
