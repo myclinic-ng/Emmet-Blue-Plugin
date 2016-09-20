@@ -28,8 +28,15 @@ use EmmetBlue\Core\Constant;
 class AccessControl
 {
     public static function viewResources(){
-        $permission = (new Permission())->getResources();
+        $permissions = (new Permission())->getResources();
 
-        return $permission;
+        $groupedPermissions = [];
+        foreach ($permissions as $permission)
+        {
+        	$strings = explode("_", $permission);
+        	$groupedPermissions[$strings[0]][] = $strings[1];
+        }
+
+        return $groupedPermissions;
     }
 }
