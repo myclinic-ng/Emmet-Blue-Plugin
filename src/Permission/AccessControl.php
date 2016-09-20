@@ -39,7 +39,7 @@ class AccessControl
         {
         	$strings = explode("_", $permission);
         	foreach ($strings as $key=>$value){
-        		$strings[$key] = self::parseCamelString($value);
+        		$strings[$key] = ucfirst(self::parseCamelString($value));
         	}
         	$key = $strings[0];
         	unset($strings[0]);
