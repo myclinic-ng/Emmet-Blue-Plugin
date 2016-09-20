@@ -75,16 +75,19 @@ class AccessControl
         $registry = (new Permission())->getAllPermissions($aclRole);
 
         $groupedPermissions = [];
-        foreach ($registry as $permission=>$permissions)
-        {
-            $strings = explode("_", $permission);
-            foreach ($strings as $key=>$value){
-                $strings[$key] = ucfirst(self::parseCamelString($value));
+        
+        if (is_array($registry)){
+            foreach ($registry as $permission=>$permissions)
+            {
+                $strings = explode("_", $permission);
+                foreach ($strings as $key=>$value){
+                    $strings[$key] = ucfirst(self::parseCamelString($value));
+                }
+                $key = $strings[0];
+                unset($strings[0]);
+                $string = implode(" ", $strings);
+                $groupedPermissions[$key][$string][] = $permissions;
             }
-            $key = $strings[0];
-            unset($strings[0]);
-            $string = implode(" ", $strings);
-            $groupedPermissions[$key][$string][] = $permissions;
         }
 
         return $groupedPermissions;
