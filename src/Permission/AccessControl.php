@@ -29,5 +29,7 @@ class AccessControl
 {
     public static function viewResources(){
         $permission = (new Permission())->getResources();
+
+        return $permission;
     }
 }
