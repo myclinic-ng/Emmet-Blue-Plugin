@@ -64,8 +64,6 @@ class AccessControl
 
     public static function viewPermissions(int $resourceId = 0, array $data)
     {
-    	print_r($data);
-    	die();
     	$department  = $data["department"] ?? null;
     	$role = $data["role"] ?? null;
 
@@ -74,7 +72,7 @@ class AccessControl
 
     	$aclRole = $department."_".$role;
 
-    	$registry = (new Permission())->getAllPermissions($aclRole);
+        $registry = (new Permission())->getAllPermissions($aclRole);
 
     	return $registry;
     }

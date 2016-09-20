@@ -88,6 +88,6 @@ class Permission
 
     public function getAllPermissions(string $role)
     {
-        return $this->acl->$globalRegistry->getRegistry();
+        return $this->acl->{$globalRegistry}->getRegistry();
     }
 }
