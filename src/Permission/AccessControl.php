@@ -64,6 +64,8 @@ class AccessControl
 
     public static function viewPermissions(int $resourceId = 0, array $data)
     {
+    	print_r($data);
+    	die();
     	$department  = $data["department"] ?? null;
     	$role = $data["role"] ?? null;
 
