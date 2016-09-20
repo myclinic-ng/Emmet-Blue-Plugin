@@ -62,7 +62,7 @@ class AccessControl
         return $groupedPermissions;
     }
 
-    public static function viewPermissions(int $resourceId = 0; array $data)
+    public static function viewPermissions(int $resourceId = 0, array $data)
     {
     	$department  = $data["department"] ?? null;
     	$role = $data["role"] ?? null;
