@@ -62,11 +62,11 @@ class AccessControl
         return $groupedPermissions;
     }
 
-    public static function viewPermissions(array $data)
+    public static function viewPermissions(int $resourceId = 0; array $data)
     {
     	$department  = $data["department"] ?? null;
     	$role = $data["role"] ?? null;
-    	
+
     	$department = self::convertToCamelString($department);
     	$role = self::convertToCamelString($role);
 
