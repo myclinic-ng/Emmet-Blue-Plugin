@@ -81,7 +81,13 @@ class Permission
         return $this->acl->getPermissionStatus($role, $permission, $resource);
     }
 
-    public function getResources(){
+    public function getResources()
+    {
         return $this->acl->getResources();
+    }
+
+    public function getAllPermissions(string $role)
+    {
+        return $this->acl->$globalRegistry->getRegistry();
     }
 }
