@@ -27,6 +27,10 @@ use EmmetBlue\Core\Constant;
  */
 class AccessControl
 {
+	private static function parseCamelString($string){
+		return preg_replace('/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]/', ' $0', $string);
+	}
+
     public static function viewResources(){
         $permissions = (new Permission())->getResources();
 
@@ -34,7 +38,13 @@ class AccessControl
         foreach ($permissions as $permission)
         {
         	$strings = explode("_", $permission);
-        	$groupedPermissions[$strings[0]][] = $strings[1];
+        	foreach ($strings as $key=>$value){
+        		$strings[$key] = self::parseCamelString($value);
+        	}
+        	$key = $string[0];
+        	unset($string[0]);
+        	$string = implode(" ", $string);
+        	$groupedPermissions[$key][] = $string;
         }
 
         return $groupedPermissions;
