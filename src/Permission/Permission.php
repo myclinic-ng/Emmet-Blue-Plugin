@@ -62,7 +62,9 @@ class Permission
 
     public function setPermission(string $role, string $permission, string $resource, bool $status)
     {
-        $this->acl->allow(self::formatObject($role), self::formatObject($permission), self::formatObject($resource), $status);
+        // $this->acl->allow(self::formatObject($role), self::formatObject($permission), self::formatObject($resource), $status);
+        $this->acl->allow($role, $permission, $resource, $status);
+
 
         $this->saveAcl();
     }
