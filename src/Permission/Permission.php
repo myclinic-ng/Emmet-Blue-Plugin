@@ -82,6 +82,6 @@ class Permission
     }
 
     public function getResources(){
-        
+        return $this->acl->getResources();
     }
 }

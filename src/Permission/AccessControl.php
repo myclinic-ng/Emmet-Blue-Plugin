@@ -28,6 +28,6 @@ use EmmetBlue\Core\Constant;
 class AccessControl
 {
     public static function viewResources(){
-        
+        return Permission::getResources();
     }
 }
