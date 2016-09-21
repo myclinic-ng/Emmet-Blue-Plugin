@@ -70,20 +70,19 @@ CREATE TABLE Nursing.BedAssignment(
 )
 GO
 
--- CREATE TABLE Nursing.Admission(
--- 	AdmissionID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	PatientUUID INT,
--- 	LeasedBed VARCHAR(50),
--- 	PhysicianUUID INT,
--- 	NurseUUID INT,
--- 	AdmissionDate DATE NOT NULL DEFAULT GETDATE(),
--- 	FOREIGN KEY (LeasedBed) REFERENCES Nursing.SectionBed(BedName) ON UPDATE CASCADE ON DELETE NO ACTION,
--- 	FOREIGN KEY (PatientUUID) REFERENCES Patients.Patient(PatientUUID)ON UPDATE CASCADE ON DELETE NO ACTION,
--- 	FOREIGN KEY (PhysicianUUID) REFERENCES Staffs.Staff(StaffUUID) ON UPDATE CASCADE ON DELETE NO ACTION,
--- 	FOREIGN KEY (NurseUUID) REFERENCES Staffs.Staff(StaffUUID) ON UPDATE CASCADE ON DELETE NO ACTION
--- )
--- GO
--- CREATE TABLE Nursing.Discharge(
+CREATE TABLE Nursing.ServicesRendered(
+	ServicesRenderedID INT PRIMARY KEY IDENTITY,
+	PatientID INT,
+	ServicesRenderedDate DATETIME NOT NULL,
+	FOREIGN KEY PatientID REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
 
--- )
--- GO
+CREATE TABLE Nursing.ServicesRenderedItems (
+	ServicesRenderedItemID INT PRIMARY KEY IDENTITY,
+	ServicesRenderedID INT,
+	ServicesRenderedItem INT,
+	FOREIGN KEY ServicesRenderedItem REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY ServicesRenderedID REFERENCES Nursing.ServicesRendered (ServicesRenderedID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
