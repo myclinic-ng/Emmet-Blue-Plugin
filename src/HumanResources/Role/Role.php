@@ -191,6 +191,13 @@ class Role
 
     public static function delete(int $resourceId)
     {
+        $query = "SELECT a.Name as RoleName, b.Name as DepartmentName FROM Staffs.Role a INNER JOIN Staffs.Department b ON a.DepartmentID = b.DepartmentID WHERE a.RoleID = $resourceId";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
+
+        $role = self::convertToCamelString($result["RoleName"]);
+        $department = self::convertToCamelString($result["DepartmentName"]);
+        $aclRole = $department."_".$role;
+
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
 
         try
@@ -204,7 +211,7 @@ class Role
                     ->query((string)$deleteBuilder)
                 );
 
-            return \EmmetBlue\Plugins\Permission\ManagePermissions::removeRole("staffingandrecruitment_compensationandmotivationadministrator");
+            return \EmmetBlue\Plugins\Permission\ManagePermissions::removeRole($aclRole);
         }
         catch (\PDOException $e)
         {

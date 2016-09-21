@@ -77,6 +77,14 @@ class Permission
         $this->saveAcl();
     }
 
+    public function removeRole(string $role)
+    {
+        $this->acl->roleRegistry->remove($role);
+        $this->acl->globalRegistry->remove($role);
+
+        $this->saveAcl();
+    }
+
 
     public function getPermission(string $role, string $permission, string $resource)
     {
@@ -91,10 +99,5 @@ class Permission
     public function getAllPermissions(string $role)
     {
         return $this->acl->globalRegistry->get($role);
-    }
-
-    public function removeRole(string $role)
-    {
-        return $this->acl->roleRegistry->remove($role);
     }
 }
