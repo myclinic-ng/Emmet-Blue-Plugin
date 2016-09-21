@@ -55,14 +55,16 @@ class Permission
     public function add(string $type, string $value)
     {
         $addMethod = "add".ucfirst(strtolower($type));
-        $this->acl->$addMethod(self::formatObject($value));
+        $this->acl->$addMethod($value);
 
         $this->saveAcl();
     }
 
     public function setPermission(string $role, string $permission, string $resource, bool $status)
     {
-        $this->acl->allow(self::formatObject($role), self::formatObject($permission), self::formatObject($resource), $status);
+        // $this->acl->allow(self::formatObject($role), self::formatObject($permission), self::formatObject($resource), $status);
+        $this->acl->allow($role, $permission, $resource, $status);
+
 
         $this->saveAcl();
     }
@@ -75,9 +77,27 @@ class Permission
         $this->saveAcl();
     }
 
+    public function removeRole(string $role)
+    {
+        $this->acl->roleRegistry->remove($role);
+        $this->acl->globalRegistry->remove($role);
+
+        $this->saveAcl();
+    }
+
 
     public function getPermission(string $role, string $permission, string $resource)
     {
         return $this->acl->getPermissionStatus($role, $permission, $resource);
+    }
+
+    public function getResources()
+    {
+        return $this->acl->getResources();
+    }
+
+    public function getAllPermissions(string $role)
+    {
+        return $this->acl->globalRegistry->get($role);
     }
 }
