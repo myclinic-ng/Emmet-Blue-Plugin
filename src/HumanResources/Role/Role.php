@@ -28,6 +28,19 @@ use EmmetBlue\Core\Constant;
  */
 class Role
 {
+
+    private static function convertToCamelString(string $string){
+        $string = explode(" ", $string);
+        $sKey = strtolower($string[0]);
+        unset($string[0]);
+        foreach ($string as $key=>$value){
+            $string[$key] = ucfirst(strtolower($value));
+        }
+        $string = $sKey.implode("", $string);
+
+        return $string;
+    }
+
     /**
      * Determines if a login data is valid
      *
@@ -50,11 +63,11 @@ class Role
             if ($result){
                 $query = "SELECT Name FROM Staffs.Department WHERE DepartmentID = $department";
                 $department = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC)[0]["Name"];
-                $department = str_replace(" ", "", strtolower($department));
-                $role = str_replace(" ", "", strtolower($name));
+                $department = self::convertToCamelString($department); //str_replace(" ", "", strtolower($department));
+                $role = self::convertToCamelString($name); //str_replace(" ", "", strtolower($name));
                 $aclRole = $department."_".$role;
 
-                \EmmetBlue\Plugins\Permission\ManagePermissions::addRole($aclRole);
+                return \EmmetBlue\Plugins\Permission\ManagePermissions::addRole($aclRole);
             }
             
             return $result;
@@ -191,7 +204,7 @@ class Role
                     ->query((string)$deleteBuilder)
                 );
 
-            return $result;
+            return \EmmetBlue\Plugins\Permission\ManagePermissions::removeRole("staffingandrecruitment_compensationandmotivationadministrator");
         }
         catch (\PDOException $e)
         {

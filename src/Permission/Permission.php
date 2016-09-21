@@ -55,7 +55,7 @@ class Permission
     public function add(string $type, string $value)
     {
         $addMethod = "add".ucfirst(strtolower($type));
-        $this->acl->$addMethod(self::formatObject($value));
+        $this->acl->$addMethod($value);
 
         $this->saveAcl();
     }
@@ -91,5 +91,10 @@ class Permission
     public function getAllPermissions(string $role)
     {
         return $this->acl->globalRegistry->get($role);
+    }
+
+    public function removeRole(string $role)
+    {
+        return $this->acl->roleRegistry->remove($role);
     }
 }

@@ -119,4 +119,17 @@ class AccessControl
 
         return ManagePermissions::setPermission($data);
     }
+
+    public static function setMultiplePermissions(array $data)
+    {
+        $dataHolder = $data;
+        unset($data["permissions"]);
+        foreach ($dataHolder["permissions"] as $permission=>$status){
+            $data["status"] = $status;
+            $data["permission"] = $permission;
+            self::setPermission($data);
+        }
+
+        return;
+    }
 }
