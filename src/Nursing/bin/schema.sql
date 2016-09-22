@@ -74,7 +74,7 @@ CREATE TABLE Nursing.ServicesRendered(
 	ServicesRenderedID INT PRIMARY KEY IDENTITY,
 	PatientID INT,
 	ServicesRenderedDate DATETIME NOT NULL,
-	FOREIGN KEY PatientID REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL
 )
 GO
 
@@ -82,7 +82,7 @@ CREATE TABLE Nursing.ServicesRenderedItems (
 	ServicesRenderedItemID INT PRIMARY KEY IDENTITY,
 	ServicesRenderedID INT,
 	ServicesRenderedItem INT,
-	FOREIGN KEY ServicesRenderedItem REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY ServicesRenderedID REFERENCES Nursing.ServicesRendered (ServicesRenderedID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (ServicesRenderedItem) REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (ServicesRenderedID) REFERENCES Nursing.ServicesRendered (ServicesRenderedID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
