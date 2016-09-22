@@ -266,7 +266,7 @@ class Patient
         $params = [
             'index'=>'archives',
             'type' =>'patient-info',
-            'id'=>1
+            'id'=>$resourceId
         ];
 
         return $esClient->get($params);
