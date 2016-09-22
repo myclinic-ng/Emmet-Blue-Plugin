@@ -269,7 +269,8 @@ class Patient
             'id'=>1
         ];
 
-        return $esClient->get($params);
+        print_r($esClient->get($params));
+        die();
         /*
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
