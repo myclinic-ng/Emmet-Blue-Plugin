@@ -262,7 +262,14 @@ class Patient
      */
     public static function view(int $resourceId)
     {
-        return ESClientFactory::getClient();
+        $esClient = ESClientFactory::getClient();
+        $params = [
+            'index'=>'archives',
+            'type' =>'patient-info',
+            'id'=>1
+        ];
+
+        return $esClient->get($params);
         /*
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
