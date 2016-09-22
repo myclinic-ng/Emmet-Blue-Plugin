@@ -260,66 +260,18 @@ class Patient
     /**
      * view patients UUID
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId, array $jsonBody)
     {
         $esClient = ESClientFactory::getClient();
         $params = [
             'index'=>'archives',
             'type' =>'patient-info',
-            'id'=>$resourceId
+            'body'=>$jsonBody
         ];
 
         return $esClient->get($params);
-        /*
-        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        $selectBuilder
-            ->columns('*')
-            ->from('Patients.Patient');
-        if ($resourceId != 0){
-            $selectBuilder->where('PatientID ='.$resourceId);
-        }
-        try
-        {
-            $viewPatients = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'Patient',
-                (string)serialize($selectBuilder)
-            );
-
-            if ($viewPatients){
-                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
-
-                $viewPatientsRecords = (
-                    DBConnectionFactory::getConnection()
-                    ->query($query)
-                )->fetchAll(\PDO::FETCH_ASSOC);
-
-                $fields = [];
-                foreach ($viewPatientsRecords as $field){
-                    $fields[$field["FieldTitle"]] = $field["FieldValue"];
-                }
-
-
-                return array_merge($viewPatients, $fields);
-            }
-
-            return $viewPatients;    
-        } 
-        catch (\PDOException $e) 
-        {
-            throw new SQLException(
-                sprintf(
-                    "Error processing request"
-                ),
-                Constant::UNDEFINED
-            );
-            
-        }*/
     }
+    
     /**
      * delete patient
      */
