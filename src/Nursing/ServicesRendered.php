@@ -51,11 +51,21 @@ class ServicesRendered
     }
 
     /**
-     * edit ServicesRendered
+     * modifies ServicesRendered
      */
     public static function editServicesRendered(int $resourceId=0, array $data)
     {
         $result = ServicesRendered\ServicesRendered::edit($resourceId, $data);
+
+        return $result;
+    }
+
+    /**
+     * editodifies ServicesRenderedItems
+     */
+    public static function editServicesRenderedItems(int $resourceId=0, array $data)
+    {
+        $result = ServicesRendered\ServicesRendered::editServicesRenderedItems($resourceId, $data);
 
         return $result;
     }

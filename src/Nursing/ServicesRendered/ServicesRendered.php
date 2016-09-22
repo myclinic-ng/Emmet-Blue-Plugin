@@ -40,13 +40,27 @@ class ServicesRendered
         
         $patientId = $data['patientId'] ?? null;
         $servicesRenderedDate = $data['servicesRenderedDate'];
+        $servicesRenderedItems = $data['servicesRenderedItems'] ?? null;
         try
         {
             $result = DBQueryFactory::insert('Nursing.ServicesRendered', [
                 'PatientID'=>QB::wrapString((string)$patientId, "'"),
                 'ServicesRenderedDate'=>QB::wrapString((string)$servicesRenderedDate, "'")
             ]);
-            
+
+            $id = $result['lastInsertId'];
+
+            foreach ($servicesRenderedItems as $datum){
+                $items[] = "($id, ".QB::wrapString($datum['servicesRenderedItems'], "'").")";
+            }
+
+            $query = "INSERT INTO Nursing.ServicesRenderedItems (ServicesRenderedID, ServicesRenderedItem) VALUES ".implode(", ", $items);
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->exec($query)
+            );
+
+            return ['lastInsertId'=>$id];
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
@@ -73,7 +87,8 @@ class ServicesRendered
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Nursing.ServicesRendered');
+            ->from('Nursing.ServicesRendered a');
+            $selectBuilder->innerJoin('Nursing.ServicesRenderedItems b', 'a.ServicesRenderedID = b.ServicesRenderedID');
         if ($resourceId != 0){
             $selectBuilder->where('ServicesRenderedID ='.$resourceId);
         }
@@ -129,6 +144,49 @@ class ServicesRendered
                 Constant::EVENT_SELECT,
                 'Nursing',
                 'ServicesRendered',
+                (string)(serialize($result))
+            );*/
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+     /**
+     * Modifies a ServicesRenderedItems resource
+     */
+    public static function editServicesRenderedItems(int $resourceId, array $data)
+    {
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            if (isset($data['ServicesRenderedID'])){
+                $data['ServicesRenderedID'] = QB::wrapString($data['ServicesRenderedID'], "'");
+            }
+            if (isset($data['ServicesRenderedItems'])){
+                $data['ServicesRenderedItems'] = QB::wrapString($data['ServicesRenderedItems'], "'");
+            }
+            $updateBuilder->table("Nursing.ServicesRenderedItems");
+            $updateBuilder->set($data);
+            $updateBuilder->where("ServicesRenderedItemID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$updateBuilder)
+                );
+            /*//logging
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Nursing',
+                'ServicesRenderedItems',
                 (string)(serialize($result))
             );*/
 
