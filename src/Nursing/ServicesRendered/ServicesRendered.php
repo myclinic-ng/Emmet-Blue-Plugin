@@ -40,7 +40,6 @@ class ServicesRendered
         
         $patientId = $data['patientId'] ?? null;
         $servicesRenderedDate = $data['servicesRenderedDate'];
-       // $servicesRenderedId = $data['servicesRenderedId'] ?? null;
         $servicesRenderedItems = $data['servicesRenderedItems'] ?? null;
         try
         {
