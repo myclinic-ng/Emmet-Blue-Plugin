@@ -36,6 +36,7 @@ CREATE TABLE Patients.Patient (
 	PatientType INT,
 	PatientIdentificationDocument VARCHAR(MAX),
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
+	LastModified DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE SET NULL
 )
 
