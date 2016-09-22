@@ -121,7 +121,7 @@ class Patient
                         $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
                     }
 
-                    $values[] = "($id, 'PatientID', $id)";
+                    $values[] = "($id, 'Patient', '$id')";
 
                     $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
 
