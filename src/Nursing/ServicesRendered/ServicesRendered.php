@@ -39,10 +39,12 @@ class ServicesRendered
     {
         
         $patientId = $data['patientId'] ?? null;
+        $servicesRenderedDate = $data['servicesRenderedDate'];
         try
         {
             $result = DBQueryFactory::insert('Nursing.ServicesRendered', [
-                'PatientID'=>QB::wrapString((string)$patientId, "'")
+                'PatientID'=>QB::wrapString((string)$patientId, "'"),
+                'ServicesRenderedDate'=>QB::wrapString((string)$servicesRenderedDate, "'")
             ]);
             
             DatabaseLog::log(
