@@ -71,15 +71,15 @@ CREATE TABLE Accounts.BillingTransactionMeta (
 	BillingTransactionMetaID INT PRIMARY KEY IDENTITY,
 	BillingTransactionNumber VARCHAR(15) UNIQUE NOT NULL,
 	PatientID INT,
-	BillingType VARCHAR(50) NOT NULL,
+	BillingType VARCHAR(50),
 	BilledAmountTotal MONEY,
 	CreatedByUUID VARCHAR(20),
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
 	DateCreatedDateOnly DATE DEFAULT Cast(DateAdd(day, datediff(day, 0, GETDATE()), 0) as Date),
 	BillingTransactionStatus VARCHAR(20) NOT NULL DEFAULT 'Unknown',
-	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeName) ON UPDATE CASCADE ON DELETE NO ACTION,
-	FOREIGN KEY (PatientID) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE CASCADE ON DELETE NO ACTION,
-	FOREIGN KEY (CreatedByUUID) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeName) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (PatientID) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (CreatedByUUID) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (BillingTransactionStatus) REFERENCES [Accounts].[BillingTransactionStatuses] (StatusName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 
