@@ -57,9 +57,9 @@ class Patient
         return $result;
     }
 
-    public static function search(array $data)
+    public static function search(int $resoureId = 0, array $data)
     {
-        $result = Patient\Patient::search($data);
+        $result = Patient\Patient::search($resourceId, $data);
 
         return $result;
     }
