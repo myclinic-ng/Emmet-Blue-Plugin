@@ -274,6 +274,14 @@ class Patient
         return $esClient->get($params);
     }
 
+    public static function search(array $data)
+    {
+        return json_encode($data);
+
+        
+        // $esClient = ESClientFactory::getClient();
+    }
+
     /**
      * delete patient
      */
