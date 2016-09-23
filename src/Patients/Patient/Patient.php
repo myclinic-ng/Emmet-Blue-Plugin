@@ -39,7 +39,8 @@ class Patient
      *
      * @param array $data
      */
-    protected static function createPatientFolders(string $patientUuid){
+    protected static function createPatientFolders(string $patientUuid)
+    {
         /**
          * Create 'profile' and 'repositories' folders inside a folder named
          * '$patientUuid' which will also be created inside the PATIENT_ARCHIVE_DIR
@@ -260,18 +261,19 @@ class Patient
     /**
      * view patients UUID
      */
-    public static function view(int $resourceId, array $jsonBody)
+    public static function view(int $resourceId = 0)
     {
+        $id = $resourceId == 0 ? '_search' : $resourceId;
         $esClient = ESClientFactory::getClient();
         $params = [
             'index'=>'archives',
             'type' =>'patient-info',
-            'body'=>$jsonBody
+            'id'=>$id
         ];
 
         return $esClient->get($params);
     }
-    
+
     /**
      * delete patient
      */
