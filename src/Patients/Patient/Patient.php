@@ -283,6 +283,7 @@ class Patient
         }
 
         $builtQuery = implode(" AND ", $builtQuery);
+        die($builtQuery);
 
         $params = [
             'index'=>'archives',
