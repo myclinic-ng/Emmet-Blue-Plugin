@@ -298,7 +298,7 @@ class Patient
 
         $esClient = ESClientFactory::getClient();
 
-        return $esClient->get($params);
+        return $esClient->search($params);
     }
 
     /**
