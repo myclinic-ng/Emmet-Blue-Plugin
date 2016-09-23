@@ -57,6 +57,13 @@ class Patient
         return $result;
     }
 
+    public static function search(array $data)
+    {
+        $result = Patient\Patient::search($data);
+
+        return $result;
+    }
+
     /**
      * edits Patient
      */
