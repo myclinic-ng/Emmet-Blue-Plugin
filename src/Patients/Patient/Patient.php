@@ -274,12 +274,31 @@ class Patient
         return $esClient->get($params);
     }
 
-    public static function search(array $data)
+    public static function search(int $resourceId=0, array $data)
     {
-        return json_encode($data);
+        $query = explode(" ", $data["query"]);
+        $builtQuery = [];
+        foreach ($query as $element){
+            $builtQuery[] = "(".$element."*, ".$element."~)";
+        }
 
-        
-        // $esClient = ESClientFactory::getClient();
+        $builtQuery = implode(" AND ", $builtQuery);
+
+        $params = [
+            'index'=>'archives',
+            'type'=>'patient-info',
+            'body'=>array(
+                "query"=>array(
+                    "query_string"=>array(
+                        "query"=>$builtQuery
+                    )
+                )
+            )
+        ];
+
+        $esClient = ESClientFactory::getClient();
+
+        return $esClient->get($params);
     }
 
     /**
