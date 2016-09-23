@@ -279,12 +279,11 @@ class Patient
         $query = explode(" ", $data["query"]);
         $builtQuery = [];
         foreach ($query as $element){
-            $builtQuery[] = "(".$element."*, ".$element."~)";
+            $builtQuery[] = "(".$element."* ".$element."~)";
         }
 
         $builtQuery = implode(" AND ", $builtQuery);
-        die($builtQuery);
-
+        
         $params = [
             'index'=>'archives',
             'type'=>'patient-info',
