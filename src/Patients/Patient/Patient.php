@@ -91,7 +91,7 @@ class Patient
         // fclose($handler);
 
         self::base64ToJpeg($passport, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
-        self::base64ToJpeg($document, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
+        self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
         return true;
     }
 
