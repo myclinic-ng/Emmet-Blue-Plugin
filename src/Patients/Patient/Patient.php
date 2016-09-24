@@ -95,6 +95,7 @@ class Patient
         return true;
     }
 
+    #DEPRECATED METHOD
     public static function getImage(array $data){
         $imageLocation = $data["image-dir"];
 
@@ -129,9 +130,9 @@ class Patient
             {
                 $result = DBQueryFactory::insert('Patients.Patient', [
                     'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
-                    'PatientPicture'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.img", "'"),
+                    'PatientPicture'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
                     'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
-                    'PatientIdentificationDocument'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.img", "'"),
+                    'PatientIdentificationDocument'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'"),
                     'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
                 ]);
 
