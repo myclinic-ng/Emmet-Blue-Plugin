@@ -81,6 +81,12 @@ class Patient
         return true;
     }
 
+    public static function getImage(array $data){
+        $imageLocation = $data["image-dir"];
+
+        return file_get_contents($imageLocation);
+    }
+
     public static function create(array $data)
     {
         if (isset($data["patientName"])){
