@@ -39,6 +39,18 @@ class Patient
      *
      * @param array $data
      */
+
+    protected static function base64ToJpeg($base64_string, $output_file) {
+        $ifp = fopen($output_file, "wb"); 
+
+        $data = explode(',', $base64_string);
+
+        fwrite($ifp, base64_decode($data[1])); 
+        fclose($ifp); 
+
+        return $output_file; 
+    }
+
     protected static function createPatientFolders(string $patientUuid)
     {
         /**
@@ -71,13 +83,15 @@ class Patient
             return false;
         }
 
-        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
-        fwrite($handler, (!is_null($passport)) ? $passport : "");
-        fclose($handler);
-        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
-        fwrite($handler, (!is_null($documents)) ? $documents : "");
-        fclose($handler);
+        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
+        // fwrite($handler, (!is_null($passport)) ? $passport : "");
+        // fclose($handler);
+        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
+        // fwrite($handler, (!is_null($documents)) ? $documents : "");
+        // fclose($handler);
 
+        self::base64ToJpeg($passport, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
+        self::base64ToJpeg($document, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
         return true;
     }
 
