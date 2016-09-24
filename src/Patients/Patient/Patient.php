@@ -280,7 +280,7 @@ class Patient
         return $esClient->get($params);
     }
 
-    public static function search(int $resourceId=0, array $data)
+    public static function search(array $data)
     {
         $query = explode(" ", $data["query"]);
         $builtQuery = [];
