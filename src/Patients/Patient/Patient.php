@@ -316,6 +316,8 @@ class Patient
         $params = [
             'index'=>'archives',
             'type'=>'patient-info',
+            'size'=>$data['size'],
+            'from'=>$data['from'],
             'body'=>array(
                 "query"=>array(
                     "query_string"=>array(
