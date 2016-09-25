@@ -43,9 +43,9 @@ class Patient
     /**
      * Selects Patient UUID(s)
      */
-    public static function viewPatient(int $resourceId=0)
+    public static function viewPatient(int $resourceId=0, array $data)
     {
-        $result = Patient\Patient::view($resourceId);
+        $result = Patient\Patient::view($resourceId, $data);
 
         return $result;
     }
