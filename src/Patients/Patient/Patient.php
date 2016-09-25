@@ -43,10 +43,12 @@ class Patient
     protected static function base64ToJpeg($base64_string, $output_file) {
         $ifp = fopen($output_file, "wb"); 
 
-        $data = explode(',', $base64_string);
+       if (is_string($base64_string)){
+            $data = explode(',', $base64_string);
 
-        fwrite($ifp, base64_decode($data[1])); 
-        fclose($ifp); 
+            fwrite($ifp, base64_decode($data[1])); 
+            fclose($ifp);
+       } 
 
         return $output_file; 
     }
