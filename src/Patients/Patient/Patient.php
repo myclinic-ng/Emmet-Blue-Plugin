@@ -282,7 +282,7 @@ class Patient
     /**
      * view patients UUID
      */
-    public static function view(int $resourceId = 0, array $data)
+    public static function view(int $resourceId = 0)
     {
         try {
             $id = $resourceId == 0 ? '_search' : $resourceId;
@@ -290,7 +290,7 @@ class Patient
             $params = [
                 'index'=>'archives',
                 'type' =>'patient-info',
-                'id'=>$id.'?size='.$data['size'].'&from='.$data['from']
+                'id'=>$id
             ];
 
             return $esClient->get($params);
