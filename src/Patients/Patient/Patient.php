@@ -284,15 +284,23 @@ class Patient
      */
     public static function view(int $resourceId = 0)
     {
-        $id = $resourceId == 0 ? '_search' : $resourceId;
-        $esClient = ESClientFactory::getClient();
-        $params = [
-            'index'=>'archives',
-            'type' =>'patient-info',
-            'id'=>$id
-        ];
+        try {
+            $id = $resourceId == 0 ? '_search' : $resourceId;
+            $esClient = ESClientFactory::getClient();
+            $params = [
+                'index'=>'archives',
+                'type' =>'patient-info',
+                'id'=>$id
+            ];
 
-        return $esClient->get($params);
+            return $esClient->get($params);
+        }
+        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId";
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
     }
 
     public static function search(array $data)
