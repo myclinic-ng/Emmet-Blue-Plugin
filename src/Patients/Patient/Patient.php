@@ -290,9 +290,7 @@ class Patient
             $params = [
                 'index'=>'archives',
                 'type' =>'patient-info',
-                'id'=>$id,
-                'size'=>$data['size'],
-                'from'=>$data['from']
+                'id'=>$id.'?size='.$data['size'].'&from='.$data['from']
             ];
 
             return $esClient->get($params);
