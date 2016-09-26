@@ -360,9 +360,9 @@ class Patient
                 ->where("PatientID = $resourceId");
             
             $result = (
-                    DBConnectionFactory::getConnection()
-                    ->exec((string)$deleteBuilder)
-                );
+                DBConnectionFactory::getConnection()
+                ->exec((string)$deleteBuilder)
+            );
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -381,10 +381,5 @@ class Patient
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-    }
-
-    public static function viewHospitalHistory(int $patientId)
-    {
-
     }
 }
