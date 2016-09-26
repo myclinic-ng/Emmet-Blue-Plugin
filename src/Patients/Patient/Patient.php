@@ -282,7 +282,7 @@ class Patient
     public static function view(int $resourceId = 0)
     {
         try {
-            $id = $resourceId == 0 ? '_search?size=100' : $resourceId;
+            $id = $resourceId == 0 ? '_search' : $resourceId;
             $esClient = ESClientFactory::getClient();
             $params = [
                 'index'=>'archives',
