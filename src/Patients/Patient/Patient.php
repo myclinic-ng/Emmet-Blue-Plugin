@@ -282,12 +282,23 @@ class Patient
     public static function view(int $resourceId = 0)
     {
         try {
-            $id = $resourceId == 0 ? '_search' : $resourceId;
+            
             $esClient = ESClientFactory::getClient();
+            if ($resourceId == 0)
+            {
+                $params = [
+                    'index'=>'archives',
+                    'type'=>'patient-info',
+                    'size'=>100
+                ];
+
+                return $esClient->search($params);
+            }
+
             $params = [
                 'index'=>'archives',
                 'type' =>'patient-info',
-                'id'=>$id
+                'id'=>$resourceId
             ];
 
             return $esClient->get($params);
