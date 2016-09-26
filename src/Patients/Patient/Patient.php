@@ -34,11 +34,6 @@ class Patient
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
 
     protected static $patientFolders = [];
-    /**
-     * creats new patient id and generates a unique user id (UUID)
-     *
-     * @param array $data
-     */
 
     protected static function base64ToJpeg($base64_string, $output_file) {
         $ifp = fopen($output_file, "wb"); 
@@ -287,7 +282,7 @@ class Patient
     public static function view(int $resourceId = 0)
     {
         try {
-            $id = $resourceId == 0 ? '_search' : $resourceId;
+            $id = $resourceId == 0 ? '_search?size=100' : $resourceId;
             $esClient = ESClientFactory::getClient();
             $params = [
                 'index'=>'archives',
@@ -375,5 +370,10 @@ class Patient
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function viewHospitalHistory(int $patientId)
+    {
+
     }
 }
