@@ -74,6 +74,7 @@ class PatientType
      */
     public static function edit(int $resourceId, array $data)
     {
+       
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try

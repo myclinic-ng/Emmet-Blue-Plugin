@@ -35,13 +35,27 @@ class EditBody
      */
     public static function edit(int $resourceId, array $data)
     {
-        $body = $data['body'] ?? null;
-        $bodyInfo = $data['bodyInformation'] ?? null;
-        $depositorsInfo = $data['depositorDetails'] ?? null;
-        //$nextOfKinInfo = $data['nextOfKinDetails'] ?? null;
-        if($body)
-        {
-            $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+        //
+        $body['DateOfDeath'] = QB::wrapString($data['DateOfDeath'], "'");
+        $body['PlaceOfDeath'] = QB::wrapString($data['PlaceOfDeath'], "'");
+
+        //body information
+        $bodyInfo['BodyFullName'] = QB::wrapString($data['BodyFullName'], "'");
+        $bodyInfo['BodyDateOfBirth'] = QB::wrapString($data['BodyDateOfBirth'], "'");
+        $bodyInfo['BodyGender'] = QB::wrapString($data['BodyGender'], "'");
+        $bodyInfo['BodyNextOfKinFullName'] = QB::wrapString($data['BodyNextOfKinFullName'], "'");
+        $bodyInfo['BodyNextOfKinAddress'] = QB::wrapString($data['BodyNextOfKinAddress'], "'");
+        $bodyInfo['BodyNextOfKinRelationshipType'] = QB::wrapString($data['BodyNextOfKinRelationshipType'], "'");
+        $bodyInfo['BodyNextOfKinPhoneNumber'] = QB::wrapString($data['BodyNextOfKinPhoneNumber'], "'");
+
+        //depositors info
+        $depositorInfo['DepositorFullName'] = QB::wrapString($data['DepositorFullName'], "'");
+        $depositorInfo['DepositorAddress'] = QB::wrapString($data['DepositorAddress'], "'");
+        $depositorInfo['DepositorRelationshipType'] = QB::wrapString($data['DepositorRelationshipType'], "'");
+        $depositorInfo['DepositorPhoneNumber'] = QB::wrapString($data['DepositorPhoneNumber'], "'");
+         //return $depositorInfo;
+
+       $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
@@ -49,20 +63,12 @@ class EditBody
             $updateBuilder->set($body);
             $updateBuilder->where("BodyID = $resourceId");
 
-            $result = (
+            $bodyResult = (
                     DBConnectionFactory::getConnection()
                     ->query((string)$updateBuilder)
                 );
-            //logging
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Mortuary',
-                'Body',
-                (string)(serialize($result))
-            );
 
-            return $result;
+            //return $bodyResult;
         }
         catch (\PDOException $e)
         {
@@ -71,32 +77,21 @@ class EditBody
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-        }
-        /*//if BodyInfo
-        If($bodyInfo)
-        {
-             $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+        //update body Info
+        $updateBodyInformation = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
-            $updateBuilder->table("Mortuary.BodyInformation");
-            $updateBuilder->set($bodyInfo);
-            $updateBuilder->where("BodyID = $resourceId");
+            $updateBodyInformation->table("Mortuary.BodyInformation");
+            $updateBodyInformation->set($bodyInfo);
+            $updateBodyInformation->where("BodyID = $resourceId");
 
-            $result = (
+            $bodyInformationResult = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->query((string)$updateBodyInformation)
                 );
-            //logging
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Mortuary',
-                'BodyInformation',
-                (string)(serialize($result))
-            );
 
-            return $result;
+            //return $bodyInformationResult;
         }
         catch (\PDOException $e)
         {
@@ -105,32 +100,21 @@ class EditBody
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-        }
-        //if depositor details
-        If($depositorsInfo)
-        {
-             $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+        //update body depositors Info
+        $updateDepositorInformation = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
-            $updateBuilder->table("Mortuary.DepositorDetails");
-            $updateBuilder->set($depositorsInfo);
-            $updateBuilder->where("BodyID = $resourceId");
+            $updateDepositorInformation->table("Mortuary.DepositorDetails");
+            $updateDepositorInformation->set($depositorInfo);
+            $updateDepositorInformation->where("BodyID = $resourceId");
 
-            $result = (
+            $bodyDepositorInformationResult = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->query((string)$updateDepositorInformation)
                 );
-            //logging
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Mortuary',
-                'DepositorDetails',
-                (string)(serialize($result))
-            );
 
-            return $result;
+            return $bodyDepositorInformationResult;
         }
         catch (\PDOException $e)
         {
@@ -139,42 +123,33 @@ class EditBody
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-        }*/
-        //if next of kin details
-        /*If($nextOfKinInfo)
-        {
-             $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
-
-        try
-        {
-            $updateBuilder->table("Mortuary.NextOfKinDetails");
-            $updateBuilder->set($nextOfKinInfo);
-            $updateBuilder->where("BodyID = $resourceId");
-
-            $result = (
-                    DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
-                );
-            //logging
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Mortuary',
-                'NextOfKinDetails',
-                (string)(serialize($result))
-            );
-
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process update, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }
-        }*/
-       
     }
+    /**
+    * update body status resource
+    */
+    public static function editBodyStatus($resourceId, $data){
+        $status['BodyStatus'] = QB::wrapString($data['bodystatus'],"'");
+         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
+        try
+        {
+            $updateBuilder->table("Mortuary.Body");
+            $updateBuilder->set($status);
+            $updateBuilder->where("BodyID = $resourceId");
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$updateBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
 }
