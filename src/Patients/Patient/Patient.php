@@ -11,6 +11,7 @@ namespace EmmetBlue\Plugins\Patients\Patient;
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
 use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
+use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Session\Session;
@@ -33,12 +34,22 @@ class Patient
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
 
     protected static $patientFolders = [];
-    /**
-     * creats new patient id and generates a unique user id (UUID)
-     *
-     * @param array $data
-     */
-    protected static function createPatientFolders(string $patientUuid){
+
+    protected static function base64ToJpeg($base64_string, $output_file) {
+        $ifp = fopen($output_file, "wb"); 
+
+       if (is_string($base64_string)){
+            $data = explode(',', $base64_string);
+
+            fwrite($ifp, base64_decode($data[1])); 
+            fclose($ifp);
+       } 
+
+        return $output_file; 
+    }
+
+    protected static function createPatientFolders(string $patientUuid)
+    {
         /**
          * Create 'profile' and 'repositories' folders inside a folder named
          * '$patientUuid' which will also be created inside the PATIENT_ARCHIVE_DIR
@@ -69,14 +80,23 @@ class Patient
             return false;
         }
 
-        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
-        fwrite($handler, (!is_null($passport)) ? $passport : "");
-        fclose($handler);
-        $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
-        fwrite($handler, (!is_null($documents)) ? $documents : "");
-        fclose($handler);
+        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
+        // fwrite($handler, (!is_null($passport)) ? $passport : "");
+        // fclose($handler);
+        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
+        // fwrite($handler, (!is_null($documents)) ? $documents : "");
+        // fclose($handler);
 
+        self::base64ToJpeg($passport, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
+        self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
         return true;
+    }
+
+    #DEPRECATED METHOD
+    public static function getImage(array $data){
+        $imageLocation = $data["image-dir"];
+
+        return file_get_contents($imageLocation);
     }
 
     public static function create(array $data)
@@ -107,9 +127,9 @@ class Patient
             {
                 $result = DBQueryFactory::insert('Patients.Patient', [
                     'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
-                    'PatientPicture'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.img", "'"),
+                    'PatientPicture'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
                     'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
-                    'PatientIdentificationDocument'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.img", "'"),
+                    'PatientIdentificationDocument'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'"),
                     'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
                 ]);
 
@@ -121,6 +141,7 @@ class Patient
                         $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
                     }
 
+                    $values[] = "($id, 'Patient', '$id')";
 
                     $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
 
@@ -258,57 +279,67 @@ class Patient
     /**
      * view patients UUID
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId = 0)
     {
-        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        $selectBuilder
-            ->columns('*')
-            ->from('Patients.Patient');
-        if ($resourceId != 0){
-            $selectBuilder->where('PatientID ='.$resourceId);
-        }
-        try
-        {
-            $viewPatients = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+        try {
+            
+            $esClient = ESClientFactory::getClient();
+            if ($resourceId == 0)
+            {
+                $params = [
+                    'index'=>'archives',
+                    'type'=>'patient-info',
+                    'size'=>100
+                ];
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'Patient',
-                (string)serialize($selectBuilder)
-            );
-
-            if ($viewPatients){
-                $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
-
-                $viewPatientsRecords = (
-                    DBConnectionFactory::getConnection()
-                    ->query($query)
-                )->fetchAll(\PDO::FETCH_ASSOC);
-
-                $fields = [];
-                foreach ($viewPatientsRecords as $field){
-                    $fields[$field["FieldTitle"]] = $field["FieldValue"];
-                }
-
-
-                return array_merge($viewPatients, $fields);
+                return $esClient->search($params);
             }
 
-            return $viewPatients;    
-        } 
-        catch (\PDOException $e) 
-        {
-            throw new SQLException(
-                sprintf(
-                    "Error processing request"
-                ),
-                Constant::UNDEFINED
-            );
-            
+            $params = [
+                'index'=>'archives',
+                'type' =>'patient-info',
+                'id'=>$resourceId
+            ];
+
+            return $esClient->get($params);
+        }
+        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId";
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
         }
     }
+
+    public static function search(array $data)
+    {
+        $query = explode(" ", $data["query"]);
+        $builtQuery = [];
+        foreach ($query as $element){
+            $builtQuery[] = "(".$element."* ".$element."~)";
+        }
+
+        $builtQuery = implode(" AND ", $builtQuery);
+        
+        $params = [
+            'index'=>'archives',
+            'type'=>'patient-info',
+            'size'=>$data['size'],
+            'from'=>$data['from'],
+            'body'=>array(
+                "query"=>array(
+                    "query_string"=>array(
+                        "query"=>$builtQuery
+                    )
+                )
+            )
+        ];
+
+        $esClient = ESClientFactory::getClient();
+
+        return $esClient->search($params);
+    }
+
     /**
      * delete patient
      */
@@ -329,9 +360,9 @@ class Patient
                 ->where("PatientID = $resourceId");
             
             $result = (
-                    DBConnectionFactory::getConnection()
-                    ->exec((string)$deleteBuilder)
-                );
+                DBConnectionFactory::getConnection()
+                ->exec((string)$deleteBuilder)
+            );
 
             DatabaseLog::log(
                 Session::get('USER_ID'),

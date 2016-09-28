@@ -18,4 +18,5 @@ INSERT INTO Patients.PatientRecordsFieldTitle (FieldTitleName, FieldTitleType) V
 ('Occupation', 'Name'),
 ('Tribe', 'Name'),
 ('Email Address', 'Text'),
-('Next Of Kin', 'Name')
+('Next Of Kin', 'Name'),
+('Patient', 'Number')

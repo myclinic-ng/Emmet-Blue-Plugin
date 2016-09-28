@@ -35,14 +35,14 @@ class StaffProfileRecord
     {
         $name = $data['name'];
         $type= $data['type'];
-        $description = $data['description'];
+        $description = $data['description'] ?? null;
 
         try
         {
         	$result = DBQueryFactory::insert('Staffs.StaffProfileRecords', [
-                'RecordName'=>QB::wrapString($name, "'"),
-                'RecordType'=>QB::wrapString($type, "'"),
-                'RecordDescription'=>QB::wrapString($description, "'")
+                'RecordName'=>QB::wrapString((string)$name, "'"),
+                'RecordType'=>QB::wrapString((string)$type, "'"),
+                'RecordDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'")
             ]);
             
             return $result;
@@ -62,8 +62,8 @@ class StaffProfileRecord
 
         try
         {
-            $data['RecordName'] = QB::wrapString($data['RecordName'], "'");
-            $data['RecordDescription'] = QB::wrapString($data['RecordDescription'], "'");
+            $data['RecordName'] = QB::wrapString((string)$data['RecordName'], "'");
+            $data['RecordDescription'] = QB::wrapString((string)$data['RecordDescription'], "'");
             $updateBuilder->table("Staffs.StaffProfileRecords");
             $updateBuilder->set($data);
             $updateBuilder->where("RecordID = $resourceId");
