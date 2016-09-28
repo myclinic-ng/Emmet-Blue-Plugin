@@ -187,7 +187,7 @@ class Patient
                     (string)(serialize($result))
                 );
                 
-                $result["patientUuid"] = $atientUuid;
+                $result["patientUuid"] = $patientUuid;
                 return $result;
             }
             catch (\PDOException $e)
