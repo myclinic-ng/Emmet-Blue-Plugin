@@ -188,7 +188,7 @@ class Patient
                 );
                 
                 
-                return $result;
+                return [$result, "patientUuid"=>$patientUuid];
             }
             catch (\PDOException $e)
             {
