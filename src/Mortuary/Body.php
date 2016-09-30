@@ -48,7 +48,7 @@ class Body
 
 	public static function editBody(int $resourceId, array $data)
 	{
-		return Body\EditBody::edit($resourceId, $body);
+		return Body\EditBody::edit($resourceId, $data);
 	}
 
 	public static function deleteBody(int $resourceId)
