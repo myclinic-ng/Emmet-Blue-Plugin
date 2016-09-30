@@ -11,6 +11,7 @@ namespace EmmetBlue\Plugins\Patients\PatientEvent;
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
 use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
+use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Session\Session;
@@ -33,7 +34,7 @@ class PatientEvent
     public static function create(array $data)
     {
         $patient = $data["patient"];
-        $eventdate = $data["eventDate"] ?? null;
+        $eventDate = $data["eventDate"] ?? null;
         $eventTime = $data["eventTime"] ?? null;
         $eventActor = $data["eventActor"] ?? null;
         $eventLinkId = $data["eventLinkId"] ?? null;
@@ -45,13 +46,13 @@ class PatientEvent
         {
             $result = DBQueryFactory::insert('Patients.PatientEvents', [
                 'PatientID'=>$patient,
-                'EventDate'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventDate, "'"),
-                'EventTime'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventTime, "'"),
-                'EventActor'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventActor, "'"),
-                'EventLinkId'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventLinkId, "'"),
-                'EventLink'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventLink, "'"),
-                'EventText'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventText, "'"),
-                'EventIcon'=>(is_null($EventDate)) ? 'NULL' : QB::wrapString($EventIcon, "'")
+                'EventDate'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventDate, "'"),
+                'EventTime'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventTime, "'"),
+                'EventActor'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventActor, "'"),
+                'EventLinkId'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventLinkId, "'"),
+                'EventLink'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventLink, "'"),
+                'EventText'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventText, "'"),
+                'EventIcon'=>(is_null($eventDate)) ? 'NULL' : QB::wrapString((string)$eventIcon, "'")
             ]);
 
             DatabaseLog::log(
@@ -75,10 +76,26 @@ class PatientEvent
 
     public static function edit(int $resourceId, array $data)
     {
+        
     }
 
     public static function view(int $resourceId)
     {
+        $params = [
+            'index'=>'archives',
+            'type' =>'patient-events',
+            'body'=>array(
+                "query"=>array(
+                    "match"=>array(
+                        "patientid"=>$resourceId
+                    )
+                )
+            )
+        ];
+
+        $esClient = ESClientFactory::getClient();
+
+        return $esClient->search($params);
     }
 
     public static function delete(int $resourceId)
