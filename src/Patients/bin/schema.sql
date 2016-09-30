@@ -95,14 +95,6 @@ CREATE TABLE Patients.PatientDepartment (
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
-CREATE TABLE Patients.PatientTransaction(
-	PatientTransactionID INT PRIMARY KEY IDENTITY NOT NULL,
-	PatientID INT,
-	Link VARCHAR(max),
-	Meta VARCHAR(max),
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
-)
-
 CREATE TABLE Patients.PatientRepository (
 	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,
@@ -110,6 +102,20 @@ CREATE TABLE Patients.PatientRepository (
 	RepositoryItemName VARCHAR(100),
 	RepositoryItemDescription VARCHAR(4000),
 	RepositoryItemUrl VARCHAR(MAX),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Patients.PatientEvents (
+	EventID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	EventDate DATE NOT NULL,
+	EventTime TIME NOT NULL,
+	EventActor VARCHAR(50) NOT NULL,
+	EventLinkID VARCHAR(30),
+	EventLink VARCHAR(MAX),
+	EventText VARCHAR(100),
+	EventIcon VARCHAR(30),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
