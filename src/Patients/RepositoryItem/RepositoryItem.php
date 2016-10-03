@@ -17,7 +17,7 @@ use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
-use FileUpload
+use FileUpload;
 
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
