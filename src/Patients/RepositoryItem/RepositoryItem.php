@@ -17,6 +17,7 @@ use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
+use FileUpload
 
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
@@ -34,7 +35,20 @@ class RepositoryItem
 
     public function uploadRepoItems($patientUuid, $repoNumber, $files)
     {
-        return true;
+        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
+
+        $pathResolver = new FileUpload\PathResolver\Simple($repoDir);
+        $fileSystem = new FileUpload\FileSystem\Simple();
+        $fileUpload = new FileUpload\FileUpload($files, $_SERVER);
+
+        $fileUpload->setPathResolver($pathResolver);
+        $fileUpload->setFileSystem($fileSystem);
+
+        list($files, $headers) = $fileUpload->processAll();
+
+        print_r($headers);
+        die();
     }
 
     public static function create(array $data)
