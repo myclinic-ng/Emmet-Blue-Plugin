@@ -47,8 +47,7 @@ class RepositoryItem
 
         list($files, $headers) = $fileUpload->processAll();
 
-        print_r($headers);
-        die();
+        return true;
     }
 
     public static function create(array $data)
