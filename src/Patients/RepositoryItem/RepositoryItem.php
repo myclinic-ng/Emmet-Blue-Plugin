@@ -33,10 +33,10 @@ class RepositoryItem
 {
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
 
-    public function uploadRepoItems($patientUuid, $repoNumber, $files)
+    public static function uploadRepoItems($patientUuid, $repoNumber, $files)
     {
         $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
-        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
+        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoDir;
 
         $pathResolver = new FileUpload\PathResolver\Simple($repoDir);
         $fileSystem = new FileUpload\FileSystem\Simple();
