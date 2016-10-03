@@ -100,6 +100,9 @@ class PatientRepository
         $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
+        if (empty($result)){
+            $result = [];
+        }
         return $result;
     }
     /**
