@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Patients\PatientRepository;
+namespace EmmetBlue\Plugins\Patients\RepositoryItem;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -21,64 +21,64 @@ use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
- * class PatientRepository.
+ * class RepositoryItem.
  *
- * PatientRepository Controller
+ * RepositoryItem Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 19/08/2016 13:35
  */
-class PatientRepository
+class RepositoryItem
 {
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
 
-    protected static $folders = [];
-
-    protected static function createRepoFolders(string $patientUuid, string $repoUuid)
+    public function uploadRepoItems($patientUuid, $repoNumber, $files)
     {
-        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
-        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
-        if (!mkdir($repoDir)){
-            return false;
-        }
-
-        self::$folders = [
-            "repo" => $repoDir
-        ];
-
         return true;
     }
 
     public static function create(array $data)
     {
-        $patient = $data["patient"] ?? 'null';
+        $repository = $data["repository"] ?? 'null';
         $number = substr(str_shuffle(MD5(microtime())), 0, 20);
         $name = $data["name"] ?? null;
         $description = $data["description"] ?? null;
+        $category = $data["category"] ?? null;
         $creator = $data["creator"] ?? null;
-
-        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $patient";
-        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
 
         try
         {
-            $result = DBQueryFactory::insert('Patients.PatientRepository', [
-                'PatientID'=>$patient,
-                'RepositoryNumber'=>QB::wrapString($number, "'"),
-                'RepositoryName'=>(is_null($name)) ? 'NULL' : QB::wrapString((string)$name, "'"),
-                'RepositoryDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'"),
-                'RepositoryCreator'=>(is_null($creator)) ? 'NULL' : $creator
+            $result = DBQueryFactory::insert('Patients.PatientRepositoryItems', [
+                'RepositoryID'=>$repository,
+                'RepositoryItemNumber'=>QB::wrapString($number, "'"),
+                'RepositoryItemName'=>(is_null($name)) ? 'NULL' : QB::wrapString((string)$name, "'"),
+                'RepositoryItemDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'"),
+                'RepositoryItemCategory'=>(is_null($category)) ? 'NULL' : QB::wrapString((string)$category, "'"),
+                'RepositoryItemCreator'=>(is_null($creator)) ? 'NULL' : $creator
             ]);
 
-            if ($result && !self::createRepoFolders($uuid, $number)){
-                self::delete((int)$result["lastInsertId"]);
+            if ($result){
+                switch (strtolower($category))
+                {
+                    case "media":
+                    {
+                        $query = "SELECT a.RepositoryNumber, b.PatientUUID FROM Patients.PatientRepository a JOIN Patients.Patient b ON a.PatientID = b.PatientID WHERE a.RepositoryID = $repository";
+                        $uuids = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0];
+                        $ruuid = $uuids["RepositoryNumber"];
+                        $puuid = $uuids["PatientUUID"];
+
+                        if (!uploadRepoItems($puuid, $ruuid, $_FILES)){
+                            self::delete($result["lastInsertId"]);
+                        }
+                    }
+                }
             }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
-                'PatientRepository',
+                'RepositoryItem',
                 (string)(serialize($result))
             );
             
@@ -108,7 +108,7 @@ class PatientRepository
         $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        $query = "SELECT RepositoryNumber FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
+        $query = "SELECT RepositoryNumber FROM Patients.PatientRepositoryItems WHERE RepositoryID = $resourceId";
         $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
@@ -119,7 +119,7 @@ class PatientRepository
         try
         {
             $deleteBuilder
-                ->from("Patients.PatientRepository")
+                ->from("Patients.PatientRepositoryItems")
                 ->where("RepositoryNumber = $resourceId");
             
             $result = (
@@ -131,7 +131,7 @@ class PatientRepository
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Patients',
-                'PatientRepository',
+                'RepositoryItem',
                 (string)$deleteBuilder
             );
 
