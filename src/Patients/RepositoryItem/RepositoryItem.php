@@ -36,7 +36,7 @@ class RepositoryItem
     public static function uploadRepoItems($patientUuid, $repoNumber, $files)
     {
         $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
-        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoDir;
+        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
         $pathResolver = new FileUpload\PathResolver\Simple($repoDir);
         $fileSystem = new FileUpload\FileSystem\Simple();
