@@ -97,7 +97,10 @@ class PatientRepository
      */
     public static function view(int $resourceId)
     {
-        
+        $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll()[0];
+
+        return $result;
     }
     /**
      * delete patient
