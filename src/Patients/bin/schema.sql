@@ -95,16 +95,18 @@ CREATE TABLE Patients.PatientDepartment (
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
-CREATE TABLE Patients.PatientRepository (
-	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,
-	PatientID INT,
-	RepositoryItemNumber VARCHAR(50) NOT NULL UNIQUE,
-	RepositoryItemName VARCHAR(100),
-	RepositoryItemDescription VARCHAR(4000),
-	RepositoryItemUrl VARCHAR(MAX),
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
-)
-GO
+-- DEPRECATED
+-- CREATE TABLE Patients.OldPatientRepository (
+-- 	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,
+-- 	PatientID INT,
+-- 	RepositoryItemNumber VARCHAR(50) NOT NULL UNIQUE,
+-- 	RepositoryItemName VARCHAR(100),
+-- 	RepositoryItemDescription VARCHAR(4000),
+-- 	RepositoryItemUrl VARCHAR(MAX),
+-- 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+-- )
+-- GO
+--/ DEPRECATED
 
 CREATE TABLE Patients.PatientEvents (
 	EventID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -118,4 +120,75 @@ CREATE TABLE Patients.PatientEvents (
 	EventIcon VARCHAR(30),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
+GO
+
+CREATE TABLE Patients.PatientRepository (
+	RepositoryID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	RepositoryNumber VARCHAR(50) NOT NULL UNIQUE,
+	RepositoryName VARCHAR(100),
+	RepositoryDescription VARCHAR(4000),
+	RepositoryCreator INT,
+	RepositoryCreationDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (RepositoryCreator) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE
+)
+GO
+
+CREATE TABLE Patients.PatientRepositoryItems (
+	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,
+	RepositoryID INT,
+	RepositoryItemNumber VARCHAR(50) NOT NULL UNIQUE,
+	RepositoryItemName VARCHAR(100),
+	RepositoryItemDescription VARCHAR(4000),
+	RepositoryItemCategory VARCHAR(20),
+	RepositoryItemCreator INT,
+	RepositoryItemCreationDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (RepositoryItemCreator) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (RepositoryID) REFERENCES Patients.PatientRepository
+)
+GO
+
+CREATE TABLE Patients.RepositoryItemsMediaMeta (
+	RepositoryItemsMetaID INT PRIMARY KEY IDENTITY NOT NULL,
+	RepositoryItemID INT,
+	RepositoryItemType VARCHAR(20),
+	RepositoryItemUrl VARCHAR(500),
+	RepositoryItemSize BIGINT,
+	FOREIGN KEY (RepositoryItemID) REFERENCES Patients.PatientRepositoryItems ON UPDATE CASCADE
+)
+GO
+
+CREATE TABLE Patients.RepositoryItemsComments (
+	RepositoryItemsCommentID INT PRIMARY KEY NOT NULL,
+	RepositoryItemID INT,
+	CommenterID INT,
+	Comment VARCHAR(4000),
+	CommentDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (RepositoryItemID) REFERENCES Patients.PatientRepositoryItems,
+	FOREIGN KEY (CommenterID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
+
+CREATE TRIGGER Patients.DeletePatientRepository
+   ON Patients.PatientRepository
+   INSTEAD OF DELETE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	DELETE FROM Patients.PatientRepositoryItems WHERE RepositoryID IN (SELECT RepositoryID FROM DELETED)
+	DELETE FROM Patients.PatientRepository WHERE  RepositoryID IN (SELECT RepositoryID FROM DELETED)
+END
+GO
+
+CREATE TRIGGER Patients.DeletePatientRepositoryItems
+   ON Patients.PatientRepositoryItems
+   INSTEAD OF DELETE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	DELETE FROM Patients.RepositoryItemsMediaMeta WHERE RepositoryItemID IN (SELECT RepositoryItemID FROM DELETED)
+	DELETE FROM Patients.RepositoryItemsComments WHERE RepositoryItemID IN (SELECT RepositoryItemID FROM DELETED)
+	DELETE FROM Patients.PatientRepositoryItems WHERE RepositoryItemID IN (SELECT RepositoryItemID FROM DELETED)
+END
 GO

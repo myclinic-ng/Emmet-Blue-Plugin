@@ -30,40 +30,49 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class PatientRepository
 {
-    /**
-     * creats new patient id and generates a unique user id (UUID)
-     *
-     * @param array $data
-     */
+    CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
+
+    protected static $folders = [];
+
+    protected static function createRepoFolders(string $patientUuid, string $repoUuid)
+    {
+        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
+        if (!mkdir($repoDir)){
+            return false;
+        }
+
+        self::$folders = [
+            "repo" => $repoDir
+        ];
+
+        return true;
+    }
+
     public static function create(array $data)
     {
         $patient = $data["patient"] ?? 'null';
-        $number = substr(str_shuffle(MD5(microtime())), 0, 40);
+        $number = substr(str_shuffle(MD5(microtime())), 0, 20);
         $name = $data["name"] ?? null;
         $description = $data["description"] ?? null;
-        $location = "bin/data/records/patient/repositories";
-        if (!empty($_FILES)) {
-            $files = $_FILES["file"]; 
-            $url = $location.DIRECTORY_SEPARATOR.$number.DIRECTORY_SEPARATOR;
-            mkdir($url);
-            foreach ($files["name"] as $key=>$null)
-            {
-                $tempFile = $files['tmp_name'][$key];   
-                $ext = explode(".", $files['name'][$key])[1];
-                $targetFile =  $url. $key.".".$ext;
-                move_uploaded_file($tempFile,$targetFile);
-            } 
+        $creator = $data["creator"] ?? null;
 
-        }
+        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $resourceId";
+        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
+
         try
         {
             $result = DBQueryFactory::insert('Patients.PatientRepository', [
                 'PatientID'=>$patient,
-                'RepositoryItemNumber'=>QB::wrapString($number, "'"),
-                'RepositoryItemName'=>(is_null($name)) ? 'NULL' : QB::wrapString($name, "'"),
-                'RepositoryItemDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString($description, "'"),
-                'RepositoryItemUrl'=>(is_null($url)) ? 'NULL' : QB::wrapString($url, "'")
+                'RepositoryNumber'=>QB::wrapString($number, "'"),
+                'RepositoryName'=>(is_null($name)) ? 'NULL' : QB::wrapString((string)$name, "'"),
+                'RepositoryDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'"),
+                'RepositoryCreator'=>(is_null($url)) ? 'NULL' : $creator
             ]);
+
+            if ($result && !self::createRepoFolders($uuid, $number)){
+                self::delete((int)$result["lastInsertId"]);
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -88,62 +97,34 @@ class PatientRepository
      */
     public static function view(int $resourceId)
     {
-        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        $selectBuilder
-            ->columns('*')
-            ->from('Patients.PatientRepository');
-        if ($resourceId != 0){
-            $selectBuilder->where('PatientRepositoryUUID ='.$resourceId);
-        }
-        try
-        {
-            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'PatientRepository',
-                (string)$selectBuilder
-            );
-
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
-        } 
-        catch (\PDOException $e) 
-        {
-            throw new SQLException(
-                sprintf(
-                    "Error procesing request"
-                ),
-                Constant::UNDEFINED
-            );
-            
-        }
     }
     /**
      * delete patient
      */
     public static function delete(int $resourceId)
     {
-        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $resourceId";
+        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
+        $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
+
+        $query = "SELECT RepositoryNumber FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
+        $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
+        $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
+
+        if (is_dir(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid)){
+            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid);
+        }
 
         try
         {
             $deleteBuilder
                 ->from("Patients.PatientRepository")
-                ->where("PatientRepositoryID = $resourceId");
+                ->where("RepositoryNumber = $resourceId");
             
             $result = (
-                    DBConnectionFactory::getConnection()
-                    ->exec((string)$deleteBuilder)
-                );
+                DBConnectionFactory::getConnection()
+                ->exec((string)$deleteBuilder)
+            );
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
