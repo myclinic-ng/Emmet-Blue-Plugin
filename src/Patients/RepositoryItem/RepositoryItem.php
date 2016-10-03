@@ -67,7 +67,7 @@ class RepositoryItem
                         $ruuid = $uuids["RepositoryNumber"];
                         $puuid = $uuids["PatientUUID"];
 
-                        if (!uploadRepoItems($puuid, $ruuid, $_FILES)){
+                        if (!self::uploadRepoItems($puuid, $ruuid, $_FILES)){
                             self::delete($result["lastInsertId"]);
                         }
                     }
