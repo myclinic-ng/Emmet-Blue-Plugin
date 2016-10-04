@@ -7,7 +7,7 @@ GO
 -- Create date: 22/09/2016
 -- Description:	
 -- =============================================
-CREATE PROCEDURE GetPatientBasicProfile 
+CREATE PROCEDURE Patients.GetPatientBasicProfile 
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
