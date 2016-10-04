@@ -115,6 +115,15 @@ class ObservationChartFieldTitle
 
         try
         {
+            if (isset($data['FieldTitleName'])){
+                $data['FieldTitleName'] = QB::wrapString($data['FieldTitleName'], "'");
+            }
+            if (isset($data['FieldTitleType'])){
+                $data['FieldTitleType'] = QB::wrapString($data['FieldTitleType'], "'");
+            }
+            if (isset($data['FieldTitleDescription'])){
+                $data['FieldTitleDescription'] = QB::wrapString($data['FieldTitleDescription'], "'");
+            }
             $updateBuilder->table("Nursing.ObservationChartFieldTitle");
             $updateBuilder->set($data);
             $updateBuilder->where("FieldTitleID = $resourceId");
@@ -129,7 +138,7 @@ class ObservationChartFieldTitle
                 Constant::EVENT_SELECT,
                 'Nursing',
                 'ObservationChartFieldTitle',
-                (string)(serialize($result))
+                (string)(serialize($updateBuilder))
             );
 
             return $result;
