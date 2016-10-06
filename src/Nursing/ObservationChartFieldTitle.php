@@ -28,11 +28,11 @@ use EmmetBlue\Core\Constant;
  */
 class ObservationChartFieldTitle
 {
-	/**
-	 * Creates a new ObservationChartFieldTitle
-	 *
-	 * @param $_POST
-	 */
+    /**
+     * Creates a new ObservationChartFieldTitle
+     *
+     * @param $_POST
+     */
     public static function newObservationChartFieldTitle(array $data)
     {
         $result = ObservationChartFieldTitle\ObservationChartFieldTitle::create($data);
@@ -53,9 +53,9 @@ class ObservationChartFieldTitle
     /**
      * edit ObservationChartFieldTitleType
      */
-    public static function editObservationChartFieldTitle(int $resourceId=0, array $data)
+    public static function editObservationChartFieldTitle(int $resourceId, array $data)
     {
-        $result = ObservationChartFieldTitle\ObservationChartFieldTitle::view($resourceId, $data);
+        $result = ObservationChartFieldTitle\ObservationChartFieldTitle::edit($resourceId, $data);
 
         return $result;
     }
@@ -65,8 +65,8 @@ class ObservationChartFieldTitle
      */
     public static function deleteObservationChartFieldTitle(int $resourceId)
     {
-    	$result = ObservationChartFieldTitle\ObservationChartFieldTitle::delete($resourceId);
+        $result = ObservationChartFieldTitle\ObservationChartFieldTitle::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
 }

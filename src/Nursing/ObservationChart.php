@@ -49,6 +49,15 @@ class ObservationChart
 
         return $result;
     }
+    /**
+     * Selects ObservationChart
+     */
+    public static function viewObservationChartFieldValues(int $resourceId=0)
+    {
+        $result = ObservationChart\ObservationChart::viewObservationChartFieldValues($resourceId);
+
+        return $result;
+    }
 
     /**
      * edit ObservationChart
