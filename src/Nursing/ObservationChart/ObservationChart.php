@@ -40,7 +40,7 @@ class ObservationChart
         
         
         $patientId = $data['patientId'] ?? null;
-        $staffId = $data['staffId'] ?? null;
+        $staffId = QB::wrapString($data['staffId'] ?? null, "'");
         $observationChartFieldValue = $data['observationChartFieldValue'] ?? null;
 
         try
@@ -95,49 +95,75 @@ class ObservationChart
      */
     public static function view(int $resourceId)
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('*')
+            ->from('Nursing.ObservationChart');
+            //$selectBuilder->innerJoin('Nursing.ObservationChartFieldValue b', 'a.ObservationChartID = b.ObservationChartID');
+        if ($resourceId != 0){
+            $selectBuilder->where('ObservationChartID ='.$resourceId);
+        }
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("*");
-            }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Nursing.ObservationChart");
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
-            if ($resourceId !== 0){
-                $selectBuilder->where("ObservationChartID = $resourceId");
-            }
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Nursing',
+                'ObservationChartID',
+                (string)$selectBuilder
+            );
 
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->query((string)$selectBuilder)
-            )->fetchAll(\PDO::FETCH_ASSOC);
-
-            foreach ($result as $key=>$observations)
-            {
-                $id = $observations["ObservationChartID"];
-                $query = "SELECT * FROM Nursing.ObservationChartFieldValue WHERE ObservationChartID = $id";
-
-                $queryResult = (
-                    DBConnectionFactory::getConnection()
-                    ->query($query)
-                )->fetchAll(\PDO::FETCH_ASSOC);
-
-                $result[$key]["StoreInventoryProperties"] = $queryResult;
-            }
-
-            return $result;
-        }
-        catch (\PDOException $e)
+            return $viewOperation;        
+        } 
+        catch (\PDOException $e) 
         {
-            throw new SQLException(sprintf(
-                "Unable to retrieve requested data, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+    /**
+     * view observation chart data
+     */
+    public static function viewObservationChartFieldValues(int $resourceId)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('*')
+            ->from('Nursing.ObservationChartFieldValue');
+            //$selectBuilder->innerJoin('Nursing.ObservationChartFieldValue b', 'a.ObservationChartID = b.ObservationChartID');
+        if ($resourceId != 0){
+            $selectBuilder->where('ObservationChartID ='.$resourceId);
+        }
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Nursing',
+                'ObservationChartID',
+                (string)$selectBuilder
+            );
+
+            return $viewOperation;        
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
         }
     }
 
