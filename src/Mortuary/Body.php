@@ -50,6 +50,10 @@ class Body
 	{
 		return Body\EditBody::edit($resourceId, $data);
 	}
+	public static function editBodyStatus(int $resourceId, array $data)
+	{
+		return Body\EditBody::editBodyStatus($resourceId, $data);
+	}
 
 	public static function deleteBody(int $resourceId)
 	{

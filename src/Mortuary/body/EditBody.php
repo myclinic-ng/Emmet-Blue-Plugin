@@ -128,15 +128,16 @@ class EditBody
     * update body status resource
     */
     public static function editBodyStatus($resourceId, $data){
-        $status['BodyStatus'] = QB::wrapString($data['bodystatus'],"'");
+        //$status = QB::wrapString($data, "'");
          $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
-
         try
         {
+            if (isset($data['BodyStatus'])){
+                $data['BodyStatus'] = QB::wrapString($data['BodyStatus'], "'");
+            }
             $updateBuilder->table("Mortuary.Body");
-            $updateBuilder->set($status);
+            $updateBuilder->set($data);
             $updateBuilder->where("BodyID = $resourceId");
-
             $result = (
                     DBConnectionFactory::getConnection()
                     ->query((string)$updateBuilder)
