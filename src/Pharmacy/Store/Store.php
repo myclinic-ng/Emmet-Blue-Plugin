@@ -34,7 +34,6 @@ class Store
      * creates ne store and also creates store inventory properties
      * 
      */
-
     public static function create(array $data)
     {
         $storeInventoryProperties = $data['storeInventoryProperties'] ?? null;
