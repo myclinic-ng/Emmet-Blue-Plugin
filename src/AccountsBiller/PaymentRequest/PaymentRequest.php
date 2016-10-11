@@ -47,18 +47,18 @@ class PaymentRequest
 
         try
         {
-            $result = DBQueryFactory::insert('Accounts.BillingPaymentRequest', [
+            $result = DBQueryFactory::insert('Accounts.PaymentRequest', [
                 'PaymentRequestUUID'=>QB::wrapString($requestNumber, "'"),
                 'RequestPatientID'=>QB::wrapString((string)$patient, "'"),
                 'RequestBy'=>QB::wrapString((string)$requestBy, "'"),
                 'RequestDepartment'=>$requestDepartment
             ]);
             
-            $id = $result['lastInsertId']; 
+            $id = $result['lastInsertId'];
 
             $itemNames = [];
             foreach ($items as $datum){
-                $itemNames[] = "($id, ".QB::wrapString((string)$datum['item'], "'").", ".QB::wrapString((string)$datum['quantity'], "'").")";
+                $itemNames[] = "($id, ".$datum['item'].", ".$datum['quantity'].")";
             }
 
             $query = "INSERT INTO Accounts.PaymentRequestItems (RequestID, ItemID, ItemQuantity) VALUES ".implode(", ", $itemNames);
