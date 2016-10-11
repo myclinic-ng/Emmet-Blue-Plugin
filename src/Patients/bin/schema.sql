@@ -35,6 +35,7 @@ CREATE TABLE Patients.Patient (
 	PatientPicture VARCHAR(MAX),
 	PatientType INT,
 	PatientIdentificationDocument VARCHAR(MAX),
+	PatientProfileLockStatus BIT DEFAULT 1,
 	PatientUUID VARCHAR(20) UNIQUE NOT NULL,
 	LastModified DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE SET NULL

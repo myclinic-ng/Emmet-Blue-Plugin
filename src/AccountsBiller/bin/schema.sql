@@ -107,3 +107,29 @@ CREATE TABLE Accounts.BillingTransaction (
 	FOREIGN KEY (BillingPaymentMethod) REFERENCES [Accounts].[BillingPaymentMethods] (PaymentMethodName) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO
+
+CREATE TABLE Accounts.PaymentRequest (
+	PaymentRequestID INT PRIMARY KEY IDENTITY,
+	PaymentRequestUUID VARCHAR(20),
+	RequestPatientID INT,
+	RequestBy VARCHAR(20),
+	RequestDepartment INT,
+	RequestDate DATETIME DEFAULT GETDATE(),
+	RequestFulfillmentStatus BIT DEFAULT 0,
+	RequestFulfilledBy VARCHAR(20),
+	RequestFulFilledDate DATETIME,
+	FOREIGN KEY (RequestPatientID) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (RequestBy) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (RequestFulfilledBy) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (RequestDepartment) REFERENCES Staffs.Department (DepartmentID) ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+GO
+
+CREATE TABLE Accounts.PaymentRequestItems (
+	PaymentRequestItemsItems INT PRIMARY KEY IDENTITY,
+	RequestID INT,
+	ItemID INT,
+	ItemQuantity INT,
+	FOREIGN KEY (RequestID) REFERENCES Accounts.PaymentRequest (PaymentRequestID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (ItemID) REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE SET NULL
+)
