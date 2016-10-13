@@ -31,7 +31,7 @@ class DepartmentBillingLink
 {
 	public static function create(array $data)
     {
-        $deparmtent = $data['department'];
+        $department = $data['department'];
         $billingType = $data["billingType"] ?? null;
 
         try
