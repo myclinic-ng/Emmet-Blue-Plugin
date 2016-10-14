@@ -138,9 +138,7 @@ class DepartmentBillingLink
             $selectBuilder->from("Accounts.DepartmentBillingLink a");
             $selectBuilder->innerJoin("Accounts.BillingType b", "a.BillingTypeID = b.BillingTypeID");
             
-            if ($resourceId !== 0){
-                $selectBuilder->where("DepartmentID = $resourceId");
-            }
+            $selectBuilder->where("DepartmentID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
