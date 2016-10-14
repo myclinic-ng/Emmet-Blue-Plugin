@@ -93,7 +93,7 @@ class DepartmentBillingLink
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("b.*");
+                $selectBuilder->columns("a.LinkID, b.*");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
@@ -129,7 +129,7 @@ class DepartmentBillingLink
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("b.*");
+                $selectBuilder->columns("a.LinkID, b.*");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
