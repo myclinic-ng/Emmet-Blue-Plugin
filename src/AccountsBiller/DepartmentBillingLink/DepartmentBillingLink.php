@@ -93,14 +93,15 @@ class DepartmentBillingLink
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("*");
+                $selectBuilder->columns("b.*");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.DepartmentBillingLink");
-
+            $selectBuilder->from("Accounts.DepartmentBillingLink a");
+            $selectBuilder->innerJoin("Accounts.BillingType b", "a.BillingTypeID = b.BillingTypeID");
+            
             if ($resourceId !== 0){
                 $selectBuilder->where("LinkID = $resourceId");
             }
