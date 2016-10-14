@@ -38,6 +38,11 @@ class DepartmentBillingLink
 		return DepartmentBillingLink\DepartmentBillingLink::view($resourceId, $data);
 	}
 
+	public static function viewByDepartment(int $resourceId=0, array $data = [])
+	{
+		return DepartmentBillingLink\DepartmentBillingLink::viewByDepartment($resourceId, $data);
+	}
+
 	public static function deleteDepartmentBillingLink(int $resourceId)
 	{
 		return DepartmentBillingLink\DepartmentBillingLink::delete($resourceId);
