@@ -122,6 +122,42 @@ class DepartmentBillingLink
         }
     }
 
+    public static function viewByDepartment(int $resourceId = 0, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("b.*");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Accounts.DepartmentBillingLink a");
+            $selectBuilder->innerJoin("Accounts.BillingType b", "a.BillingTypeID = b.BillingTypeID");
+            
+            if ($resourceId !== 0){
+                $selectBuilder->where("DepartmentID = $resourceId");
+            }
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
