@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -67,6 +67,20 @@ class ViewAccountsBillingTypeItems
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function viewAccountsBillingTypeItemsByStaffUUID(int $resourceId = 0, array $data = []){
+        $query = "SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
+                    SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
+                        SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
+                    ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$resourceId'
+                ) b ON a.BillingType = b.BillingTypeID ORDER BY a.BillingType ASC";
+        $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
     }
 
 

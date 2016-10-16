@@ -135,9 +135,10 @@ CREATE TABLE Accounts.PaymentRequestItems (
 )
 
 CREATE TABLE Accounts.DepartmentBillingLink (
-	LinkID INT PRIMARY KEY IDENTITY,
+	LinkID INT IDENTITY,
 	DepartmentID INT,
 	BillingTypeID INT,
 	FOREIGN KEY (DepartmentID) REFERENCES Staffs.Department (DepartmentID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (BillingTypeID) REFERENCES Accounts.BillingType (BillingTypeID) ON UPDATE CASCADE ON DELETE CASCADE 
+	FOREIGN KEY (BillingTypeID) REFERENCES Accounts.BillingType (BillingTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	PRIMARY KEY (LinkID, DepartmentID, BillingTypeID) 
 )
