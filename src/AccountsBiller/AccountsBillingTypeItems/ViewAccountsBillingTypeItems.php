@@ -91,8 +91,9 @@ class ViewAccountsBillingTypeItems
             if (!isset($billingTypes[$item["BillingTypeName"]])){
                 $billingTypes[$item["BillingTypeName"]] = [];
             }
+            $billingType = $item["BillingTypeName"];
             unset($item["BillingTypeName"]);
-            $billingTypes[$item["BillingTypeName"]][] = $item;
+            $billingTypes[$billingType][] = $item;
         }
 
         return $billingTypes;
