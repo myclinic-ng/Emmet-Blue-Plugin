@@ -41,9 +41,15 @@ class PaymentRequest
     {
         $patient = $data['patient'] ?? null;
         $requestBy = $data['requestBy'] ?? null;
-        $requestDepartment = $data['requestDepartment'] ?? null;
         $items = $data['items'] ?? null;
         $requestNumber = self::generateRequestNumber();
+
+        $query = "SELECT b.DepartmentID from Staffs.Staff a JOIN Staffs.StaffDepartment b ON a.StaffID = b.StaffID WHERE a.StaffUUID = '$requestBy'";
+        $result = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$query)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+        $requestDepartment = $result["DepartmentID"];
 
         try
         {
