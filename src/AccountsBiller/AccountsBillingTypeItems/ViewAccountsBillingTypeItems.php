@@ -85,7 +85,17 @@ class ViewAccountsBillingTypeItems
                     ->query((string)$query)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-        return $result;
+        $billingTypes = [];
+
+        foreach ($result as $item){
+            if (!isset($billingTypes[$item["BillingTypeName"]])){
+                $billingTypes[$item["BillingTypeName"]] = [];
+            }
+            unset($item["BillingTypeName"]);
+            $billingTypes[$item["BillingTypeName"]][] = $item;
+        }
+
+        return $billingTypes;
     }
 
 
