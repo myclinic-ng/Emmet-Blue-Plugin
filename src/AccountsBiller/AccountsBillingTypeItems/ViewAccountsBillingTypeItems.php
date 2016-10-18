@@ -29,12 +29,12 @@ use EmmetBlue\Core\Constant;
  */
 class ViewAccountsBillingTypeItems
 { 
-	/* viewAccountBillingType method
-	 *
-	 * @param int $accountBillingTypeId
-	 * @author Samuel Adeshina <samueladeshina73@gmail.com>
-	 */
-	public static function viewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
+    /* viewAccountBillingType method
+     *
+     * @param int $accountBillingTypeId
+     * @author Samuel Adeshina <samueladeshina73@gmail.com>
+     */
+    public static function viewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
     {
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
 
@@ -70,11 +70,16 @@ class ViewAccountsBillingTypeItems
     }
 
     public static function viewAccountsBillingTypeItemsByStaffUUID(int $resourceId = 0, array $data = []){
-        $query = "SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
-                    SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
-                        SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
-                    ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$resourceId'
-                ) b ON a.BillingType = b.BillingTypeID ORDER BY a.BillingType ASC";
+        $uuid=$data['uuid'];
+
+        $query = "SELECT a.BillingTypeName, b.* FROM Accounts.BillingType a JOIN (
+                    SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
+                        SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
+                            SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
+                        ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$uuid'
+                    ) b ON a.BillingType = b.BillingTypeID
+                ) b ON a.BillingTypeID = b.BillingType";
+                
         $result = (
                     DBConnectionFactory::getConnection()
                     ->query((string)$query)
