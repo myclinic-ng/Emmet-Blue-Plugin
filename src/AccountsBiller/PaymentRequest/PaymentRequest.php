@@ -204,7 +204,7 @@ class PaymentRequest
     public static function getStatus(int $resourceId = 0, array $data = [])
     {
         $requestNumber = $data["requestNumber"];
-        $query = "SELECT RequestFullfilmentStatus FROM Accounts.PaymentRequest WHERE PaymentRequestUUID = '$requestNumber'";
+        $query = "SELECT RequestFulfillmentStatus FROM Accounts.PaymentRequest WHERE PaymentRequestUUID = '$requestNumber'";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
