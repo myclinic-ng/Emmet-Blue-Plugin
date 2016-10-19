@@ -43,6 +43,11 @@ class PaymentRequest
 		return PaymentRequest\PaymentRequest::getStatus($resourceId, $data);
 	}
 
+	public static function loadRequests(int $resourceId=0, array $data = [])
+	{
+		return PaymentRequest\PaymentRequest::loadRequests($resourceId, $data);
+	}
+
 	public static function deletePaymentRequest(int $resourceId)
 	{
 		return PaymentRequest\PaymentRequest::delete($resourceId);

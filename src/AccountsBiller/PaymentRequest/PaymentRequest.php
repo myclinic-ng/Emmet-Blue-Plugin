@@ -210,6 +210,15 @@ class PaymentRequest
         return $result;
     }
 
+    public static function loadRequests(int $resourceId = 0, array $data = [])
+    {
+        $staff = $data["staff"];
+        $query = "SELECT * FROM Accounts.PaymentRequest a JOIN (SELECT b.DepartmentID FROM Staffs.Staff a JOIN Staffs.StaffDepartment b ON a.StaffID = b.StaffID WHERE StaffUUID = '$staff') b ON a.RequestDepartment = b.DepartmentID";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        return $result;
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
