@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -29,12 +29,12 @@ use EmmetBlue\Core\Constant;
  */
 class ViewAccountsBillingTypeItems
 { 
-	/* viewAccountBillingType method
-	 *
-	 * @param int $accountBillingTypeId
-	 * @author Samuel Adeshina <samueladeshina73@gmail.com>
-	 */
-	public static function viewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
+    /* viewAccountBillingType method
+     *
+     * @param int $accountBillingTypeId
+     * @author Samuel Adeshina <samueladeshina73@gmail.com>
+     */
+    public static function viewAccountsBillingTypeItems(int $resourceId = 0, array $data = [])
     {
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
 
@@ -67,6 +67,36 @@ class ViewAccountsBillingTypeItems
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function viewAccountsBillingTypeItemsByStaffUUID(int $resourceId = 0, array $data = []){
+        $uuid=$data['uuid'];
+
+        $query = "SELECT a.BillingTypeName, b.* FROM Accounts.BillingType a JOIN (
+                    SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
+                        SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
+                            SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
+                        ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$uuid'
+                    ) b ON a.BillingType = b.BillingTypeID
+                ) b ON a.BillingTypeID = b.BillingType";
+                
+        $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+        $billingTypes = [];
+
+        foreach ($result as $item){
+            if (!isset($billingTypes[$item["BillingTypeName"]])){
+                $billingTypes[$item["BillingTypeName"]] = [];
+            }
+            $billingType = $item["BillingTypeName"];
+            unset($item["BillingTypeName"]);
+            $billingTypes[$billingType][] = $item;
+        }
+
+        return $billingTypes;
     }
 
 
