@@ -49,7 +49,7 @@ class PaymentRequest
                 DBConnectionFactory::getConnection()
                 ->query((string)$query)
             )->fetchAll(\PDO::FETCH_ASSOC);
-        $requestDepartment = $result["DepartmentID"];
+        $requestDepartment = $result[0]["DepartmentID"];
 
         try
         {
@@ -199,6 +199,15 @@ class PaymentRequest
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function getStatus(int $resourceId = 0, array $data = [])
+    {
+        $requestNumber = $data["requestNumber"];
+        $query = "SELECT RequestFullfilmentStatus FROM Accounts.PaymentRequest WHERE PaymentRequestUUID = '$requestNumber'";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        return $result;
     }
 
     public static function delete(int $resourceId)
