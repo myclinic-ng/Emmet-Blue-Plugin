@@ -30,11 +30,11 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class Staff
 {
-	/**
-	 * Determines if a login data is valid
-	 *
-	 * @param array $data
-	 */
+    /**
+     * Determines if a login data is valid
+     *
+     * @param array $data
+     */
     public static function create(array $data)
     {
         $uuid = substr(str_shuffle(MD5(microtime())), 0, 20);
@@ -43,7 +43,7 @@ class Staff
 
         try
         {
-        	$result = DBQueryFactory::insert('Staffs.Staff', [
+            $result = DBQueryFactory::insert('Staffs.Staff', [
                 'StaffUUID'=>QB::wrapString($uuid, "'")
             ]);
             
@@ -96,6 +96,31 @@ class Staff
         return false;
     }
 
+    /* view staff profile */
+    public static function viewStaffWithDepartmentAndRole(string $id)
+    {
+        $staffUUID = QB::wrapString($id,"'");
+
+        try
+        {            
+    
+            $query = "SELECT a.AccountActivated, a.StaffUUID, b.* FROM Staffs.Staff a INNER JOIN (SELECT b.DepartmentID, b.Name, a.StaffID FROM Staffs.StaffDepartment a INNER JOIN Staffs.Department b ON a.DepartmentID=b.DepartmentID) b ON a.StaffID = b.StaffID WHERE StaffUUID = $staffUUID";
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();

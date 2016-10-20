@@ -28,11 +28,11 @@ use EmmetBlue\Core\Constant;
  */
 class Staff
 {
-	/**
-	 * Creates a new staff
-	 *
-	 * @param array $data Dept. Group Data
-	 */
+    /**
+     * Creates a new staff
+     *
+     * @param array $data Dept. Group Data
+     */
     public static function newStaff(array $data)
     {
         $result = Staff\Staff::create($data);
@@ -46,14 +46,21 @@ class Staff
 
         return $result;
     }
+    /*view file profile*/
+    public static function viewStaffWithDepartmentAndRole(array $data)
+    {
+        $id = $data["uuid"];
+        $result = Staff\Staff::viewStaffWithDepartmentAndRole($id);
 
+        return $result;
+    }
     /**
      * Deletes a staff
      */
     public static function deleteStaff(int $resourceId)
     {
-    	$result = Staff\Staff::delete($resourceId);
+        $result = Staff\Staff::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
 }
