@@ -95,7 +95,7 @@ class PatientRepository
     /**
      * view patients UUID
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId) {
         $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
