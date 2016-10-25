@@ -99,6 +99,22 @@ class Patient
         return file_get_contents($imageLocation);
     }
 
+    public static function lockProfile(array $data){
+        $patient = $data['patient'];
+        $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 1 WHERE PatientID = $patient";
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
+    }
+
+    public static function unlockProfile(array $data){
+        $patient = $data['patient'];
+        $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
+    }
+
     public static function create(array $data)
     {
         if (isset($data["patientName"])){

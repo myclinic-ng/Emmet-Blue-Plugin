@@ -70,6 +70,20 @@ class Patient
         return $result;
     }
 
+    public static function lockProfile(array $data)
+    {
+        $result = Patient\Patient::lockProfile($data);
+
+        return $result;
+    }
+
+    public static function unlockProfile(array $data)
+    {
+        $result = Patient\Patient::unlockProfile($data);
+
+        return $result;
+    }
+
     /**
      * edits Patient
      */
