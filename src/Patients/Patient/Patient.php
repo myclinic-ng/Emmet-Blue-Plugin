@@ -104,6 +104,8 @@ class Patient
         $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 1 WHERE PatientID = $patient";
         $result = DBConnectionFactory::getConnection()->exec($query);
 
+        $q = HospitalHistory::new((int)$id, ["dateAttended"=>date("Y-m-d H:i:s")]);
+
         return $result;
     }
 
