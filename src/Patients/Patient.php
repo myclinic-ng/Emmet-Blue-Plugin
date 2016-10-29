@@ -57,6 +57,13 @@ class Patient
         return $result;
     }
 
+    public static function lastVisit(int $patientId)
+    {
+        $result = Patient\HospitalHistory::lastVisit($patientId);
+
+        return $result;
+    }
+
     public static function search(array $data)
     {
         $result = Patient\Patient::search($data);

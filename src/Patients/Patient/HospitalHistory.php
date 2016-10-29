@@ -66,6 +66,13 @@ class HospitalHistory
         }
     }
 
+    public static function lastVisit(int $patientId){
+        $query = "select TOP(1) * from Patients.PatientHospitalHistory WHERE PatientID = $patient ORDER BY HospitalHistoryID DESC";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
     public static function new(int $patientId, array $hospitalHistory){
         $historyArray = [];
         if (count($hospitalHistory) >= 1 && is_array($hospitalHistory[0])){
