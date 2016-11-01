@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -24,7 +24,7 @@ use EmmetBlue\Core\Constant;
  *
  * Stores and store inventory properies Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 24/08/2016 12:17
  */
 class Store
@@ -37,27 +37,30 @@ class Store
     public static function create(array $data)
     {
         $storeInventoryProperties = $data['storeInventoryProperties'] ?? null;
-        $storeName = $data['storeName'] ?? null;
-        $storeDescription = $data['storeDescription'] ?? null;
+        $storeName = $data['name'] ?? null;
+        $storeDescription = $data['description'] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Pharmacy.Store', [
                 'StoreName'=>QB::wrapString($storeName, "'"),
-                'StoreDescription'=>QB::wrapString($storeDescription, "'"),
-                ]);
+                'StoreDescription'=>(is_null($storeDescription)) ? "NULL" : QB::wrapString($storeDescription, "'")
+            ]);
             
             $id = $result['lastInsertId']; 
 
-            foreach ($storeInventoryProperties as $datum){
-                $inventoryProperties[] = "($id, ".QB::wrapString($datum['name'], "'").")";
-            }
+            if (is_array($storeInventoryProperties))
+            {
+                foreach ($storeInventoryProperties as $datum){
+                    $inventoryProperties[] = "($id, ".QB::wrapString($datum['name'], "'").")";
+                }
 
-            $query = "INSERT INTO Pharmacy.StoreInventoryProperties (StoreID, PropertyName) VALUES ".implode(", ", $inventoryProperties);
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->exec($query)
-            );
+                $query = "INSERT INTO Pharmacy.StoreInventoryProperties (StoreID, PropertyName) VALUES ".implode(", ", $inventoryProperties);
+                $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec($query)
+                );
+            }
 
             return ['lastInsertId'=>$id];
         }
@@ -79,11 +82,11 @@ class Store
 
         try
         {
-            if (isset($data['StoreName'])){
-                $data['StoreName'] = QB::wrapString($data['StoreName'], "'");
+            if (isset($data['storeName'])){
+                $data['storeName'] = QB::wrapString($data['storeName'], "'");
             }
-            if (isset($data['StoreDescription'])){
-                $data['StoreDescription'] = QB::wrapString($data['StoreDescription'], "'");
+            if (isset($data['storeDescription'])){
+                $data['storeDescription'] = QB::wrapString($data['storeDescription'], "'");
             }
 
             $updateBuilder->table("Pharmacy.Store");

@@ -4,7 +4,7 @@ GO
 CREATE TABLE Pharmacy.Store (
 	StoreID INT PRIMARY KEY IDENTITY NOT NULL,
 	StoreName VARCHAR(50) NOT NULL UNIQUE,
-	StoreDescription VARCHAR(100)
+	StoreDescription VARCHAR(1000)
 )
 GO
 
@@ -15,14 +15,18 @@ CREATE TABLE Pharmacy.StoreInventoryProperties (
 	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
+
 CREATE TABLE Pharmacy.StoreInventory(
 	ItemID INT PRIMARY KEY IDENTITY NOT NULL,
 	StoreID INT,
-	ItemName VARCHAR(50),
+	Item INT,
 	ItemQuantity INT,
-	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (Item) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(Item, StoreID)
 )
 GO
+
 CREATE TABLE Pharmacy.StoreInventoryTags(
 	TagID INT PRIMARY KEY IDENTITY NOT NULL,
 	ItemID INT,
@@ -44,6 +48,7 @@ CREATE TABLE Pharmacy.Dispensee(
 	DispenseeTypeID INT
 )
 GO
+
 CREATE TABLE Pharmacy.Dispensation(
 	DispensationID INT PRIMARY KEY IDENTITY NOT NULL,
 	DispensingStore VARCHAR(50),

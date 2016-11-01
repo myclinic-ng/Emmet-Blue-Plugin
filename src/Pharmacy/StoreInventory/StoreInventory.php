@@ -37,23 +37,23 @@ class StoreInventory
 
     public static function create(array $data)
     {
-        $storeInventoryTags = $data['storeInventoryTags'] ?? null;
-        $storeId = $data['storeId'] ?? null;
-        $itemName = $data['itemName'] ?? null;
-        $itemQuantity = $data['itemQuantity'] ?? null;
+        $storeInventoryTags = $data['tags'] ?? null;
+        $storeId = $data['store'] ?? null;
+        $itemName = $data['item'] ?? null;
+        $itemQuantity = $data['quantity'] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Pharmacy.StoreInventory', [
                 'StoreID'=>$storeId,
-                'ItemName'=>QB::wrapString($itemName, "'"),
-                'ItemQuantity'=>QB::wrapString($itemQuantity, "'"),
-                ]);
+                'Item'=>$itemName,
+                'ItemQuantity'=>$itemQuantity
+            ]);
             
             $id = $result['lastInsertId']; 
 
             foreach ($storeInventoryTags as $datum){
-                $inventoryTags[] = "($id, ".QB::wrapString($datum['tagTitle'], "'").",".QB::wrapString($datum['tagName'], "'").")";
+                $inventoryTags[] = "($id, ".QB::wrapString($datum['title'], "'").",".QB::wrapString($datum['name'], "'").")";
             }
 
             $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
@@ -84,8 +84,8 @@ class StoreInventory
 
         try
         {
-            if (isset($data['ItemName'])){
-                $data['ItemName'] = QB::wrapString($data['ItemName'], "'");
+            if (isset($data['Item'])){
+                $data['Item'] = QB::wrapString($data['Item'], "'");
             }
             if (isset($data['ItemQuantity'])){
                 $data['ItemQuantity'] = QB::wrapString($data['ItemQuantity'], "'");
@@ -159,13 +159,13 @@ class StoreInventory
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("*");
+                $selectBuilder->columns("a.*, b.BillingTypeItemName");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Pharmacy.StoreInventory");
+            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID");
 
             if ($resourceId !== 0){
                 $selectBuilder->where("ItemID = $resourceId");
@@ -179,14 +179,62 @@ class StoreInventory
             foreach ($result as $key=>$storeItem)
             {
                 $id = $storeItem["ItemID"];
-                $query = "SELECT * FROM Pharmacy.StoreInventoryTags WHERE TagID = $id";
+                $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
 
                 $queryResult = (
                     DBConnectionFactory::getConnection()
                     ->query($query)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-                $result[$key]["StoreInventoryProperties"] = $queryResult;
+                $result[$key]["Tags"] = $queryResult;
+            }
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function viewByStore(int $resourceId, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("a.*, b.BillingTypeItemName");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID");
+
+            if ($resourceId !== 0){
+                $selectBuilder->where("StoreID = $resourceId");
+            }
+
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$selectBuilder)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $key=>$storeItem)
+            {
+                $id = $storeItem["ItemID"];
+                $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
+
+                $queryResult = (
+                    DBConnectionFactory::getConnection()
+                    ->query($query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+                $result[$key]["Tags"] = $queryResult;
             }
 
             return $result;

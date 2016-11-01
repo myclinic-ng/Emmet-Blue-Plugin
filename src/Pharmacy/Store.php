@@ -45,7 +45,7 @@ class Store
 
 	public static function editStore(int $resourceId, array $data)
     {
-        $result = Store\Store::edit($resourceId, $data);
+        $result = Store\Store::editStore($resourceId, $data);
 
         return $result;
     }

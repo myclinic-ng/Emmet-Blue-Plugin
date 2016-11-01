@@ -39,7 +39,7 @@ CREATE TABLE Accounts.BillingCustomerInfo (
 -- /DEPRECATED
 
 CREATE TABLE Accounts.BillingTypeItems (
-	BillingTypeItemID INT PRIMARY KEY IDENTITY,
+	BillingTypeItemID INT PRIMARY KEY IDENTITY(1000, 1),
 	BillingType INT,
 	BillingTypeItemName VARCHAR (100) UNIQUE,
 	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeID) ON UPDATE CASCADE ON DELETE CASCADE
