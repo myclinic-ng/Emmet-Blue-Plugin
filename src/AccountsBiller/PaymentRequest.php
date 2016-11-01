@@ -48,6 +48,21 @@ class PaymentRequest
 		return PaymentRequest\PaymentRequest::loadRequests($resourceId, $data);
 	}
 
+	public static function loadAllRequests()
+	{
+		return PaymentRequest\PaymentRequest::loadAllRequests();
+	}
+
+	public static function loadPaymentRequestBillingItems(int $resourceId)
+	{
+		return PaymentRequest\PaymentRequest::loadPaymentRequestBillingItems($resourceId);
+	}
+	// make payment
+	public static function makePayment(int $resourceId, array $data)
+	{
+		return PaymentRequest\PaymentRequest::makePayment($resourceId,$data);
+	}
+
 	public static function deletePaymentRequest(int $resourceId)
 	{
 		return PaymentRequest\PaymentRequest::delete($resourceId);

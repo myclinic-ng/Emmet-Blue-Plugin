@@ -218,7 +218,72 @@ class PaymentRequest
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
     }
+    /*loading all request for Account Department*/
+    public static function loadAllRequests(){
+       $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID";
+        try
+        {
+            $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
 
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Accounts',
+                'PaymentRequest',
+                (string)$query
+            );
+            
+            return $viewPaymentRequestOperation;  
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    } 
+
+    /** load payment billing Items and price for each request*/
+    public static function loadPaymentRequestBillingItems($resourceId)
+    {
+        # code...
+        $paymentRequestId = $resourceId;
+        $query = "SELECT a.*, b.*, c.BillingTypeItemPrice FROM Accounts.PaymentRequestItems a JOIN Accounts.BillingTypeItems b ON b.BillingTypeItemID = a.ItemID JOIN Accounts.BillingTypeItemsPrices c ON c.BillingTypeItemsPricesID = b.BillingTypeItemID WHERE a.RequestID = $paymentRequestId" ;
+            
+        $result = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+        return $result;
+    }
+
+    /*make payment for each request*/
+    public static function makePayment($resourceId, $data){
+        $status['RequestFulfillmentStatus'] = $data['status'];
+        $status['RequestFulfilledBy'] = QB::wrapString($data['staffUUID'], "'");
+        $status['RequestFulFilledDate'] = QB::wrapString($data['fulfilledDate'], "'");
+        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
+
+        try
+        {
+            $updateBuilder->table("Accounts.PaymentRequest");
+            $updateBuilder->set($status);
+            $updateBuilder->where("PaymentRequestID = $resourceId");
+
+            $bodyResult = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$updateBuilder)
+                );
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process update, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
@@ -226,8 +291,8 @@ class PaymentRequest
         try
         {
             $deleteBuilder
-                ->from("Accounts.BillingPaymentRequest")
-                ->where("BillingPaymentRequestID = $resourceId");
+                ->from("Accounts.PaymentRequest")
+                ->where("PaymentRequestID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
