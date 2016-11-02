@@ -218,10 +218,10 @@ class PaymentRequest
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
     }
-    
+
     /*loading all request for Account Department*/
     public static function loadAllRequests(){
-       $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientIDJOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
+       $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
