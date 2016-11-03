@@ -20,6 +20,8 @@ CREATE TABLE Pharmacy.StoreInventory(
 	ItemID INT PRIMARY KEY IDENTITY NOT NULL,
 	StoreID INT,
 	Item INT,
+	ItemBrand VARCHAR(50),
+	ItemManufacturer VARCHAR(50),
 	ItemQuantity INT,
 	FOREIGN KEY (Item) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE,

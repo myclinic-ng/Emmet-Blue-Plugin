@@ -40,6 +40,8 @@ class StoreInventory
         $storeInventoryTags = $data['tags'] ?? null;
         $storeId = $data['store'] ?? null;
         $itemName = $data['item'] ?? null;
+        $itemBrand = $data['brand'] ?? null;
+        $itemManufacturer = $data['manufacturer'] ?? null;
         $itemQuantity = $data['quantity'] ?? null;
 
         try
@@ -47,22 +49,30 @@ class StoreInventory
             $result = DBQueryFactory::insert('Pharmacy.StoreInventory', [
                 'StoreID'=>$storeId,
                 'Item'=>$itemName,
-                'ItemQuantity'=>$itemQuantity
+                'ItemQuantity'=>is_null($itemQuantity) ? "NULL" : $itemQuantity,
+                'ItemBrand'=>is_null($itemBrand) ? "NULL": QB::wrapString($itemBrand, "'"),
+                'itemManufacturer'=>is_null($itemManufacturer) ? "NULL": QB::wrapString($itemManufacturer, "'")
             ]);
             
             $id = $result['lastInsertId']; 
 
-            foreach ($storeInventoryTags as $datum){
-                $inventoryTags[] = "($id, ".QB::wrapString($datum['title'], "'").",".QB::wrapString($datum['name'], "'").")";
-            }
+            if (is_array($storeInventoryTags))
+            {
+                foreach ($storeInventoryTags as $datum){
+                    $inventoryTags[] = "($id, ".QB::wrapString($datum['title'], "'").",".QB::wrapString($datum['name'], "'").")";
+                }
 
-            $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
-                            VALUES ".implode(", ", $inventoryTags);
-                           
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->exec($query)
-            );
+                if (isset($inventoryTags))
+                {
+                    $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
+                                VALUES ".implode(", ", $inventoryTags);
+                                   
+                    $result = (
+                        DBConnectionFactory::getConnection()
+                        ->exec($query)
+                    );
+                }
+            }
 
             return ['lastInsertId'=>$id];
         }

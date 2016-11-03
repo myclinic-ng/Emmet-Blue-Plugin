@@ -218,9 +218,10 @@ class PaymentRequest
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
     }
+
     /*loading all request for Account Department*/
     public static function loadAllRequests(){
-       $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID";
+       $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
@@ -252,10 +253,19 @@ class PaymentRequest
     {
         # code...
         $paymentRequestId = $resourceId;
-        $query = "SELECT a.*, b.*, c.BillingTypeItemPrice FROM Accounts.PaymentRequestItems a JOIN Accounts.BillingTypeItems b ON b.BillingTypeItemID = a.ItemID JOIN Accounts.BillingTypeItemsPrices c ON c.BillingTypeItemsPricesID = b.BillingTypeItemID WHERE a.RequestID = $paymentRequestId" ;
+        $query = "SELECT a.*, b.BillingTypeItemName, c.RequestPatientID as PatientID FROM Accounts.PaymentRequestItems a JOIN Accounts.BillingTypeItems b On a.ItemID = b.BillingTypeItemID JOIN Accounts.PaymentRequest c ON a.RequestID = c.PaymentRequestID WHERE a.RequestID = $paymentRequestId" ;
             
-        $result = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
-        return $result;
+        $res = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+        foreach ($res as $key=>$result){
+            $price = \EmmetBlue\Plugins\AccountsBiller\GetItemPrice::calculate((int)$result["PatientID"], [
+                "item"=>(int)$result["ItemID"],
+                "quantity"=>(int)$result["ItemQuantity"]
+            ]);
+            
+            $res[$key] = array_merge($res[$key], $price);
+        }
+
+        return $res;
     }
 
     /*make payment for each request*/
