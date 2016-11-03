@@ -121,6 +121,29 @@ class Staff
             ), Constant::UNDEFINED);
         }
     }
+    /*view staff based on dept*/
+    public static function viewDepartmentStaff(int $resourceId){
+       /* $query = "SELECT a.StaffUsername, c.Name,d.GroupName,e.* FROM Staffs.StaffPassword a JOIN Staffs.StaffDepartment b ON a.StaffID=b.StaffID JOIN Staffs.Department c ON c.DepartmentID=b.DepartmentID JOIN Staffs.DepartmentGroup d ON d.DepartmentGroupID=c.GroupID JOIN Staffs.Staff e ON a.StaffID=e.StaffID WHERE b.DepartmentID=9"*/
+       try
+        {            
+    
+            $query = "SELECT a.StaffUsername, c.Name,d.GroupName,e.* FROM Staffs.StaffPassword a JOIN Staffs.StaffDepartment b ON a.StaffID=b.StaffID JOIN Staffs.Department c ON c.DepartmentID=b.DepartmentID JOIN Staffs.DepartmentGroup d ON d.DepartmentGroupID=c.GroupID JOIN Staffs.Staff e ON a.StaffID=e.StaffID WHERE d.DepartmentGroupID=$resourceId";
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();

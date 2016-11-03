@@ -46,11 +46,18 @@ class Staff
 
         return $result;
     }
-    /*view file profile*/
+    /*view staff profile*/
     public static function viewStaffWithDepartmentAndRole(array $data)
     {
         $id = $data["uuid"];
         $result = Staff\Staff::viewStaffWithDepartmentAndRole($id);
+
+        return $result;
+    }
+    /*view Departmental staff profile*/
+    public static function viewDepartmentStaff(int $resourceId)
+    {
+        $result = Staff\Staff::viewDepartmentStaff($resourceId);
 
         return $result;
     }

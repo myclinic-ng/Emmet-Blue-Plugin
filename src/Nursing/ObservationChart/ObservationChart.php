@@ -37,12 +37,10 @@ class ObservationChart
      */
     public static function create(array $data)
     {
-        
-        
-        $patientId = $data['patientId'] ?? null;
+        $patientId = QB::wrapString($data['patientId'] ?? null, "'");
         $staffId = QB::wrapString($data['staffId'] ?? null, "'");
-        $observationChartFieldValue = $data['observationChartFieldValue'] ?? null;
-
+        $observationChartFieldValue = $data['observationChartFieldValues'] ?? null;
+        
         try
         {
             $result = DBQueryFactory::insert('Nursing.ObservationChart', [
@@ -60,8 +58,8 @@ class ObservationChart
 
             $id = $result['lastInsertId'];
 
-            foreach ($observationChartFieldValue as $datum){
-                $observations[] = "($id, ".QB::wrapString($datum['fieldTitle'], "'").",".QB::wrapString($datum['fieldValue'], "'").")";
+            foreach ((array)$observationChartFieldValue as $key=>$value){
+               $observations[] = "($id, ".QB::wrapString($key, "'").",".QB::wrapString($value, "'").")";
             }
 
             $query = "INSERT INTO Nursing.ObservationChartFieldValue (ObservationChartID, FieldTitle, FieldValue) 
@@ -97,8 +95,9 @@ class ObservationChart
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('*')
-            ->from('Nursing.ObservationChart');
+            ->columns('a.*,b.PatientFullName')
+            ->from('Nursing.ObservationChart a');
+            $selectBuilder->innerJoin('Patients.Patient b', 'a.PatientID = b.PatientUUID');
             //$selectBuilder->innerJoin('Nursing.ObservationChartFieldValue b', 'a.ObservationChartID = b.ObservationChartID');
         if ($resourceId != 0){
             $selectBuilder->where('ObservationChartID ='.$resourceId);
@@ -137,7 +136,7 @@ class ObservationChart
         $selectBuilder
             ->columns('*')
             ->from('Nursing.ObservationChartFieldValue');
-            //$selectBuilder->innerJoin('Nursing.ObservationChartFieldValue b', 'a.ObservationChartID = b.ObservationChartID');
+            //$selectBuilder->innerJoin('Patients.Patient b', 'a.PatientID = b.PatientUUID');
         if ($resourceId != 0){
             $selectBuilder->where('ObservationChartID ='.$resourceId);
         }
