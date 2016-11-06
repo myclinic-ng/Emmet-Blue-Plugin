@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Lab\Lab;
+namespace EmmetBlue\Plugins\Lab\Patient;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -21,14 +21,14 @@ use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
- * class Lab.
+ * class Patient.
  *
- * Lab Controller
+ * Patient Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 01/01/2016 04:21pm
  */
-class Lab
+class Patient
 {
     /**
      * creates new lab resources
@@ -37,21 +37,39 @@ class Lab
      */
     public static function create(array $data)
     {
-        $labName = $data['name'] ?? null;
-        $labDescription = $data['description'] ?? null;
+        $patientID = $data['patientID'] ?? 'null';
+        $fname = $data['firstName'] ?? null;
+        $lname = $data['lastName'] ?? null;
+        $dateOfBirth = $data['dateOfBirth'] ?? null;
+        $gender = $data['gender'] ?? null;
+        $address = $data['address'] ?? null;
+        $phoneNumber = $data['phoneNumber'] ?? null;
+        $clinic = $data['clinic'] ?? null;
+        $clinicalDiagnosis = $data['clinicalDiagnosis'] ?? null;
+        $investigationTypeRequired = $data['investigationTypeRequired'] ?? 'null';
+        $investigationRequired = $data['investigationRequired'] ?? null;
+        $name = $fname." ".$lname;
 
         try
         {
-            $result = DBQueryFactory::insert('Lab.Labs', [
-                'LabName'=>QB::wrapString((string)$labName, "'"),
-                'LabDescription'=>QB::wrapString((string)$labDescription, "'")
+            $result = DBQueryFactory::insert('Lab.Patients', [
+                'PatientID'=>$patientID,
+                'FullName'=>QB::wrapString((string)$name, "'"),
+                'DateOfBirth'=>QB::wrapString((string)$dateOfBirth, "'"),
+                'Gender'=>QB::wrapString((string)$gender, "'"),
+                'Address'=>QB::wrapString((string)$address, "'"),
+                'PhoneNumber'=>QB::wrapString((string)$phoneNumber, "'"),
+                'Clinic'=>QB::wrapString((string)$clinic, "'"),
+                'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
+                'InvestigationTypeRequired'=>$investigationTypeRequired,
+                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'")
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Lab',
-                'Labs',
+                'Patients',
                 (string)(serialize($result))
             );
             return $result;
@@ -59,7 +77,7 @@ class Lab
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (Lab not created), %s",
+                "Unable to process request (Patient not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
@@ -72,10 +90,12 @@ class Lab
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('*')
-            ->from('Lab.Labs a');
+            ->columns('a.*, b.InvestigationTypeName, c.LabName')
+            ->from('Lab.Patients a')
+            ->innerJoin('Lab.InvestigationTypes b', 'a.InvestigationTypeRequired = b.InvestigationTypeID')
+            ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID');
         if ($resourceId != 0){
-            $selectBuilder->where('a.LabID ='.$resourceId);
+            $selectBuilder->where('a.PatientLabNumber ='.$resourceId);
         }
         try
         {
@@ -85,7 +105,7 @@ class Lab
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Lab',
-                'Labs',
+                'Patients',
                 (string)$selectBuilder
             );
 
@@ -111,15 +131,12 @@ class Lab
 
         try
         {
-            if (isset($data['LabName'])){
-                $data['LabName'] = QB::wrapString($data['LabName'], "'");
+            if (isset($data['FullName'])){
+                $data['FullName'] = QB::wrapString($data['FullName'], "'");
             }
-            if (isset($data['LabDescription'])){
-                $data['LabDescription'] = QB::wrapString($data['LabDescription'], "'");
-            }
-            $updateBuilder->table("Lab.Labs");
+            $updateBuilder->table("Lab.Patients");
             $updateBuilder->set($data);
-            $updateBuilder->where("LabID = $resourceId");
+            $updateBuilder->where("PatientLabNumber = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -147,8 +164,8 @@ class Lab
         try
         {
             $deleteBuilder
-                ->from("Lab.Labs")
-                ->where("LabID = $resourceId");
+                ->from("Lab.Patients")
+                ->where("PatientLabNumber = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
@@ -158,8 +175,8 @@ class Lab
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Lab',
-                'Labs',
+                'Patient',
+                'Patients',
                 (string)$deleteBuilder
             );
 

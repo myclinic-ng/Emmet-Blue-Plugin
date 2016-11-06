@@ -19,31 +19,36 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class Lab.
+ * class InvestigationType.
  *
- * Lab Controller
+ * InvestigationType Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class Lab
+class InvestigationType
 {
-	public static function newLab(array $data)
+	public static function newInvestigationType(array $data)
 	{
-		return Lab\Lab::create($data);
+		return InvestigationType\InvestigationType::create($data);
 	}
 
-	public static function viewLab(int $resourceId = 0)
+	public static function viewInvestigationType(int $resourceId = 0)
 	{
-		return Lab\Lab::view($resourceId);
-	}
-	public static function editLab(int $resourceId, array $data)
-	{
-		return Lab\Lab::edit($resourceId, $data);
+		return InvestigationType\InvestigationType::view($resourceId);
 	}
 
-	public static function deleteLab(int $resourceId)
+	public static function viewByLab(int $resourceId = 0)
 	{
-		return Lab\Lab::delete($resourceId);
+		return InvestigationType\InvestigationType::viewByLab($resourceId);
+	}
+	public static function editInvestigationType(int $resourceId, array $data)
+	{
+		return InvestigationType\InvestigationType::edit($resourceId, $data);
+	}
+
+	public static function deleteInvestigationType(int $resourceId)
+	{
+		return InvestigationType\InvestigationType::delete($resourceId);
 	}
 }

@@ -19,31 +19,31 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class Lab.
+ * class Patient.
  *
- * Lab Controller
+ * Patient Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class Lab
+class Patient
 {
-	public static function newLab(array $data)
+	public static function newPatient(array $data)
 	{
-		return Lab\Lab::create($data);
+		return Patient\Patient::create($data);
 	}
 
-	public static function viewLab(int $resourceId = 0)
+	public static function viewPatient(int $resourceId = 0)
 	{
-		return Lab\Lab::view($resourceId);
+		return Patient\Patient::view($resourceId);
 	}
-	public static function editLab(int $resourceId, array $data)
+	public static function editPatient(int $resourceId, array $data)
 	{
-		return Lab\Lab::edit($resourceId, $data);
+		return Patient\Patient::edit($resourceId, $data);
 	}
 
-	public static function deleteLab(int $resourceId)
+	public static function deletePatient(int $resourceId)
 	{
-		return Lab\Lab::delete($resourceId);
+		return Patient\Patient::delete($resourceId);
 	}
 }

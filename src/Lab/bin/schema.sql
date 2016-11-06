@@ -31,8 +31,15 @@ CREATE TABLE Lab.InvestigationTypeFields (
 	FOREIGN KEY (FieldType) REFERENCES Lab.InvestigationTypeFieldTypes (TypeID) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 
+CREATE TABLE Lab.InvestigationTypeFieldDefaults (
+	FieldDefaultID INT PRIMARY KEY IDENTITY,
+	Field INT,
+	Value VARCHAR(20),
+	FOREIGN KEY (Field) REFERENCES Lab.InvestigationTypeFields (FieldID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
 CREATE TABLE Lab.Patients (
-	PatientLabNumber INT PRIMARY KEY IDENTITY,
+	PatientLabNumber INT PRIMARY KEY IDENTITY(1000, 1),
 	PatientID INT,
 	FullName VARCHAR(30),
 	DateOfBirth DateTime,
