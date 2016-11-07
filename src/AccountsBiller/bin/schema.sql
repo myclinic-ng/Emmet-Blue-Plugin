@@ -111,7 +111,7 @@ GO
 CREATE TABLE Accounts.PaymentRequest (
 	PaymentRequestID INT PRIMARY KEY IDENTITY,
 	PaymentRequestUUID VARCHAR(20),
-	RequestPatientID INT,
+	RequestPatientID INT NOT NULL,
 	RequestBy VARCHAR(20),
 	RequestDepartment INT,
 	RequestDate DATETIME DEFAULT GETDATE(),

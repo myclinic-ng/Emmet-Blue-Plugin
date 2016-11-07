@@ -39,7 +39,7 @@ class PaymentRequest
 
     public static function create(array $data)
     {
-        $patient = $data['patient'] ?? null;
+        $patient = $data['patient'] ?? 'null';
         $requestBy = $data['requestBy'] ?? null;
         $items = $data['items'] ?? null;
         $requestNumber = self::generateRequestNumber();
@@ -55,7 +55,7 @@ class PaymentRequest
         {
             $result = DBQueryFactory::insert('Accounts.PaymentRequest', [
                 'PaymentRequestUUID'=>QB::wrapString($requestNumber, "'"),
-                'RequestPatientID'=>QB::wrapString((string)$patient, "'"),
+                'RequestPatientID'=>$patient,
                 'RequestBy'=>QB::wrapString((string)$requestBy, "'"),
                 'RequestDepartment'=>$requestDepartment
             ]);

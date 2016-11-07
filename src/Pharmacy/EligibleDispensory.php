@@ -19,36 +19,38 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
+ * class EligibleDispensory.
+ *
+ * store and Inventory properties Controller
+ *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class Dispensation
+class EligibleDispensory
 {
-	public static function newDispensation(array $data)
+	public static function newEligibleDispensory(array $data)
 	{
-		return Dispensation\Dispensation::create($data);
+		return EligibleDispensory\EligibleDispensory::create($data);
 	}
 
-	public static function viewDispensation(int $resourceId=0, array $data = [])
+	public static function viewEligibleDispensory(int $resourceId=0, array $data = [])
 	{
-		return Dispensation\Dispensation::view($resourceId, $data);
+		return EligibleDispensory\EligibleDispensory::view($resourceId, $data);
 	}
 
-	public static function deleteDispensation(int $resourceId)
+	public static function viewByStore(int $resourceId=0)
 	{
-		return Dispensation\storeInventory::delete($resourceId);
+		return EligibleDispensory\EligibleDispensory::viewByStore($resourceId);
 	}
 
-    public static function editDispensation(int $resourceId, array $data)
+	public static function deleteEligibleDispensory(int $resourceId)
+	{
+		return EligibleDispensory\EligibleDispensory::delete($resourceId);
+	}
+
+	public static function editEligibleDispensory(int $resourceId, array $data)
     {
-        $result = Dispensation\Dispensation::editDispensation($resourceId, $data);
-
-        return $result;
-    }
-    
-    public static function editDispensedItems(int $resourceId, array $data)
-    {
-        $result = Dispensation\Dispensation::editDispenseditems($resourceId, $data);
+        $result = EligibleDispensory\EligibleDispensory::editEligibleDispensory($resourceId, $data);
 
         return $result;
     }
