@@ -70,7 +70,9 @@ CREATE TABLE Patients.PatientDiagnosis (
 	CodeNumber VARCHAR(50),
 	DiagnosisType VARCHAR(20),
 	Diagnosis VARCHAR(MAX),
+	DiagnosisBy VARCHAR(20),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (DiagnosisBy) REFERENCES Staffs.Staff (StaffUUID) ON UPDATE CASCADE ON DELETE SET NULL,
 	CHECK (DiagnosisType = 'operation' OR DiagnosisType = 'diagnosis')
 )
 
