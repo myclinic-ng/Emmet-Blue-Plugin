@@ -44,7 +44,7 @@ class BedAssignment
         {
             $result = DBQueryFactory::insert('Nursing.BedAssignment', [
                 'BedName'=>QB::wrapString($bedName, "'"),
-                'AssignmentLeased'=>QB::wrapString($assignmentLeased, "'"),
+                'AssignmentLeased'=>$assignmentLeased
             ]);
 
             DatabaseLog::log(
@@ -73,7 +73,9 @@ class BedAssignment
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Nursing.BedAssignment');
+            ->from('Nursing.BedAssignment a')
+            ->innerJoin('Nursing.SectionBed b', 'a.BedName = b.BedName ')
+            ->innerJoin('Nursing.WardSection c', 'b.WardSectionID = c.WardSectionID');
         if ($resourceId != 0){
             $selectBuilder->where('BedAssignmentID ='.$resourceId);
         }
@@ -88,15 +90,36 @@ class BedAssignment
                 'BedAssignment',
                 (string)$selectBuilder
             );
+                return $viewOperation;         
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+    /*view beds based on section id*/
+    public static function viewSectionBeds($resourceId){
+        $query = "SELECT * FROM Nursing.BedAssignment a JOIN Nursing.SectionBed b ON a.BedName = b.BedName WHERE b.WardSectionID = $resourceId";
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
+    try
+        {
+            $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Accounts',
+                'PaymentRequest',
+                (string)$query
+            );
+            
+            return $viewPaymentRequestOperation;  
         } 
         catch (\PDOException $e) 
         {
@@ -115,7 +138,6 @@ class BedAssignment
     public static function edit(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
-
         try
         {
             $updateBuilder->table("Nursing.BedAssignment");
@@ -132,7 +154,7 @@ class BedAssignment
                 Constant::EVENT_SELECT,
                 'Nursing',
                 'BedAssignment',
-                (string)(serialize($result))
+                (string)($result)
             );
 
             return $result;
