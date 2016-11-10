@@ -66,7 +66,7 @@ CREATE TABLE Patients.PatientHospitalHistory (
 CREATE TABLE Patients.PatientDiagnosis (
 	DiagnosisID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT NOT NULL,
-	DaignosisDate DATETIME,
+	DiagnosisDate DATETIME DEFAULT GETDATE(),
 	CodeNumber VARCHAR(50),
 	DiagnosisType VARCHAR(20),
 	Diagnosis VARCHAR(MAX),

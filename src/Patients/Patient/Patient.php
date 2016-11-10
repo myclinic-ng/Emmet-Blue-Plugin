@@ -167,7 +167,7 @@ class Patient
                         DBConnectionFactory::getConnection()
                         ->exec($query)
                     );
-
+                    
                     if ($queryResult){
                         if (!HospitalHistory::new((int)$id, $hospitalHistory) || !Diagnosis::new((int)$id, $diagnosis)){
                             self::delete((int)$id);
