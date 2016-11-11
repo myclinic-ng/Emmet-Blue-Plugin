@@ -1,28 +1,40 @@
 CREATE SCHEMA Consultancy;
 GO
 
-CREATE TABLE Consultancy.Tags(
-	TagID INT PRIMARY KEY IDENTITY NOT NULL,
-	TagName VARCHAR(50) UNIQUE,
-	TagDescription VARCHAR(50)
+CREATE TABLE Consultancy.Allergies(
+	AllergyID INT PRIMARY KEY IDENTITY NOT NULL,
+	AllergyName VARCHAR(50) UNIQUE,
+	AllergyDescription VARCHAR(500)
 )
 GO
 
-CREATE TABLE Consultancy.ConsultationSheet (
-	ConsultationSheetID INT PRIMARY KEY IDENTITY NOT NULL,
-	ConsultantID INT NOT NULL,
-	Title VARCHAR(100) NOT NULL,
-	Note VARCHAR(MAX) NOT NULL,
-	CreationDate DATE NOT NULL DEFAULT GETDATE(),
-	LastModified DATE NOT NULL DEFAULT GETDATE()
+CREATE TABLE Consultancy.AllergyTriggers(
+	TriggerID INT PRIMARY KEY IDENTITY NOT NULL,
+	Allergy INT,
+	TriggerName VARCHAR(50) UNIQUE,
+	TriggerDescription VARCHAR(500),
+	FOREIGN KEY (Allergy) REFERENCES Consultancy.Allergies (AllergyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
 
-CREATE TABLE Consultancy.ConsultationSheetTags (
-	ConsultationSheetTagID INT PRIMARY KEY IDENTITY NOT NULL,
-	SheetID INT,
-	TagName VARCHAR(50),
-	FOREIGN KEY (SheetID) REFERENCES Consultancy.ConsultationSheet(ConsultationSheetID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (TagName) REFERENCES Consultancy.Tags(TagName) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE Consultancy.AllergySeverity(
+	ID INT PRIMARY KEY IDENTITY NOT NULL,
+	Severity VARCHAR(20) NOT NULL
+)
+GO
+
+CREATE TABLE Consultancy.ExaminationTypes(
+	ExamTypeID INT PRIMARY KEY IDENTITY NOT NULL,
+	ExamTypeTitle VARCHAR(50) NOT NULL UNIQUE,
+	ExamTypeDescription VARCHAR(500)
+)
+GO
+
+CREATE TABLE Consultancy.ExaminationTypeOptions(
+	OptionID INT PRIMARY KEY IDENTITY NOT NULL,
+	ExamTypeID INT,
+	OptionTitle VARCHAR(100) NOT NULL,
+	FOREIGN KEY (ExamTypeID) REFERENCES Consultancy.ExaminationTypes (ExamTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(ExamTypeID, OptionTitle)
 )
 GO

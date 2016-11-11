@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\BedAssignment;
+namespace EmmetBlue\Plugins\Consultancy\AllergyTrigger;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -18,64 +18,67 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class BedAssignment.
+ * class AllergyTrigger.
  *
- * BedAssignment Controller
+ * AllergyTrigger Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
- * @since v0.0.1 01/09/2016 04:30pm
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
+ * @since v0.0.1 25/08/2016 13:35
  */
-class BedAssignment
+class AllergyTrigger
 {
     /**
-     * creates new bed Assignment resource
+     * creats new AllergyTrigger
      *
      * @param array $data
      */
     public static function create(array $data)
     {
-        $bedName = $data['bedName'];
-        $assignmentLeased = $data['assignmentLeased'] ?? null;
+        
+        $allergy = $data['allergy'] ?? null;
+        $triggerName = $data['name'] ?? null;
+        $triggerDescription = $data['description'] ?? null;
 
         try
         {
-            $result = DBQueryFactory::insert('Nursing.BedAssignment', [
-                'BedName'=>QB::wrapString($bedName, "'"),
-                'AssignmentLeased'=>QB::wrapString($assignmentLeased, "'"),
+            $result = DBQueryFactory::insert('Consultancy.AllergyTriggers', [
+                'Allergy'=>$allergy,
+                'TriggerName'=>QB::wrapString($triggerName, "'"),
+                'TriggerDescription'=>QB::wrapString($triggerDescription, "'"),
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'AllergyTriggers',
                 (string)(serialize($result))
             );
+            
             return $result;
         }
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (Nursng ward not created), %s",
+                "Unable to process request (allergy trigger not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
     }
 
     /**
-     * view Wards data
+     * view Trigger data
      */
     public static function view(int $resourceId)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('*')
-            ->from('Nursing.BedAssignment');
+            ->columns('a.*, b.AllergyName')
+            ->from('Consultancy.AllergyTriggers a')
+            ->innerJoin('Consultancy.Allergies b', "a.TriggerID = b.AllergyID");
         if ($resourceId != 0){
-            $selectBuilder->where('BedAssignmentID ='.$resourceId);
+            $selectBuilder->where('TriggerID ='.$resourceId);
         }
         try
         {
@@ -84,19 +87,12 @@ class BedAssignment
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'AllergyTriggers',
                 (string)$selectBuilder
             );
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
+            return $viewOperation;  
         } 
         catch (\PDOException $e) 
         {
@@ -109,8 +105,44 @@ class BedAssignment
             
         }
     }
+
+    public static function viewByAllergy(int $resourceId)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('a.*, b.AllergyName')
+            ->from('Consultancy.AllergyTriggers a')
+            ->innerJoin('Consultancy.Allergies b', "a.TriggerID = b.AllergyID")
+            ->where('Allergy ='.$resourceId);
+
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'AllergyTriggers',
+                (string)$selectBuilder
+            );
+
+            return $viewOperation;  
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
     /**
-     * Modifies a Ward resource
+     * Modifies the content of a AllergyTrigger
      */
     public static function edit(int $resourceId, array $data)
     {
@@ -118,9 +150,9 @@ class BedAssignment
 
         try
         {
-            $updateBuilder->table("Nursing.BedAssignment");
+            $updateBuilder->table("Consultancy.AllergyTriggers");
             $updateBuilder->set($data);
-            $updateBuilder->where("BedAssignmentID = $resourceId");
+            $updateBuilder->where("TriggerID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -130,8 +162,8 @@ class BedAssignment
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'AllergyTriggers',
                 (string)(serialize($result))
             );
 
@@ -147,7 +179,7 @@ class BedAssignment
     }
 
     /**
-     * delete a ward resource
+     * delete AllergyTrigger
      */
     public static function delete(int $resourceId)
     {
@@ -156,8 +188,8 @@ class BedAssignment
         try
         {
             $deleteBuilder
-                ->from("Nursing.BedAssignment")
-                ->where("BedAssignmentID = $resourceId");
+                ->from("Consultancy.AllergyTriggers")
+                ->where("TriggerID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
@@ -167,8 +199,8 @@ class BedAssignment
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'AllergyTriggers',
                 (string)$deleteBuilder
             );
 

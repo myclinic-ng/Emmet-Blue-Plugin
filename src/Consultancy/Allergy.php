@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing;
+namespace EmmetBlue\Plugins\Consultancy;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -19,54 +19,55 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class BedAssignment.
+ * class PatientonsultationSheet.
  *
- * BedAssignment Controller
+ * Allergy Controller
  *
  * @author Bardeson Lucky <flashup4all@gmail.com>
  * @since v0.0.1 20/08/2016 03:29AM
  */
-class BedAssignment
+class Allergy
 {
-	/**
-	 * Creates a new BedAssignment
-	 *
-	 * @param $_POST
-	 */
-    public static function newBedAssignment(array $data)
+    /**
+     * Creates a new Consultancy sheet
+     *
+     * @param $_POST
+     */
+    public static function newAllergy(array $data)
     {
-        $result = BedAssignment\BedAssignment::create($data);
+        $result = Allergy\Allergy::create($data);
 
         return $result;
     }
 
     /**
-     * Selects Ward
+     * Selects Allergy
      */
-    public static function viewBedAssignment(int $resourceId=0)
+    public static function viewAllergy(int $resourceId=0)
     {
-        $result = BedAssignment\BedAssignment::view($resourceId);
+        $result = Allergy\Allergy::view($resourceId);
+
+        return $result;
+    }
+
+
+    /**
+     * edit Allergy
+     */
+    public static function editAllergy(int $resourceId=0, array $data)
+    {
+        $result = Allergy\Allergy::editAllergy($resourceId, $data);
 
         return $result;
     }
 
     /**
-     * edit Ward
+     * Deletes a Allergy
      */
-    public static function editBedAssignment(int $resourceId=0, array $data)
+    public static function deleteAllergy(int $resourceId)
     {
-        $result = BedAssignment\BedAssignment::view($resourceId, $data);
+        $result = Allergy\Allergy::delete($resourceId);
 
         return $result;
-    }
-
-    /**
-     * Deletes a Ward
-     */
-    public static function deleteBedAssignment(int $resourceId)
-    {
-    	$result = BedAssignment\BedAssignment::delete($resourceId);
-
-    	return $result;
     }
 }

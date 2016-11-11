@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\BedAssignment;
+namespace EmmetBlue\Plugins\Consultancy\ExaminationType;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -17,65 +17,77 @@ use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
-
-use EmmetBlue\Plugins\Permission\Permission as Permission;
-
 /**
- * class BedAssignment.
+ * class ExaminationType.
  *
- * BedAssignment Controller
+ * ExaminationType Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
- * @since v0.0.1 01/09/2016 04:30pm
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
+ * @since v0.0.1 19/08/2016 13:35
  */
-class BedAssignment
+class ExaminationType
 {
     /**
-     * creates new bed Assignment resource
+     * creats new ExaminationType
      *
      * @param array $data
      */
     public static function create(array $data)
     {
-        $bedName = $data['bedName'];
-        $assignmentLeased = $data['assignmentLeased'] ?? null;
+        
+        $title = $data['title'] ?? null;
+        $description = $data['description'] ?? null;
+        $options = $data["options"] ?? null;
 
         try
         {
-            $result = DBQueryFactory::insert('Nursing.BedAssignment', [
-                'BedName'=>QB::wrapString($bedName, "'"),
-                'AssignmentLeased'=>QB::wrapString($assignmentLeased, "'"),
+            $result = DBQueryFactory::insert('Consultancy.ExaminationTypes', [
+                'ExamTypeTitle'=>QB::wrapString($title, "'"),
+                'ExamTypeDescription'=>QB::wrapString($description, "'")
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
-                (string)(serialize($result))
+                'Consultancy',
+                'ExaminationTypes',
+                (string)serialize($result)
             );
+
+            $id = $result["lastInsertId"];
+
+            $query = "INSERT INTO Consultancy.ExaminationTypeOptions VALUES ";
+
+            $holder = [];
+
+            foreach($options as $option){
+                $title = $option["title"];
+                $holder[] = "($id, '$title')";
+            }
+
+            $_result = DBConnectionFactory::getConnection()->exec($query.implode(", ", $holder));
             return $result;
         }
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (Nursng ward not created), %s",
+                "Unable to process request (exam type not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
     }
 
     /**
-     * view Wards data
+     * view allergies
      */
     public static function view(int $resourceId)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Nursing.BedAssignment');
+            ->from('Consultancy.ExaminationTypes');
         if ($resourceId != 0){
-            $selectBuilder->where('BedAssignmentID ='.$resourceId);
+            $selectBuilder->where('ExamTypeID ='.$resourceId);
         }
         try
         {
@@ -84,19 +96,17 @@ class BedAssignment
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'ExaminationTypes',
                 (string)$selectBuilder
             );
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
+            foreach ($viewOperation as $key => $value) {
+                $options = DBConnectionFactory::getConnection()->query("SELECT * FROM Consultancy.ExaminationTypeOptions WHERE ExamTypeID = ".$value["ExamTypeID"])->fetchAll(\PDO::FETCH_ASSOC);
+                $viewOperation[$key]["options"] = $options;
             }
-            else
-            {
-                return null;
-            }           
+
+            return $viewOperation;     
         } 
         catch (\PDOException $e) 
         {
@@ -109,18 +119,17 @@ class BedAssignment
             
         }
     }
-    /**
-     * Modifies a Ward resource
-     */
-    public static function edit(int $resourceId, array $data)
+
+    
+    public static function editExaminationType(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
 
         try
         {
-            $updateBuilder->table("Nursing.BedAssignment");
+            $updateBuilder->table("Consultancy.ExaminationTypes");
             $updateBuilder->set($data);
-            $updateBuilder->where("BedAssignmentID = $resourceId");
+            $updateBuilder->where("ExamTypeID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -130,8 +139,8 @@ class BedAssignment
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'ExaminationTypes',
                 (string)(serialize($result))
             );
 
@@ -146,8 +155,9 @@ class BedAssignment
         }
     }
 
+    
     /**
-     * delete a ward resource
+     * delete consultancy sheet
      */
     public static function delete(int $resourceId)
     {
@@ -156,8 +166,8 @@ class BedAssignment
         try
         {
             $deleteBuilder
-                ->from("Nursing.BedAssignment")
-                ->where("BedAssignmentID = $resourceId");
+                ->from("Consultancy.ExaminationTypes")
+                ->where("ExamTypeID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()
@@ -167,8 +177,8 @@ class BedAssignment
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
-                'Nursing',
-                'BedAssignment',
+                'Consultancy',
+                'ExaminationTypes',
                 (string)$deleteBuilder
             );
 
@@ -182,4 +192,5 @@ class BedAssignment
             ), Constant::UNDEFINED);
         }
     }
+    
 }

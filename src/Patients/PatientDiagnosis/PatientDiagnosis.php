@@ -38,19 +38,19 @@ class PatientDiagnosis
     public static function create(array $data)
     {
         $patient = $data["patient"];
-        $diagnosisDate = $data["diagnosisDate"] ?? null;
         $codeNumber = $data["codeNumber"] ?? null;
         $diagnosisType = $data["diagnosisType"] ?? "diagnosis";
         $diagnosis = $data["diagnosis"] ?? null;
+        $diagnosisBy = $data["diagnosisBy"] ?? null;
 
         try
         {
             $result = DBQueryFactory::insert('Patients.PatientDiagnosis', [
                 'PatientID'=>$patient,
-                'DiagnosisDate'=>(is_null($diagnosisDate)) ? 'NULL' : QB::wrapString($diagnosisDate, "'"),
                 'CodeNumber'=>(is_null($codeNumber)) ? 'NULL' : QB::wrapString($codeNumber, "'"),
                 'DiagnosisType'=>QB::wrapString($diagnosisType, "'"),
-                'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'")
+                'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'"),
+                'DiagnosisBy'=>(is_null($diagnosisBy)) ? 'NULL' : QB::wrapString($diagnosisBy, "'")
             ]);
 
             DatabaseLog::log(
@@ -140,9 +140,6 @@ class PatientDiagnosis
         }
     }
 
-    /**
-     * delete patient
-     */
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
