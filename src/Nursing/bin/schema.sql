@@ -64,7 +64,6 @@ GO
 CREATE TABLE Nursing.BedAssignment(
 	BedAssignmentID INT PRIMARY KEY IDENTITY NOT NUll,
 	BedName VARCHAR(50) UNIQUE,
-	WardSectionID INT,
 	AssignmentLeased BIT,
 	AssignmentDate DATE NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (BedName) REFERENCES Nursing.SectionBed(BedName) ON UPDATE CASCADE ON DELETE CASCADE,
