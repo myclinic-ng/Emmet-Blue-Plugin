@@ -28,11 +28,11 @@ use EmmetBlue\Core\Constant;
  */
 class BedAssignment
 {
-	/**
-	 * Creates a new BedAssignment
-	 *
-	 * @param $_POST
-	 */
+    /**
+     * Creates a new BedAssignment
+     *
+     * @param $_POST
+     */
     public static function newBedAssignment(array $data)
     {
         $result = BedAssignment\BedAssignment::create($data);
@@ -49,13 +49,18 @@ class BedAssignment
 
         return $result;
     }
-
+     public static function viewSectionBeds(int $resourceId=0)
+    {
+         $result = BedAssignment\BedAssignment::viewSectionBeds($resourceId);
+ 
+           return $result;
+   }
     /**
      * edit Ward
      */
     public static function editBedAssignment(int $resourceId=0, array $data)
     {
-        $result = BedAssignment\BedAssignment::view($resourceId, $data);
+        $result = BedAssignment\BedAssignment::edit($resourceId, $data);
 
         return $result;
     }
@@ -65,8 +70,8 @@ class BedAssignment
      */
     public static function deleteBedAssignment(int $resourceId)
     {
-    	$result = BedAssignment\BedAssignment::delete($resourceId);
+        $result = BedAssignment\BedAssignment::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
 }
