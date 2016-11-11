@@ -30,7 +30,13 @@ class Infermedica
 	private static $apiURL = "https://api.infermedica.com/v2/";
 
     public static function searchSymptoms(array $data){
-    	$phrase = str_replace(")", "", str_replace("(", "", $data["phrase"]));
+        $dirts = [
+            "(", ")", "-"
+        ];
+        foreach ($dirts as $dirt){
+            $data["phrase"] = str_replace($dirt, " ", $data["phrase"]);
+        }
+    	$phrase = $data["phrase"];
     	$size = $data['size'] ?? 10000;
     	$from = $data['from'] ?? 0;
 

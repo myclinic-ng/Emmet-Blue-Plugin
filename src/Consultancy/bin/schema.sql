@@ -22,3 +22,19 @@ CREATE TABLE Consultancy.AllergySeverity(
 	Severity VARCHAR(20) NOT NULL
 )
 GO
+
+CREATE TABLE Consultancy.ExaminationTypes(
+	ExamTypeID INT PRIMARY KEY IDENTITY NOT NULL,
+	ExamTypeTitle VARCHAR(50) NOT NULL UNIQUE,
+	ExamTypeDescription VARCHAR(500)
+)
+GO
+
+CREATE TABLE Consultancy.ExaminationTypeOptions(
+	OptionID INT PRIMARY KEY IDENTITY NOT NULL,
+	ExamTypeID INT,
+	OptionTitle VARCHAR(100) NOT NULL,
+	FOREIGN KEY (ExamTypeID) REFERENCES Consultancy.ExaminationTypes (ExamTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(ExamTypeID, OptionTitle)
+)
+GO
