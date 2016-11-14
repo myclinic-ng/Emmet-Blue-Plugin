@@ -169,7 +169,8 @@ class Patient
                     );
                     
                     if ($queryResult){
-                        if (!HospitalHistory::new((int)$id, $hospitalHistory) || !Diagnosis::new((int)$id, $diagnosis)){
+                        if (!HospitalHistory::new((int)$id, $hospitalHistory)){
+                             // || !Diagnosis::new((int)$id, $diagnosis)
                             self::delete((int)$id);
                         }
                         else{

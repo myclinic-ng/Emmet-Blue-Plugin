@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Samuel Adeshina <samueladeshina73@gmail.com>
+ * @author Bardeson Lucky <flashup4all@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Consultancy;
+namespace EmmetBlue\Plugins\Patients;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -19,26 +19,35 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class Infermedica Controller
+ * class PatientAllergy.
+ *
+ * PatientAllergy Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
- * @since v0.0.1 20/08/2016 03:29AM
+ * @since v0.0.1 30/09/2016
  */
-class Infermedica
+class PatientAllergy
 {
-   public static function searchSymptoms(array $data){
-   		return Infermedica\Infermedica::searchSymptoms($data);
-   }
+	/**
+	 * Creates a new Patient Allergy request id
+	 *
+	 * @param $_POST
+	 */
+    public static function newPatientAllergy(array $data)
+    {
+        $result = PatientAllergy\PatientAllergy::create($data);
 
-   public static function searchLabTests(array $data){
-   		return Infermedica\Infermedica::searchLabTests($data);
-   }
+        return $result;
+    }
 
-   public static function symptoms(array $data){
-   		return Infermedica\Infermedica::symptoms($data);
-   }
+    /**
+     * Selects Patient Allergy request id
+     */
+    public static function viewPatientAllergy(int $resourceId)
+    {
+        $result = PatientAllergy\PatientAllergy::view($resourceId);
 
-   public static function labTests(array $data){
-   		return Infermedica\Infermedica::labTests($data);
-   }
+        return $result;
+    }
+
 }

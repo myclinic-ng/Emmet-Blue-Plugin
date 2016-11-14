@@ -29,18 +29,18 @@ class Infermedica
 {
 	private static $apiURL = "https://api.infermedica.com/v2/";
 
-    public static function searchSymptoms(array $data){
+    private static function searcher(string $type, array $data){
         $dirts = [
             "(", ")", "-"
         ];
         foreach ($dirts as $dirt){
             $data["phrase"] = str_replace($dirt, " ", $data["phrase"]);
         }
-    	$phrase = $data["phrase"];
-    	$size = $data['size'] ?? 10000;
-    	$from = $data['from'] ?? 0;
+        $phrase = $data["phrase"];
+        $size = $data['size'] ?? 10000;
+        $from = $data['from'] ?? 0;
 
-    	$query = explode(" ", $phrase);
+        $query = explode(" ", $phrase);
         $builtQuery = [];
         foreach ($query as $element){
             $builtQuery[] = "(".$element."* ".$element."~)";
@@ -50,7 +50,7 @@ class Infermedica
         
         $params = [
             'index'=>'infermedica',
-            'type'=>'symptoms',
+            'type'=>$type,
             'size'=>$size,
             'from'=>$from,
             'body'=>array(
@@ -65,7 +65,15 @@ class Infermedica
         $esClient = ESClientFactory::getClient();
 
         return $esClient->search($params);
-   }
+    }
+
+    public static function searchSymptoms(array $data){       
+        return self::searcher('symptoms', $data);
+    }
+
+    public static function searchLabTests(array $data){
+        return self::searcher('labtests', $data);
+    }
 
    public static function symptoms(array $data){
    		try {

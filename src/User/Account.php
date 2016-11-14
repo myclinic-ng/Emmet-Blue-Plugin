@@ -43,7 +43,7 @@ class Account
         {
             $info = self::getAccountInfo(self::getUserID($username));
 
-            return ["status"=>true, "uuid"=>$info['StaffUUID'], "accountActivated"=>$info["AccountActivated"]];
+            return ["status"=>true, "uuid"=>$info['StaffUUID'], "accountActivated"=>$info["AccountActivated"], "id"=>self::getUserID($username)];
         }
 
         return ["status"=>false];

@@ -38,3 +38,22 @@ CREATE TABLE Consultancy.ExaminationTypeOptions(
 	UNIQUE(ExamTypeID, OptionTitle)
 )
 GO
+
+CREATE TABLE Consultancy.MedicalImaging(
+	MedicalImagingID INT PRIMARY KEY IDENTITY NOT NULL,
+	MedicalImagingName VARCHAR(50),
+	MedicalImagingDescription VARCHAR(500)
+)
+GO
+
+CREATE TABLE Consultancy.SavedDiagnosis(
+	SavedDiagnosisID INT PRIMARY KEY IDENTITY,
+	Patient INT NOT NULL,
+	Consultant INT NOT NULL,
+	Diagnosis VARCHAR(MAX) NOT NULL,
+	DateModified DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (Patient) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(Patient, Consultant)
+)
+GO

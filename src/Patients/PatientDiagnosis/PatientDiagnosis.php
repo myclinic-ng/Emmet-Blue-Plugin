@@ -40,8 +40,11 @@ class PatientDiagnosis
         $patient = $data["patient"];
         $codeNumber = $data["codeNumber"] ?? null;
         $diagnosisType = $data["diagnosisType"] ?? "diagnosis";
+        $diagnosisTitle = $data["diagnosisTitle"] ?? null;
         $diagnosis = $data["diagnosis"] ?? null;
         $diagnosisBy = $data["diagnosisBy"] ?? null;
+
+        $diagnosis = serialize($diagnosis);
 
         try
         {
@@ -50,6 +53,7 @@ class PatientDiagnosis
                 'CodeNumber'=>(is_null($codeNumber)) ? 'NULL' : QB::wrapString($codeNumber, "'"),
                 'DiagnosisType'=>QB::wrapString($diagnosisType, "'"),
                 'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'"),
+                'DiagnosisTitle'=>(is_null($diagnosisTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
                 'DiagnosisBy'=>(is_null($diagnosisBy)) ? 'NULL' : QB::wrapString($diagnosisBy, "'")
             ]);
 
@@ -109,10 +113,8 @@ class PatientDiagnosis
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Patients.PatientDiagnosis');
-        if ($resourceId != 0){
-            $selectBuilder->where('DiagnosisID ='.$resourceId);
-        }
+            ->from('Patients.PatientDiagnosis')
+            ->where('PatientID ='.$resourceId);
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -124,6 +126,10 @@ class PatientDiagnosis
                 'PatientDiagnosis',
                 (string)serialize($selectBuilder)
             );
+
+            foreach ($result as $key => $value) {
+                $result[$key]["Diagnosis"] = unserialize($value["Diagnosis"]);
+            }
 
             return $result;
 

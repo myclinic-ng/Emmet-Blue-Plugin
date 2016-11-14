@@ -69,6 +69,7 @@ CREATE TABLE Patients.PatientDiagnosis (
 	DiagnosisDate DATETIME DEFAULT GETDATE(),
 	CodeNumber VARCHAR(50),
 	DiagnosisType VARCHAR(20),
+	DiagnosisTitle VARCHAR(100),
 	Diagnosis VARCHAR(MAX),
 	DiagnosisBy VARCHAR(20),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -98,18 +99,6 @@ CREATE TABLE Patients.PatientDepartment (
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
--- DEPRECATED
--- CREATE TABLE Patients.OldPatientRepository (
--- 	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	PatientID INT,
--- 	RepositoryItemNumber VARCHAR(50) NOT NULL UNIQUE,
--- 	RepositoryItemName VARCHAR(100),
--- 	RepositoryItemDescription VARCHAR(4000),
--- 	RepositoryItemUrl VARCHAR(MAX),
--- 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
--- )
--- GO
---/ DEPRECATED
 
 CREATE TABLE Patients.PatientEvents (
 	EventID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -122,6 +111,31 @@ CREATE TABLE Patients.PatientEvents (
 	EventText VARCHAR(100),
 	EventIcon VARCHAR(30),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Patients.PatientAllergies (
+	AllergyID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	AllergyTitle VARCHAR(50),
+	AllergySeverity VARCHAR(20),
+	AllergyType VARCHAR(50),
+	AllergyDescription VARCHAR(500),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Patients.PatientAllergyTriggers (
+	TriggerID INT PRIMARY KEY IDENTITY NOT NULL,
+	AllergyID INT,
+	TriggerTitle VARCHAR(100),
+	FOREIGN KEY (AllergyID) REFERENCES Patients.PatientAllergies(AllergyID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Patients.PatientAllergySymptoms (
+	TriggerID INT PRIMARY KEY IDENTITY NOT NULL,
+	AllergyID INT,
+	Symptom VARCHAR(100),
+	FOREIGN KEY (AllergyID) REFERENCES Patients.PatientAllergies(AllergyID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
 
