@@ -129,7 +129,7 @@ class Patient
             $diagnosis = $data["diagnosis"] ?? [];
             $operation = $data["operation"] ?? [];
             
-            $patientUuid = strtoupper(substr(str_shuffle(MD5(microtime())), 0, 20));
+            $patientUuid = strtoupper(uniqid());
 
             unset(
                 $data["patientPassport"],
