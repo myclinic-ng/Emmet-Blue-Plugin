@@ -59,6 +59,10 @@ class Transaction
             ]);
 
             $id = $result["lastInsertId"];
+
+            $q = "UPDATE Accounts.PaymentRequest SET RequestFulfillmentStatus = 1 WHERE AttachedInvoice = $metaId";
+            $r =  (DBConnectionFactory::getConnection()->exec($q));
+
             $query = "SELECT * FROM Accounts.BillingTransaction WHERE BillingTransactionID = $id";
             $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
 

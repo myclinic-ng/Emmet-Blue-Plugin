@@ -33,6 +33,11 @@ class BillingTypeItems
 		return AccountsBillingTypeItems\NewAccountsBillingTypeItems::default($data);
 	}
 
+	public static function newPriceStructure(array $data)
+	{
+		return AccountsBillingTypeItems\NewAccountsBillingTypeItems::newPriceStructure($data);
+	}
+
 	public static function viewBillingTypeItems(int $resourceId=0, array $data = [])
 	{
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountsBillingTypeItems($resourceId, $data);

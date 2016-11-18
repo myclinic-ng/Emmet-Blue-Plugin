@@ -104,9 +104,9 @@ class PaymentRequest
                 $data['BillingType'] = QB::wrapString($data['BillingType'], "'");
             }
 
-            $updateBuilder->table("Accounts.BillingPaymentRequest");
+            $updateBuilder->table("Accounts.PaymentRequest");
             $updateBuilder->set($data);
-            $updateBuilder->where("BillingPaymentRequestID = $resourceId");
+            $updateBuilder->where("PaymentRequestID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()

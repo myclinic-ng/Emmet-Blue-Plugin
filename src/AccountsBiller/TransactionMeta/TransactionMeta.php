@@ -12,6 +12,7 @@ use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
 use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
+use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
 use EmmetBlue\Core\Exception\SQLException;
 use EmmetBlue\Core\Exception\UndefinedValueException;
 use EmmetBlue\Core\Session\Session;
@@ -73,7 +74,7 @@ class TransactionMeta
                 ->exec($query)
             );
 
-            return ['lastInsertId'=>$id];
+            return ['lastInsertId'=>$id, "transactionNumber"=>$transactionNumber];
         }
         catch (\PDOException $e)
         {
@@ -198,6 +199,106 @@ class TransactionMeta
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function viewByNumber(int $resourceId = 0, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("*");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Accounts.BillingTransactionMeta a");
+
+            if ($resourceId !== 0){
+                $selectBuilder->where("BillingTransactionNumber = $resourceId");
+            }
+
+
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$selectBuilder)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+           if (empty($data)){
+                foreach ($result as $key=>$metaItem)
+                {
+                    $id = $metaItem["BillingTransactionMetaID"];
+                    $patient = $metaItem["PatientID"];
+                    $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
+                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient";
+
+                    $queryResult = (
+                        DBConnectionFactory::getConnection()
+                        ->query($query)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+
+                    $queryResult2 = (
+                        DBConnectionFactory::getConnection()
+                        ->query($query2)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+
+                    $name = "";
+                    foreach ($queryResult2 as $value){
+                        if ($value["FieldTitle"] == 'Title'){
+                            $name .= $value["FieldValue"];
+                        }
+                        else if ($value["FieldTitle"] == 'FirstName'){
+                            $name .= " ".$value["FieldValue"];
+                        }
+                        else if ($value["FieldTitle"] == 'LastName'){
+                            $name .= " ".$value["FieldValue"];
+                        }
+                    }
+
+                    $result[$key]["BillingTransactionItems"] = $queryResult;
+                    $result[$key]["PatientName"] = $name;
+                }
+           }
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function search(array $data){
+        $query = explode(" ", $data["query"]);
+        $builtQuery = [];
+        foreach ($query as $element){
+            $builtQuery[] = "(".$element."* ".$element."~)";
+        }
+
+        $builtQuery = implode(" AND ", $builtQuery);
+        
+        $params = [
+            'index'=>'accounts',
+            'type'=>'transaction-meta',
+            'size'=>$data['size'],
+            'from'=>$data['from'],
+            'body'=>array(
+                "query"=>array(
+                    "query_string"=>array(
+                        "query"=>$builtQuery
+                    )
+                )
+            )
+        ];
+
+        $esClient = ESClientFactory::getClient();
+
+        return $esClient->search($params);
     }
 
     public static function delete(int $resourceId)

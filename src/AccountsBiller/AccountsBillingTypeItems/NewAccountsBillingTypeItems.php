@@ -80,4 +80,41 @@ class NewAccountsBillingTypeItems
 		$result = DBConnectionFactory::getConnection()->exec($query);
 		return $result;
 	}
+
+	public static function newPriceStructure(array $data)
+	{
+		$billingTypeItem = $data['billingTypeItem'] ?? 'NULL';
+
+		foreach($data["priceStructures"] as $priceStructure){
+			$price = $priceStructure["price"];
+			$patientTypes = $priceStructure["patientTypes"];
+			$intervalBased = !empty($priceStructure["interval"]);
+			$rateBased = isset($priceStructure["rate"]);
+			$rateIdentifier = ($rateBased) ? $priceStructure["rate"] : null;
+
+			foreach($patientTypes as $patientType){
+				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
+			}
+
+			if ($intervalBased){
+				foreach ($priceStructure["interval"] as $interval){
+					$int = $interval["interval"] ?? null;
+					$type = $interval["type"] ?? null;
+					$increment = $interval["increment"] ?? null;
+
+					$intervalQuery[] = "(".$billingTypeItem.", ".$int.", '".$type."', ".$increment.")";
+				}
+				
+				$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
+				$intervalQuery = [];
+			}
+
+			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
+			$queryValue  = [];
+		}
+
+		$query = implode(";", $query);
+		$result = DBConnectionFactory::getConnection()->exec($query);
+		return $result;
+	}
 }

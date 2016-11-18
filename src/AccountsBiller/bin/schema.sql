@@ -115,13 +115,15 @@ CREATE TABLE Accounts.PaymentRequest (
 	RequestBy VARCHAR(20),
 	RequestDepartment INT,
 	RequestDate DATETIME DEFAULT GETDATE(),
-	RequestFulfillmentStatus BIT DEFAULT 0,
+	RequestFulfillmentStatus INT DEFAULT 0,
+	AttachedInvoice INT,
 	RequestFulfilledBy VARCHAR(20),
 	RequestFulFilledDate DATETIME,
 	FOREIGN KEY (RequestPatientID) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	FOREIGN KEY (RequestBy) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	FOREIGN KEY (RequestFulfilledBy) REFERENCES [Staffs].[Staff] (StaffUUID) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	FOREIGN KEY (RequestDepartment) REFERENCES Staffs.Department (DepartmentID) ON UPDATE NO ACTION ON DELETE NO ACTION
+	FOREIGN KEY (RequestDepartment) REFERENCES Staffs.Department (DepartmentID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (AttachedInvoice) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE NO ACTION ON DELETE SET NULL
 )
 GO
 
@@ -141,4 +143,13 @@ CREATE TABLE Accounts.DepartmentBillingLink (
 	FOREIGN KEY (DepartmentID) REFERENCES Staffs.Department (DepartmentID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (BillingTypeID) REFERENCES Accounts.BillingType (BillingTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY (LinkID, DepartmentID, BillingTypeID) 
+)
+
+CREATE TABLE Accounts.BillPaymentRules (
+	RuleID INT PRIMARY KEY IDENTITY,
+	PatientType INT NOT NULL UNIQUE,
+	RuleType CHAR(1) NOT NULL,
+	RuleValue INT NOT NULL,
+	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CHECK(RuleType = '*' OR RuleType = '+' OR RuleType = '-' OR RuleType = '%')
 )

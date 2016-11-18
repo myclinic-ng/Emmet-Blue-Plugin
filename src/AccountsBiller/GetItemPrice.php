@@ -127,4 +127,84 @@ class GetItemPrice
 
 		return $totalPrice;
 	}
+
+	public static function applyPaymentRule(int $patient, array $data){
+		$amount = (int)$data["amount"];
+
+		$query = "SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient";
+		$patientType = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC)[0]["PatientType"];
+		if (is_null($patientType)){
+			throw new \Exception("Patient's Category has no associated price structure for the specified item");
+		}
+
+		$query = "SELECT * FROM Accounts.BillPaymentRules WHERE PatientType = $patientType";
+		$rule = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
+
+		if (isset($rule[0])){
+			$rule = $rule[0];
+			switch($rule["RuleType"])
+			{
+				case "%":
+				{
+					$ruleValue = (int)$rule["RuleValue"];
+					$amnt = $ruleValue * $amount / 100;
+					$bal = $amount - $amnt;
+
+					$result = [
+						"amount"=>$amnt,
+						"balance"=>$bal
+					];
+
+					break;
+				}
+				case "+":
+				{
+					$ruleValue = (int)$rule["RuleValue"];
+					$amnt = $ruleValue + $amount;
+					$bal = $amount - $amnt;
+
+					$result = [
+						"amount"=>$amnt,
+						"balance"=>$bal
+					];
+
+					break;
+				}
+				case "*":
+				{
+					$ruleValue = (int)$rule["RuleValue"];
+					$amnt = $ruleValue * $amount;
+					$bal = $amount - $amnt;
+
+					$result = [
+						"amount"=>$amnt,
+						"balance"=>$bal
+					];
+
+					break;
+				}
+				case "-":
+				{
+					$ruleValue = (int)$rule["RuleValue"];
+					$amnt = $amount - $ruleValue;
+					$bal = $amount - $amnt;
+
+					$result = [
+						"amount"=>$amnt,
+						"balance"=>$bal
+					];
+
+					break;
+				}
+			}
+		}
+		else {
+			$result = [
+				"amount"=>$amount,
+				"balance"=>0
+			];
+		}
+
+		return $result;
+	}
 }

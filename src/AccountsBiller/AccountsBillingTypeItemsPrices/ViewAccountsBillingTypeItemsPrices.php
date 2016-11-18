@@ -35,13 +35,14 @@ class ViewAccountsBillingTypeItemsPrices
 	 * @param int $BillingTypeItemsPricesId
 	 * @author bardeson Lucky <Ahead!!> <flashup4all@gmail.com>
 	 */
-	public static function viewAccountsBillingTypeItemsPrices(int $billingTypeItemsPricesId)
+	public static function viewAccountsBillingTypeItemsPrices(int $itemId)
 	{
 		$selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
 		$selectBuilder
 			->columns('*')
-			->from('Accounts.BillingTypeItemsPrices')
-			->where('BillingTypeItemsPriceID ='.$billingTypeItemsPricesId);
+			->from('Accounts.BillingTypeItemsPrices a')
+			->innerJoin('Patients.PatientType b', 'a.PatientType = b.PatientTypeID')
+			->where('BillingTypeItem ='.$itemId);
 		try
 		{
 			$viewBillingTypeItemspricesOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -53,15 +54,8 @@ class ViewAccountsBillingTypeItemsPrices
 				'BillingTypeItemsPrices',
 				(string)$selectBuilder
 			);
-
-			if(count($viewBillingTypeItemspricesOperation) > 0)
-			{
-				return $viewBillingTypeItemspricesOperation;
-			}
-			else
-			{
-				return null;
-			}			
+			
+			return $viewBillingTypeItemspricesOperation;
 		} 
 		catch (\PDOException $e) 
 		{

@@ -38,6 +38,11 @@ class TransactionMeta
 		return TransactionMeta\TransactionMeta::view($resourceId, $data);
 	}
 
+	public static function viewByNumber(int $resourceId=0, array $data = [])
+	{
+		return TransactionMeta\TransactionMeta::viewByNumber($resourceId, $data);
+	}
+
 	public static function deleteTransactionMeta(int $resourceId)
 	{
 		return TransactionMeta\TransactionMeta::delete($resourceId);
@@ -46,6 +51,13 @@ class TransactionMeta
 	public static function editTransactionMeta(int $resourceId, array $data)
     {
         $result = TransactionMeta\TransactionMeta::edit($resourceId, $data);
+
+        return $result;
+    }
+
+    public static function search(array $data)
+    {
+    	 $result = TransactionMeta\TransactionMeta::search($data);
 
         return $result;
     }
