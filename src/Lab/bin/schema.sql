@@ -47,10 +47,26 @@ CREATE TABLE Lab.Patients (
 	Address VARCHAR(50),
 	PhoneNumber VARCHAR(13),
 	Clinic VARCHAR(50),
-	ClinicalDiagnosis VARCHAR(50),
+	ClinicalDiagnosis VARCHAR(100),
 	InvestigationTypeRequired INT,
 	InvestigationRequired VARCHAR(100),
 	RegistrationDate DateTime DEFAULT GETDATE(),
 	FOREIGN KEY (InvestigationTypeRequired) REFERENCES Lab.InvestigationTypes (InvestigationTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
+)
+
+CREATE TABLE Lab.LabRequests (
+	RequestID INT PRIMARY KEY IDENTITY(1000, 1),
+	PatientID INT NOT NULL,
+	ClinicalDiagnosis VARCHAR(100),
+	InvestigationRequired VARCHAR(100) NOT NULL,
+	RequestedBy INT NOT NULL,
+	InvestigationType INT,
+	RequestNote VARCHAR(500),
+	RequestAcknowledged INT,
+	RequestAcknowledgedBy INT,
+	RequestDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (InvestigationType) REFERENCES Lab.InvestigationTypes (InvestigationTypeID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION,
 )

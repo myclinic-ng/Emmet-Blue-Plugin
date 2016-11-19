@@ -41,7 +41,7 @@ GO
 
 CREATE TABLE Consultancy.MedicalImaging(
 	MedicalImagingID INT PRIMARY KEY IDENTITY NOT NULL,
-	MedicalImagingName VARCHAR(50),
+	MedicalImagingName VARCHAR(100),
 	MedicalImagingDescription VARCHAR(500)
 )
 GO

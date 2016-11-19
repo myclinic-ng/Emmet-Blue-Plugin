@@ -38,12 +38,14 @@ class RepositoryItem
         $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
+        $validator = new FileUpload\Validator\Simple(1024 * 1024 * 10, ['image/png', 'image/jpg', 'image/tiff']);
         $pathResolver = new FileUpload\PathResolver\Simple($repoDir);
         $fileSystem = new FileUpload\FileSystem\Simple();
         $fileUpload = new FileUpload\FileUpload($files, $_SERVER);
 
         $fileUpload->setPathResolver($pathResolver);
         $fileUpload->setFileSystem($fileSystem);
+        $fileUpload->addValidator($validator);
 
         list($files, $headers) = $fileUpload->processAll();
 
@@ -80,7 +82,7 @@ class RepositoryItem
                         $ruuid = $uuids["RepositoryNumber"];
                         $puuid = $uuids["PatientUUID"];
 
-                        if (!self::uploadRepoItems($puuid, $ruuid, $_FILES)){
+                        if (!self::uploadRepoItems($puuid, $ruuid, $_FILES["documents"])){
                             self::delete($result["lastInsertId"]);
                         }
                     }

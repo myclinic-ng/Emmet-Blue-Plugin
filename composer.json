@@ -14,9 +14,6 @@
             "php":"7.0"
         }
     },
-    "require":{
-        "gargron/fileupload": "~1.1.1"
-    },
     "autoload":{
         "psr-4":{
             "EmmetBlue\\Plugins\\":"./src"
