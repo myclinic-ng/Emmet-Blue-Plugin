@@ -18,6 +18,7 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 use FileUpload;
+use EmmetBlue\Core\CustomFileNameGenerator as CFNG;
 
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
@@ -33,19 +34,22 @@ class RepositoryItem
 {
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
 
-    public static function uploadRepoItems($patientUuid, $repoNumber, $files)
+    public static function uploadRepoItems($patientUuid, $repoNumber, $files, $name)
     {
         $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
-        $validator = new FileUpload\Validator\Simple(1024 * 1024 * 10, ['image/png', 'image/jpg', 'image/tiff']);
+        $validator = new FileUpload\Validator\MimeTypeValidator(['image/png', 'image/jpg']);
         $pathResolver = new FileUpload\PathResolver\Simple($repoDir);
         $fileSystem = new FileUpload\FileSystem\Simple();
+        $filenamegenerator = new CFNG($name);
+
         $fileUpload = new FileUpload\FileUpload($files, $_SERVER);
 
         $fileUpload->setPathResolver($pathResolver);
         $fileUpload->setFileSystem($fileSystem);
-        $fileUpload->addValidator($validator);
+        // $fileUpload->addValidator($validator);
+        $fileUpload->setFileNameGenerator($filenamegenerator);
 
         list($files, $headers) = $fileUpload->processAll();
 
@@ -82,7 +86,7 @@ class RepositoryItem
                         $ruuid = $uuids["RepositoryNumber"];
                         $puuid = $uuids["PatientUUID"];
 
-                        if (!self::uploadRepoItems($puuid, $ruuid, $_FILES["documents"])){
+                        if (!self::uploadRepoItems($puuid, $ruuid, $_FILES["documents"], $number.".jpg")){
                             self::delete($result["lastInsertId"]);
                         }
                     }
