@@ -50,6 +50,12 @@ class PatientRepository
         return $result;
     }
 
+    public static function viewByPatient(int $resourceId){
+        $result = PatientRepository\PatientRepository::viewByPatient($resourceId);
+
+        return $result;
+    }
+
     /**
      * Deletes a PatientRepository UUID
      */

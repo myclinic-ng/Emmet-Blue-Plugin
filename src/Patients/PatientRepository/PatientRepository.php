@@ -96,12 +96,32 @@ class PatientRepository
      * view patients UUID
      */
     public static function view(int $resourceId) {
+        $query = "SELECT * FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($result[0])){
+            $result = $result[0];
+            $id = $result["PatientID"];
+            $query = "SELECT * FROM Patients.PatientRepositoryItems WHERE RepositoryID = $resourceId";
+            $resultItems = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $id";
+            $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
+            $query = "SELECT RepositoryNumber FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
+            $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
+            $repoLoc = self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR;
+
+            $result["RepositoryUrl"] = $repoLoc;
+            $result["items"] = $resultItems;
+        }       
+
+        return $result;
+    }
+
+    public static function viewByPatient(int $resourceId) {
         $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        if (empty($result)){
-            $result = [];
-        }
         return $result;
     }
     /**

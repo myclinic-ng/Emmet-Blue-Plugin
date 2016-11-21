@@ -220,7 +220,6 @@ class TransactionMeta
                 $selectBuilder->where("BillingTransactionNumber = $resourceId");
             }
 
-
             $result = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)

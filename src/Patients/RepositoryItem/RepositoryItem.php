@@ -13,6 +13,7 @@ use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
 use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
+use EmmetBlue\Core\Exception\UnallowedOperationException;
 use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
@@ -33,6 +34,11 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
 class RepositoryItem
 {
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
+    protected static $allowedExtensions = [
+        "image"=>["jpg", "png"],
+        "text"=>["txt"],
+        "pdf"=>["pdf"]
+    ];
 
     public static function uploadRepoItems($patientUuid, $repoNumber, $files, $name)
     {
@@ -56,6 +62,18 @@ class RepositoryItem
         return true;
     }
 
+    public static function createRepoFile($patientUuid, $repoNumber, $file, $name)
+    {
+        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
+
+        $handle = fopen($repoDir. DIRECTORY_SEPARATOR . $name, 'w');
+        fwrite($handle, $file);
+        fclose($handle);
+
+        return true;
+    }
+
     public static function create(array $data)
     {
         $repository = $data["repository"] ?? 'null';
@@ -65,11 +83,19 @@ class RepositoryItem
         $category = $data["category"] ?? null;
         $creator = $data["creator"] ?? null;
 
+        if (isset($_FILES["documents"])){
+            $fileNameArray = explode(".", $_FILES["documents"]["name"]);
+            $ext = $fileNameArray[count($fileNameArray) - 1];
+        }
+        else if(isset($data["json"])){
+            $ext = "json";
+        }
+
         try
         {
             $result = DBQueryFactory::insert('Patients.PatientRepositoryItems', [
                 'RepositoryID'=>$repository,
-                'RepositoryItemNumber'=>QB::wrapString($number, "'"),
+                'RepositoryItemNumber'=>QB::wrapString($number.".".$ext, "'"),
                 'RepositoryItemName'=>(is_null($name)) ? 'NULL' : QB::wrapString((string)$name, "'"),
                 'RepositoryItemDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'"),
                 'RepositoryItemCategory'=>(is_null($category)) ? 'NULL' : QB::wrapString((string)$category, "'"),
@@ -77,18 +103,39 @@ class RepositoryItem
             ]);
 
             if ($result){
+                $query = "SELECT a.RepositoryNumber, b.PatientUUID FROM Patients.PatientRepository a JOIN Patients.Patient b ON a.PatientID = b.PatientID WHERE a.RepositoryID = $repository";
+                $uuids = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0];
+                $ruuid = $uuids["RepositoryNumber"];
+                $puuid = $uuids["PatientUUID"];
+
                 switch (strtolower($category))
                 {
-                    case "media":
+                    case "image":
+                    case "pdf":
+                    case "text":
                     {
-                        $query = "SELECT a.RepositoryNumber, b.PatientUUID FROM Patients.PatientRepository a JOIN Patients.Patient b ON a.PatientID = b.PatientID WHERE a.RepositoryID = $repository";
-                        $uuids = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0];
-                        $ruuid = $uuids["RepositoryNumber"];
-                        $puuid = $uuids["PatientUUID"];
-
-                        if (!self::uploadRepoItems($puuid, $ruuid, $_FILES["documents"], $number.".jpg")){
-                            self::delete($result["lastInsertId"]);
+                        if (in_array(strtolower($ext), self::$allowedExtensions[strtolower($category)])){
+                           if (!self::uploadRepoItems($puuid, $ruuid, $_FILES["documents"], $number)){
+                                self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
+                            }
                         }
+                        else {
+                            self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
+                            throw new UnallowedOperationException(sprintf(
+                                "Unallowed file type detected. .%s files are not allowed",
+                                $ext
+                            ), Constant::UNDEFINED);
+                        }
+                        break;
+                    }
+                    case "json":
+                    {
+                        $json = $data["json"] ?? null;
+
+                        if (!self::createRepoFile($puuid, $ruuid, serialize($json), $number.".".$ext)){
+                            self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
+                        }
+                        break;
                     }
                 }
             }
@@ -121,25 +168,23 @@ class RepositoryItem
     /**
      * delete patient
      */
-    public static function delete(int $resourceId)
+    public static function delete(int $resourceId, string $uuid, string $file)
     {
-        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $resourceId";
-        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        $query = "SELECT RepositoryNumber FROM Patients.PatientRepositoryItems WHERE RepositoryID = $resourceId";
+        $query = "SELECT b.RepositoryNumber FROM Patients.PatientRepositoryItems a INNER JOIN Patients.PatientRepository b ON a.RepositoryID = b.RepositoryID WHERE RepositoryItemID = $resourceId";
         $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        if (is_dir(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid)){
-            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid);
+        if (is_file(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file)){
+            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file);
         }
 
         try
         {
             $deleteBuilder
                 ->from("Patients.PatientRepositoryItems")
-                ->where("RepositoryNumber = $resourceId");
+                ->where("RepositoryItemID = $resourceId");
             
             $result = (
                 DBConnectionFactory::getConnection()

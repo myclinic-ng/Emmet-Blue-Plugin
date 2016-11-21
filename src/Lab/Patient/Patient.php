@@ -90,7 +90,7 @@ class Patient
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('a.*, b.InvestigationTypeName, c.LabName')
+            ->columns('a.*, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
             ->from('Lab.Patients a')
             ->innerJoin('Lab.InvestigationTypes b', 'a.InvestigationTypeRequired = b.InvestigationTypeID')
             ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID');
