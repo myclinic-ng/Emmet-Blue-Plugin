@@ -116,8 +116,15 @@ class Patient
      */
     public static function deletePatient(int $resourceId)
     {
-    	$result = Patient\Patient::delete($resourceId);
+        $result = Patient\Patient::delete($resourceId);
 
-    	return $result;
+        return $result;
+    }
+
+    public static function viewUnlockedProfiles(int $resourceId = 0)
+    {
+        $result = Patient\Patient::getUnlockedProfiles();
+
+        return $result;
     }
 }

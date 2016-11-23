@@ -3,7 +3,7 @@ GO
 
 CREATE TABLE Accounts.BillingType (
 	BillingTypeID INT PRIMARY KEY IDENTITY,
-	BillingTypeName VARCHAR(50) NOT NULL UNIQUE,
+	BillingTypeName VARCHAR(100) NOT NULL UNIQUE,
 	BillingTypeDescription VARCHAR (100)
 );
 
@@ -41,7 +41,7 @@ CREATE TABLE Accounts.BillingCustomerInfo (
 CREATE TABLE Accounts.BillingTypeItems (
 	BillingTypeItemID INT PRIMARY KEY IDENTITY(1000, 1),
 	BillingType INT,
-	BillingTypeItemName VARCHAR (100) UNIQUE,
+	BillingTypeItemName VARCHAR (100),
 	FOREIGN KEY (BillingType) REFERENCES [Accounts].[BillingType] (BillingTypeID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -71,7 +71,7 @@ CREATE TABLE Accounts.BillingTransactionMeta (
 	BillingTransactionMetaID INT PRIMARY KEY IDENTITY,
 	BillingTransactionNumber VARCHAR(15) UNIQUE NOT NULL,
 	PatientID INT,
-	BillingType VARCHAR(50),
+	BillingType VARCHAR(100),
 	BilledAmountTotal MONEY,
 	CreatedByUUID VARCHAR(20),
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
@@ -86,11 +86,11 @@ CREATE TABLE Accounts.BillingTransactionMeta (
 CREATE TABLE Accounts.BillingTransactionItems (
 	BillingTransactionItemID INT PRIMARY KEY IDENTITY,
 	BillingTransactionMetaID INT NOT NULL,
-	BillingTransactionItemName VARCHAR(100),
+	BillingTransactionItem INT,
 	BillingTransactionItemQuantity INT,
 	BillingTransactionItemPrice MONEY,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (BillingTransactionItemName) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemName) ON UPDATE NO ACTION ON DELETE NO ACTION
+	FOREIGN KEY (BillingTransactionItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 
 CREATE TABLE Accounts.BillingTransaction (
@@ -153,3 +153,27 @@ CREATE TABLE Accounts.BillPaymentRules (
 	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
 	CHECK(RuleType = '*' OR RuleType = '+' OR RuleType = '-' OR RuleType = '%')
 )
+GO
+
+CREATE TRIGGER Accounts.PreventBillingTypeItemsDuplicates
+ ON Accounts.BillingTypeItems
+ INSTEAD OF INSERT
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  IF NOT EXISTS (SELECT 1 FROM inserted AS i 
+    INNER JOIN Accounts.BillingTypeItems AS t
+    ON i.BillingType = t.BillingType
+    AND i.BillingTypeItemName = t.BillingTypeItemName
+  )
+  BEGIN
+    INSERT Accounts.BillingTypeItems(BillingType, BillingTypeItemName)
+      SELECT BillingType, BillingTypeItemName FROM inserted;
+  END
+  ELSE
+  BEGIN
+    RAISERROR('Error: Duplicate items are not allowed', 16, 1);
+  END
+END
+GO

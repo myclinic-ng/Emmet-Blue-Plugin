@@ -41,23 +41,25 @@ class EditAccountsBillingTypeItems
 
         try
         {
-        	if (isset($data['billingTypeItemName']))
+        	if (isset($data['BillingTypeItemName']))
         	{
-        		$data["billingTypeItemName"] = QB::wrapString($data["billingTypeItemName"], "'");
+        		$data["BillingTypeItemName"] = QB::wrapString($data["BillingTypeItemName"], "'");
         	}
-            if (isset($data['billingTypeItemPrice']))
-            {
-                $data["billingTypeItemPrice"] = QB::wrapString($data["billingTypeItemPrice"], "'");
-            }
-            if (isset($data['rateIdentifier']))
-            {
-                $data["rateIdentifier"] = QB::wrapString($data["rateIdentifier"], "'");
-            }
 
             $updateBuilder->table("Accounts.BillingTypeItems");
             $updateBuilder->set($data);
             $updateBuilder->where("BillingTypeItemID = $resourceId");
 
+            $query = "SELECT COUNT(*) as Total FROM Accounts.BillingTypeItems WHERE BillingType = (SELECT BillingType FROM Accounts.BillingTypeItems WHERE BillingTypeItemID = $resourceId) AND BillingTypeItemName = ".$data['BillingTypeItemName'];
+            $count = (integer) DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Total"];
+
+            if ($count != 0){
+                throw new SQLException(sprintf(
+                    "Duplicate values are not allowed. '%s' already exists for the selected billing type",
+                    $data['BillingTypeItemName']
+                ), Constant::UNDEFINED);
+            }
+            
             $result = (
                     DBConnectionFactory::getConnection()
                     ->exec((string)$updateBuilder)

@@ -401,4 +401,11 @@ class Patient
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function getUnlockedProfiles(){
+        $query = "SELECT * FROM Patients.Patient WHERE PatientProfileLockStatus = 0";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
 }

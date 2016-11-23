@@ -34,7 +34,7 @@ CREATE TABLE Lab.InvestigationTypeFields (
 CREATE TABLE Lab.InvestigationTypeFieldDefaults (
 	FieldDefaultID INT PRIMARY KEY IDENTITY,
 	Field INT,
-	Value VARCHAR(20),
+	Value VARCHAR(500),
 	FOREIGN KEY (Field) REFERENCES Lab.InvestigationTypeFields (FieldID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
@@ -74,13 +74,13 @@ CREATE TABLE Lab.LabRequests (
 CREATE TABLE Lab.LabResults (
 	ResultID INT PRIMARY KEY IDENTITY(1000, 1),
 	PatientLabNumber INT,
-	RepositoryID VARCHAR(MAX),
+	RepositoryID INT,
 	DateReported DATETIME DEFAULT GETDATE(),
 	Report VARCHAR(MAX),
 	ReportLab INT,
 	ReportedBy INT,
 	FOREIGN KEY (ReportedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (ReportLab) REFERENCES Lab.Labs (LabID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (PatientLabNumber) REFERENCES Lab.Patients (PatientLabNumber) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (RepositoryID) REFERENCES Patients.PatientRepository (RepositoryID) ON UPDATE CASCADE ON DELETE SET NULL
+	FOREIGN KEY (PatientLabNumber) REFERENCES Lab.Patients (PatientLabNumber) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (RepositoryID) REFERENCES Patients.PatientRepository (RepositoryID) ON UPDATE NO ACTION ON DELETE NO ACTION
 )
