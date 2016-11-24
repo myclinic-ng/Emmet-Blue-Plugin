@@ -34,15 +34,27 @@ CREATE TABLE Nursing.ObservationTypeFieldDefaults (
 )
 GO
 
--- CREATE TABLE Nursing.Observation(
--- 	ObservationID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	PatientID VARCHAR(20),
--- 	StaffID VARCHAR(20),
--- 	ObservationDate DATE NOT NULL DEFAULT GETDATE(),
--- 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientUUID) ON UPDATE CASCADE ON DELETE CASCADE,
--- 	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffUUID) ON UPDATE CASCADE ON DELETE NO ACTION
--- )
--- GO
+CREATE TABLE Nursing.Observations (
+	ObservationID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	RepositoryID INT,
+	ObservationType INT,
+	Observation VARCHAR(MAX),
+	StaffID INT,
+	ObservationDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (ObservationType) REFERENCES Nursing.ObservationTypes (ObservationTypeID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (RepositoryID) REFERENCES Patients.PatientRepository (RepositoryID) ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+GO
+
+CREATE TABLE Nursing.ConsultantDepartments (
+	ConsultantDepartmentID INT PRIMARY KEY IDENTITY NOT NULL,
+	Department INT UNIQUE NOT NULL,
+	FOREIGN KEY (Department) REFERENCES Staffs.Department (DepartmentID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
 
 -- CREATE TABLE Nursing.ObservationFieldValue (
 -- 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,

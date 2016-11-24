@@ -57,3 +57,13 @@ CREATE TABLE Consultancy.SavedDiagnosis(
 	UNIQUE(Patient, Consultant)
 )
 GO
+
+CREATE TABLE Consultancy.PatientQueue (
+	QueueID INT PRIMARY KEY IDENTITY,
+	Patient INT,
+	Consultant INT NOT NULL,
+	QueueDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (Patient) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO

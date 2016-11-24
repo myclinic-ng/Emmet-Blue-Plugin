@@ -21,52 +21,52 @@ use EmmetBlue\Core\Constant;
 /**
  * class PatientonsultationSheet.
  *
- * Allergy Controller
+ * PatientQueue Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 20/08/2016 03:29AM
  */
-class Allergy
+class PatientQueue
 {
     /**
      * Creates a new Consultancy sheet
      *
      * @param $_POST
      */
-    public static function newAllergy(array $data)
+    public static function newPatientQueue(array $data)
     {
-        $result = Allergy\Allergy::create($data);
+        $result = PatientQueue\PatientQueue::create($data);
 
         return $result;
     }
 
     /**
-     * Selects Allergy
+     * Selects PatientQueue
      */
-    public static function viewAllergy(int $resourceId=0)
+    public static function viewPatientQueue(int $resourceId=0)
     {
-        $result = Allergy\Allergy::view($resourceId);
+        $result = PatientQueue\PatientQueue::view($resourceId);
 
         return $result;
     }
 
 
     /**
-     * edit Allergy
+     * edit PatientQueue
      */
-    public static function editAllergy(int $resourceId=0, array $data)
+    public static function editPatientQueue(int $resourceId=0, array $data)
     {
-        $result = Allergy\Allergy::editAllergy($resourceId, $data);
+        $result = PatientQueue\PatientQueue::editPatientQueue($resourceId, $data);
 
         return $result;
     }
 
     /**
-     * Deletes a Allergy
+     * Deletes a PatientQueue
      */
-    public static function deleteAllergy(int $resourceId)
+    public static function deletePatientQueue(int $resourceId)
     {
-        $result = Allergy\Allergy::delete($resourceId);
+        $result = PatientQueue\PatientQueue::delete($resourceId);
 
         return $result;
     }
