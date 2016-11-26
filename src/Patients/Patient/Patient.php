@@ -14,6 +14,7 @@ use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
 use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
+use EmmetBlue\Core\Exception\UndefinedValueException;
 use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
@@ -332,6 +333,13 @@ class Patient
 
     public static function search(array $data)
     {
+        if ($data["query"] == ""){
+            throw new UndefinedValueException(sprintf(
+                "Empty search query provided, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+
         $query = explode(" ", $data["query"]);
         $builtQuery = [];
         foreach ($query as $element){

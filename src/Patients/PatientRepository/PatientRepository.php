@@ -56,6 +56,7 @@ class PatientRepository
         $name = $data["name"] ?? null;
         $description = $data["description"] ?? null;
         $creator = $data["creator"] ?? null;
+        $type = $data["type"] ?? null;
 
         $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $patient";
         $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
@@ -67,7 +68,8 @@ class PatientRepository
                 'RepositoryNumber'=>QB::wrapString($number, "'"),
                 'RepositoryName'=>(is_null($name)) ? 'NULL' : QB::wrapString((string)$name, "'"),
                 'RepositoryDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'"),
-                'RepositoryCreator'=>(is_null($creator)) ? 'NULL' : $creator
+                'RepositoryCreator'=>(is_null($creator)) ? 'NULL' : $creator,
+                'RepositoryType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'")
             ]);
 
             if ($result && !self::createRepoFolders($uuid, $number)){

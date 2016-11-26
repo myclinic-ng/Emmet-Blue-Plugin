@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -19,53 +19,39 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class Ward.
+ * class WardAdmission.
  *
- * Ward Controller
+ * WardAdmission Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 20/08/2016 03:29AM
  */
-class Ward
+class WardAdmission
 {
-    /**
-     * Creates a new Ward
-     *
-     * @param $_POST
-     */
-    public static function newWard(array $data)
+    public static function newWardAdmission(array $data)
     {
-        $result = Ward\Ward::create($data);
+        $result = WardAdmission\WardAdmission::create($data);
 
         return $result;
     }
 
-    /**
-     * Selects Ward
-     */
-    public static function viewWard(int $resourceId=0)
+    public static function viewAdmittedPatients(int $resourceId=0)
     {
-        $result = Ward\Ward::view($resourceId);
+        $result = WardAdmission\WardAdmission::viewAdmittedPatients($resourceId);
 
         return $result;
     }
 
-    /**
-     * edit Ward
-     */
-    public static function editWard(int $resourceId=0, array $data)
+    public static function editWardAdmission(int $resourceId=0, array $data)
     {
-        $result = Ward\Ward::edit($resourceId, $data);
+        $result = WardAdmission\WardAdmission::editWardAdmission($resourceId, $data);
 
         return $result;
     }
 
-    /**
-     * Deletes a Ward
-     */
-    public static function deleteWard(int $resourceId)
+    public static function deleteWardAdmission(int $resourceId)
     {
-        $result = Ward\Ward::delete($resourceId);
+        $result = WardAdmission\WardAdmission::delete($resourceId);
 
         return $result;
     }

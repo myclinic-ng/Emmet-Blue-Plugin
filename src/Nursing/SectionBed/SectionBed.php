@@ -25,7 +25,7 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  *
  * SectionBed Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 01/01/2016 04:21pm
  */
 class SectionBed
@@ -37,9 +37,9 @@ class SectionBed
      */
     public static function create(array $data)
     {
-        $wardSectionId = $data['wardSectionId'];
-        $bedName = $data['bedName'] ?? null;
-        $bedDescription = $data['bedDescription'] ?? null;
+        $wardSectionId = $data['section'];
+        $bedName = $data['name'] ?? null;
+        $bedDescription = $data['description'] ?? null;
 
         try
         {
@@ -131,7 +131,7 @@ class SectionBed
                     DBConnectionFactory::getConnection()
                     ->query((string)$updateBuilder)
                 );
-            /*//logging
+            //logging
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
@@ -139,7 +139,7 @@ class SectionBed
                 'SectionBed',
                 (string)(serialize($result))
             );
-*/
+
             return $result;
         }
         catch (\PDOException $e)

@@ -25,7 +25,7 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  *
  * Ward Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 25/08/2016 13:35
  */
 class Ward
@@ -38,8 +38,8 @@ class Ward
     public static function create(array $data)
     {
         
-        $wardName = $data['wardName'] ?? null;
-        $wardDescription = $data['wardDescription'] ?? null;
+        $wardName = $data['name'] ?? null;
+        $wardDescription = $data['description'] ?? null;
         try
         {
             $result = DBQueryFactory::insert('Nursing.Ward', [

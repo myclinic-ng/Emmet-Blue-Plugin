@@ -139,16 +139,24 @@ CREATE TABLE Patients.PatientAllergySymptoms (
 )
 GO
 
+CREATE TABLE Patients.PatientRepositoryTypes (
+	RepositoryTypeID  INT PRIMARY KEY IDENTITY NOT NULL,
+	RepositoryTypeName VARCHAR(30) UNIQUE NOT NULL
+)
+GO
+
 CREATE TABLE Patients.PatientRepository (
 	RepositoryID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,
 	RepositoryNumber VARCHAR(50) NOT NULL UNIQUE,
 	RepositoryName VARCHAR(100),
+	RepositoryType VARCHAR(30),
 	RepositoryDescription VARCHAR(4000),
 	RepositoryCreator INT,
 	RepositoryCreationDate DATETIME NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (RepositoryCreator) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE,
+	FOREIGN KEY (RepositoryType) REFERENCES Patients.PatientRepositoryTypes (RepositoryTypeName)
 )
 GO
 

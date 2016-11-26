@@ -20,3 +20,8 @@ INSERT INTO Patients.PatientRecordsFieldTitle (FieldTitleName, FieldTitleType) V
 ('Email Address', 'Text'),
 ('Next Of Kin', 'Name'),
 ('Patient', 'Number')
+INSERT INTO Patients.PatientRepositoryTypes VALUES
+('prescription'),
+('lab_result'),
+('observation'),
+('doctor_note')

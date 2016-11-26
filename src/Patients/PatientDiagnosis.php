@@ -49,6 +49,13 @@ class PatientDiagnosis
 
         return $result;
     }
+
+    public static function viewById(int $resourceId=0)
+    {
+        $result = PatientDiagnosis\PatientDiagnosis::viewById($resourceId);
+
+        return $result;
+    }
     /**
      * edits PatientDiagnosis
      */

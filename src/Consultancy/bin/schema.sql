@@ -67,3 +67,20 @@ CREATE TABLE Consultancy.PatientQueue (
 	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
+
+
+CREATE TABLE Consultancy.PatientAdmission (
+	PatientAdmissionID INT PRIMARY KEY IDENTITY(1000, 1) NOT NULL,
+	Patient INT,
+	Ward INT,
+	Section INT,
+	Consultant INT,
+	Diagnosis INT,
+	AdmissionDate DATETIME NOT NULL DEFAULT GETDATE(),
+	ReceivedInWard BIT DEFAULT 0,
+	DischargeStatus BIT DEFAULT 0,
+	FOREIGN KEY (Patient) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (Diagnosis) REFERENCES Patients.PatientDiagnosis (DiagnosisID) ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+GO

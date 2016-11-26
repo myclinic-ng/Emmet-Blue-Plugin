@@ -51,6 +51,7 @@ class LabResult
             $repoData = [
                 "patient"=>$patientId,
                 "name"=>$investigationName,
+                "type"=>"lab_result",
                 "creator"=>$reportedBy
             ];
             $repoId = \EmmetBlue\Plugins\Patients\PatientRepository\PatientRepository::create($repoData)["lastInsertId"];

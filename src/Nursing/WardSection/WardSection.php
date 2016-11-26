@@ -25,7 +25,7 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  *
  * WardSection Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 25/08/2016 13:35
  */
 class WardSection
@@ -37,9 +37,9 @@ class WardSection
      */
     public static function create(array $data)
     {
-        $wardId = $data['wardId'];
-        $wardSectionName = $data['sectionName'] ?? null;
-        $wardSectionDescription = $data['sectionDescription'] ?? null;
+        $wardId = $data['ward'];
+        $wardSectionName = $data['name'] ?? null;
+        $wardSectionDescription = $data['description'] ?? null;
 
         try
         {
@@ -114,9 +114,6 @@ class WardSection
 
         try
         {
-            if (isset($data['WardID'])){
-                $data['WardID'] = QB::wrapString($data['WardID'], "'");
-            }
             if (isset($data['WardSectionName'])){
                 $data['WardSectionName'] = QB::wrapString($data['WardSectionName'], "'");
             }
@@ -129,16 +126,16 @@ class WardSection
 
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->exec((string)$updateBuilder)
                 );
-            //logging
-            /*DatabaseLog::log(
+            
+            DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Nursing',
                 'WardSection',
-                (string)(serialize($result))
-            );*/
+                (string)$updateBuilder
+            );
 
             return $result;
         }

@@ -56,6 +56,67 @@ CREATE TABLE Nursing.ConsultantDepartments (
 )
 GO
 
+CREATE TABLE Nursing.Ward(
+	WardID INT PRIMARY KEY IDENTITY NOT NULL,
+	WardName VARCHAR(50) NOT NULL UNIQUE,
+	WardDescription VARCHAR(500),
+	CreatedDate DATETIME NOT NULL DEFAULT GETDATE()
+)
+GO
+CREATE TABLE Nursing.WardSection(
+	WardSectionID INT PRIMARY KEY IDENTITY NOT NULL,
+	WardID INT,
+	WardSectionName VARCHAR(50) NOT NULL,
+	WardSectionDescription VARCHAR(500),
+	CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+	UNIQUE(WardID, WardSectionName),
+	FOREIGN KEY (WardID) REFERENCES Nursing.Ward(WardID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+CREATE TABLE Nursing.SectionBed(
+	SectionBedID INT PRIMARY KEY IDENTITY NOT NULL,
+	WardSectionID INT,
+	BedName VARCHAR(50),
+	BedDescription VARCHAR(500),
+	BedStatus INT NOT NULL DEFAULT 0,
+	UNIQUE(WardSectionID, BedName),
+	FOREIGN KEY (WardSectionID) REFERENCES Nursing.WardSection(WardSectionID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Nursing.WardAdmission (
+	WardAdmissionID INT PRIMARY KEY IDENTITY(1000, 1) NOT NULL,
+	PatientAdmissionID INT UNIQUE NOT NULL,
+	Bed INT NOT NULL,
+	AdmissionProcessedBy INT,
+	AdmissionDate DATETIME NOT NULL DEFAULT GETDATE(),
+	DischargeStatus BIT DEFAULT 0,
+	FOREIGN KEY (AdmissionProcessedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
+	FOREIGN KEY (Bed) REFERENCES Nursing.SectionBed(SectionBedID) ON UPDATE CASCADE
+)
+GO
+
+-- CREATE TABLE Nursing.AdmissionTreatmentChart (
+-- 	TreatmentChartID INT PRIMARY KEY IDENTITY NOT NULL,
+-- 	PatientAdmissionID INT,
+-- 	Drug VARCHAR(100),
+-- 	Dose VARCHAR(50),
+-- 	Route VARCHAR(50),
+-- 	Time VARCHAR(10),
+-- 	Note VARCHAR(500),
+-- 	Date DATETIME NOT NULL DEFAULT GETDATE()
+-- )
+-- GO
+
+-- CREATE TABLE Nursing.ServicesRendered (
+-- 	ServicesRenderedID INT PRIMARY KEY IDENTITY NOT NULL,
+-- 	PatientAdmissionID INT,
+-- 	BillingTypeItem INT,
+-- 	ServicesRenderedBy INT,
+-- 	ServicesRenderedDate DATETIME NOT NULL DEFAULT GETDATE()
+-- )
+
 -- CREATE TABLE Nursing.ObservationFieldValue (
 -- 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
 -- 	ObservationID INT,
@@ -63,32 +124,6 @@ GO
 -- 	FieldValue VARCHAR(max),
 -- 	FOREIGN KEY (Field) REFERENCES Nursing.ObservationField(FieldName) ON UPDATE CASCADE ON DELETE NO ACTION,
 -- 	FOREIGN KEY (ObservationID) REFERENCES Nursing.Observation(ObservationID) ON UPDATE CASCADE ON DELETE CASCADE
--- )
--- GO
--- CREATE TABLE Nursing.Ward(
--- 	WardID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	WardName VARCHAR(50) UNIQUE,
--- 	WardDescription VARCHAR(50),
--- 	CreatedDate DATE NOT NULL DEFAULT GETDATE(),
--- 	UpdatedDate DATE NOT NULL DEFAULT GETDATE()
--- )
--- GO
--- CREATE TABLE Nursing.WardSection(
--- 	WardSectionID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	WardID INT,
--- 	WardSectionName VARCHAR(50) UNIQUE,
--- 	WardSectionDescription VARCHAR(50),
--- 	CreatedDate DATE NOT NULL DEFAULT GETDATE(),
--- 	UpdatedDate DATE NOT NUll DEFAULT GETDATE(),
--- 	FOREIGN KEY (WardID) REFERENCES Nursing.Ward(WardID) ON UPDATE CASCADE ON DELETE CASCADE
--- )
--- GO
--- CREATE TABLE Nursing.SectionBed(
--- 	SectionBedID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	WardSectionID INT,
--- 	BedName VARCHAR(50) UNIQUE,
--- 	BedDescription VARCHAR(50),
--- 	FOREIGN KEY (WardSectionID) REFERENCES Nursing.WardSection(WardSectionID) ON UPDATE CASCADE ON DELETE CASCADE
 -- )
 -- GO
 -- CREATE TABLE Nursing.BedAssignment(

@@ -146,6 +146,44 @@ class PatientDiagnosis
         }
     }
 
+    public static function viewById(int $resourceId)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('*')
+            ->from('Patients.PatientDiagnosis')
+            ->where('DiagnosisID ='.$resourceId);
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'PatientDiagnosis',
+                (string)serialize($selectBuilder)
+            );
+
+            foreach ($result as $key => $value) {
+                $result[$key]["Diagnosis"] = unserialize($value["Diagnosis"]);
+            }
+
+            return $result[0];
+
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error processing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
