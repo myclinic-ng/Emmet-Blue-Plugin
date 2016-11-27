@@ -97,25 +97,36 @@ CREATE TABLE Nursing.WardAdmission (
 )
 GO
 
--- CREATE TABLE Nursing.AdmissionTreatmentChart (
--- 	TreatmentChartID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	PatientAdmissionID INT,
--- 	Drug VARCHAR(100),
--- 	Dose VARCHAR(50),
--- 	Route VARCHAR(50),
--- 	Time VARCHAR(10),
--- 	Note VARCHAR(500),
--- 	Date DATETIME NOT NULL DEFAULT GETDATE()
--- )
--- GO
+CREATE TABLE Nursing.AdmissionTreatmentChart (
+	TreatmentChartID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientAdmissionID INT NOT NULL,
+	Drug VARCHAR(100),
+	Dose VARCHAR(50),
+	Route VARCHAR(50),
+	Time VARCHAR(10),
+	Note VARCHAR(500),
+	Nurse INT,
+	Date DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
+	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
 
--- CREATE TABLE Nursing.ServicesRendered (
--- 	ServicesRenderedID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	PatientAdmissionID INT,
--- 	BillingTypeItem INT,
--- 	ServicesRenderedBy INT,
--- 	ServicesRenderedDate DATETIME NOT NULL DEFAULT GETDATE()
--- )
+CREATE TABLE Nursing.ServicesRendered (
+	ServicesRenderedID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientAdmissionID INT,
+	BillingTypeItem INT,
+	BillingTypeItemName VARCHAR(100),
+	BillingTypeItemQuantity INT,
+	Nurse INT,
+	DoctorInCharge INT,
+	ServicesRenderedDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
+	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (DoctorInCharge) REFERENCES [Staffs].[Staff] (StaffID),
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE SET NULL,
+)
+GO
 
 -- CREATE TABLE Nursing.ObservationFieldValue (
 -- 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,

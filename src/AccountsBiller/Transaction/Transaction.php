@@ -43,7 +43,7 @@ class Transaction
 
         $queryResult = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
         $totalBilledAmount = (int)$queryResult[0]["BilledAmountTotal"];
-        $amountBalance = (int)$amountPaid - $totalBilledAmount;
+        $amountBalance = $totalBilledAmount - (int)$amountPaid;
 
         try
         {
@@ -61,6 +61,9 @@ class Transaction
             $id = $result["lastInsertId"];
 
             $q = "UPDATE Accounts.PaymentRequest SET RequestFulfillmentStatus = 1 WHERE AttachedInvoice = $metaId";
+            $r =  (DBConnectionFactory::getConnection()->exec($q));
+
+            $q = "UPDATE Accounts.BillingTransactionMeta SET Status = 'deleted' WHERE BillingTransactionMetaID = $metaId";
             $r =  (DBConnectionFactory::getConnection()->exec($q));
 
             $query = "SELECT * FROM Accounts.BillingTransaction WHERE BillingTransactionID = $id";

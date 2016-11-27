@@ -95,7 +95,7 @@ class WardAdmission
             foreach($result as $key=>$value){
                 $id = $value["PatientAdmissionID"];
                 $data = \EmmetBlue\Plugins\Consultancy\PatientAdmission\PatientAdmission::viewAdmittedPatients(0, ['admissionId'=>(int)$id]);
-                $result[$key]["AdmissionInfo"] = $data;
+                $result[$key]["AdmissionInfo"] = $data[0];
             }
 
             DatabaseLog::log(

@@ -64,10 +64,10 @@ class TransactionMeta
 
             $itemNames = [];
             foreach ($items as $datum){
-                $itemNames[] = "($id, ".QB::wrapString((string)$datum['itemName'], "'").", ".QB::wrapString((string)$datum['itemQuantity'], "'").", ".QB::wrapString((string)$datum['itemPrice'], "'").")";
+                $itemNames[] = "($id, ".QB::wrapString((string)$datum['itemCode'], "'").", ".QB::wrapString((string)$datum['itemQuantity'], "'").", ".QB::wrapString((string)$datum['itemPrice'], "'").")";
             }
 
-            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItemName, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
+            $query = "INSERT INTO Accounts.BillingTransactionItems (BillingTransactionMetaID, BillingTransactionItem, BillingTransactionItemQuantity, BillingTransactionItemPrice) VALUES ".implode(", ", $itemNames);
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -142,10 +142,10 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a");
+            $selectBuilder->from("Accounts.BillingTransactionMeta a")->where("a.Status IS NULL");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingTransactionMetaID = $resourceId");
+                $selectBuilder->andWhere("BillingTransactionMetaID = $resourceId");
             }
 
 
@@ -214,10 +214,10 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a");
+            $selectBuilder->from("Accounts.BillingTransactionMeta a")->where("a.Status IS NULL");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingTransactionNumber = $resourceId");
+                $selectBuilder->andWhere("BillingTransactionNumber = $resourceId");
             }
 
             $result = (

@@ -43,6 +43,11 @@ class BillingTypeItems
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountsBillingTypeItems($resourceId, $data);
 	}
 
+	public static function viewById(int $resourceId=0, array $data = [])
+	{
+		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewById($resourceId, $data);
+	}
+
 	public static function viewByStaffUuid(int $resourceId=0, array $data=[]){
 
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountsBillingTypeItemsByStaffUUID($resourceId, $data);
