@@ -51,13 +51,13 @@ class Staff
             {
                 $id = $result['lastInsertId'];
 
-                $result = DBQueryFactory::insert('Staffs.StaffPassword', [
+                $result2 = DBQueryFactory::insert('Staffs.StaffPassword', [
                     'StaffID'=>$id,
                     'StaffUsername'=>QB::wrapString($username, "'"),
                     'PasswordHash'=>QB::wrapString($password, "'")
                 ]);
 
-                if ($result['lastInsertId'])
+                if ($result2['lastInsertId'])
                 {
                     (new Permission())->add('role', $uuid);
 

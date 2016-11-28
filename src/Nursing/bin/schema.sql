@@ -128,6 +128,13 @@ CREATE TABLE Nursing.ServicesRendered (
 )
 GO
 
+CREATE TABLE Nursing.AdmissionBillingItems (
+	AdmissionBillingItemID INT PRIMARY KEY IDENTITY NOT NULL,
+	BillingTypeItem INT UNIQUE,
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
 -- CREATE TABLE Nursing.ObservationFieldValue (
 -- 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
 -- 	ObservationID INT,

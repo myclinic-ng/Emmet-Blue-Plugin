@@ -35,22 +35,23 @@ class ServicesRendered
     public static function create(array $data)
     {
         $admissionId = $data['admissionId'] ?? 'NULL';
-        $billingTypeItem = $data['item'] ?? 'NULL';
-        $billingTypeItemName = $data["name"] ?? null;
-        $billingTypeItemQuantity = $data["quantity"] ?? 'null';
+        $items = $data['items'] ?? 'NULL';
         $nurse = $data["nurse"] ?? 'null';
         $doctorInCharge = $data["doctor"] ?? 'null';
+        $values = [];
 
         try
         {
-            $result = DBQueryFactory::insert('Nursing.ServicesRendered', [
-                'PatientAdmissionID'=>$admissionId,
-                'BillingTypeItem'=>$billingTypeItem,
-                'BillingTypeItemName'=>QB::wrapString($billingTypeItemName, "'"),
-                'BillingTypeItemQuantity'=>$billingTypeItemQuantity,
-                'Nurse'=>$nurse,
-                'DoctorInCharge'=>$doctorInCharge
-            ]);
+            foreach ($items as $item) {
+                $id = $item["BillingTypeItemID"];
+                $name = $item["BillingTypeItemName"];
+                $qty = $item["BillingTypeItemQuantity"];
+
+                $values[] = "(".$admissionId.", ".$id.", '".$name."', ".$qty.", ".$nurse.", ".$doctorInCharge.")";
+            }
+            $query = "INSERT INTO Nursing.ServicesRendered (PatientAdmissionID, BillingTypeItem, BillingTypeItemName, BillingTypeItemQuantity, Nurse, DoctorInCharge) VALUES ".implode(", ", $values);
+
+            $result = DBConnectionFactory::getConnection()->exec($query);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),

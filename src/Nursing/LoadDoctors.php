@@ -43,7 +43,10 @@ class LoadDoctors
 
         foreach ($departments as $department){
             $query = "SELECT a.StaffID, a.StaffUsername FROM Staffs.StaffPassword a INNER JOIN Staffs.StaffDepartment b ON a.StaffID = b.StaffID WHERE b.DepartmentID = ".$department["Department"];
-            $result[] = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
+            $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            if (isset($r[0])){
+                $result[] = $r[0];
+            }
         }
 
         return $result;
@@ -55,7 +58,10 @@ class LoadDoctors
 
         foreach ($doctors as $key=>$doctor){
             $query = "SELECT COUNT(*) as count FROM Consultancy.PatientQueue WHERE Consultant = ".$doctor["StaffID"];
-            $doctors[$key]["queueCount"] = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["count"];
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            if (isset($result[0])){
+              $doctors[$key]["queueCount"] = $result[0]["count"];
+            }
         }
 
         return $doctors;

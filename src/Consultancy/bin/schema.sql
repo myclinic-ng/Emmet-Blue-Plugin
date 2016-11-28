@@ -84,3 +84,14 @@ CREATE TABLE Consultancy.PatientAdmission (
 	FOREIGN KEY (Diagnosis) REFERENCES Patients.PatientDiagnosis (DiagnosisID) ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 GO
+
+CREATE TABLE Consultancy.ConsultationSheet (
+	ConsultationSheetID INT PRIMARY KEY IDENTITY,
+	PatientAdmissionID INT,
+	Note VARCHAR(MAX),
+	Consultant INT,
+	DateTaken DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (PatientAdmissionID) REFERENCES Consultancy.PatientAdmission(PatientAdmissionID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
