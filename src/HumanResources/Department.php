@@ -40,6 +40,13 @@ class Department
         return $result;
     }
 
+    public static function newRootUrl(array $data)
+    {
+        $result = Department\Department::newRootUrl($data);
+
+        return $result;
+    }
+
     /**
      * Edits a department group
      */
@@ -56,6 +63,13 @@ class Department
     public static function viewDepartment(int $resourceId=0, array $data = [])
     {
         $result = Department\Department::view($resourceId, $data);
+
+        return $result;
+    }
+
+    public static function viewRootUrl(int $data = 0)
+    {
+        $result = Department\Department::viewRootUrl($data);
 
         return $result;
     }

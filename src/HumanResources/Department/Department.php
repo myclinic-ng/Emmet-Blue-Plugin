@@ -168,6 +168,29 @@ class Department
         }
     }
 
+    public static function newRootUrl(array $data){
+        $department = $data["department"];
+        $url = $data["url"];
+
+        $query = "INSERT INTO Staffs.DepartmentRootUrl VALUES ($department, '$url');";
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
+    }
+
+    public static function viewRootUrl(int $department){
+        if ($department == 0){
+            $query = "SELECT * FROM Staffs.DepartmentRootUrl a INNER JOIN Staffs.Department b ON a.DepartmentID = b.DepartmentID";
+        }
+        else {
+            $query = "SELECT * FROM Staffs.DepartmentRootUrl a INNER JOIN Staffs.Department b ON a.DepartmentID = b.DepartmentID WHERE a.DepartmentID = $department";
+        }
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();

@@ -54,6 +54,13 @@ class Staff
 
         return $result;
     }
+
+    public static function viewRootUrl(int $id) {
+        $result = Staff\Staff::viewStaffRootUrl($id);
+
+        return $result;
+    }
+
     /*view Departmental staff profile*/
     public static function viewDepartmentStaff(int $resourceId)
     {

@@ -121,6 +121,31 @@ class Staff
             ), Constant::UNDEFINED);
         }
     }
+
+     /* view staff profile */
+    public static function viewStaffRootUrl(int $id)
+    {
+        try
+        {            
+    
+            $query = "SELECT * FROM Staffs.DepartmentRootUrl a INNER JOIN Staffs.StaffDepartment b ON a.DepartmentID = b.DepartmentID WHERE b.StaffID = $id";
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC)[0];
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
     /*view staff based on dept*/
     public static function viewDepartmentStaff(int $resourceId){
        /* $query = "SELECT a.StaffUsername, c.Name,d.GroupName,e.* FROM Staffs.StaffPassword a JOIN Staffs.StaffDepartment b ON a.StaffID=b.StaffID JOIN Staffs.Department c ON c.DepartmentID=b.DepartmentID JOIN Staffs.DepartmentGroup d ON d.DepartmentGroupID=c.GroupID JOIN Staffs.Staff e ON a.StaffID=e.StaffID WHERE b.DepartmentID=9"*/
