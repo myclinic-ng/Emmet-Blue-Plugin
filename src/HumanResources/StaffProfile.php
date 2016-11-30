@@ -53,4 +53,11 @@ class StaffProfile
 
         return $result;
     }
+
+    public static function viewAllStaffs(int $resourceId=0)
+    {
+        $result = StaffProfile\StaffProfile::viewAllStaffs();
+
+        return $result;
+    }
 }

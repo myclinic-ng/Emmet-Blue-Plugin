@@ -39,10 +39,10 @@ class StaffProfileRecord
 
         try
         {
-        	$result = DBQueryFactory::insert('Staffs.StaffProfileRecords', [
-                'RecordName'=>QB::wrapString((string)$name, "'"),
-                'RecordType'=>QB::wrapString((string)$type, "'"),
-                'RecordDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'")
+        	$result = DBQueryFactory::insert('Staffs.StaffRecordsFieldTitle', [
+                'FieldTitleName'=>QB::wrapString((string)$name, "'"),
+                'FieldTitleType'=>QB::wrapString((string)$type, "'"),
+                'FieldTitleDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'")
             ]);
             
             return $result;
@@ -62,11 +62,11 @@ class StaffProfileRecord
 
         try
         {
-            $data['RecordName'] = QB::wrapString((string)$data['RecordName'], "'");
-            $data['RecordDescription'] = QB::wrapString((string)$data['RecordDescription'], "'");
-            $updateBuilder->table("Staffs.StaffProfileRecords");
+            $data['FieldTitleName'] = QB::wrapString((string)$data['FieldTitleName'], "'");
+            $data['FieldTitleDescription'] = QB::wrapString((string)$data['FieldTitleDescription'], "'");
+            $updateBuilder->table("Staffs.StaffRecordsFieldTitle");
             $updateBuilder->set($data);
-            $updateBuilder->where("RecordID = $resourceId");
+            $updateBuilder->where("FieldTitleID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -102,10 +102,10 @@ class StaffProfileRecord
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Staffs.StaffProfileRecords");
+            $selectBuilder->from("Staffs.StaffRecordsFieldTitle");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("RecordID = $resourceId");
+                $selectBuilder->where("FieldTitleID = $resourceId");
             }
 
             $result = (
@@ -131,8 +131,8 @@ class StaffProfileRecord
         try
         {
             $deleteBuilder
-                ->from("Staffs.StaffProfileRecords")
-                ->where("RecordID = $resourceId");
+                ->from("Staffs.StaffRecordsFieldTitle")
+                ->where("FieldTitleID = $resourceId");
             
             $result = (
                     DBConnectionFactory::getConnection()

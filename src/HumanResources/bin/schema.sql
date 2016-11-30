@@ -66,15 +66,26 @@ CREATE TABLE [Staffs].[StaffRole] (
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
-CREATE TABLE Staffs.StaffProfileRecords (
-	RecordID INT PRIMARY KEY IDENTITY,
-	RecordName VARCHAR(50) UNIQUE NOT NULL,
-	RecordType VARCHAR(20) NOT NULL,
-	RecordDescription VARCHAR(200)
-)
-
 CREATE TABLE Staffs.StaffProfile (
 	StaffProfile INT PRIMARY KEY IDENTITY,
 	StaffID INT NOT NULL,
-	Records VARCHAR(MAX) --SERIALIZED JSON DATA WITH RECORDS FROM StaffProfileRecords
+	StaffFullName VARCHAR(50),
+	StaffPicture VARCHAR(MAX),
+	StaffIdentificationDocument VARCHAR(MAX),
+	LastModified DATETIME DEFAULT GETDATE()
+)
+
+CREATE TABLE Staffs.StaffRecordsFieldTitle (
+	FieldTitleID INT PRIMARY KEY IDENTITY NOT NULL,
+	FieldTitleName VARCHAR(50) UNIQUE,
+	FieldTitleType VARCHAR(50),
+	FieldTitleDescription VARCHAR(50)
+)
+
+CREATE TABLE Staffs.StaffRecordsFieldValue (
+	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
+	StaffID INT,
+	FieldTitle VARCHAR(50),
+	FieldValue VARCHAR(max),
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )

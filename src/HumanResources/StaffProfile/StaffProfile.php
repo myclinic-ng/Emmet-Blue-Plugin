@@ -11,12 +11,16 @@ namespace EmmetBlue\Plugins\HumanResources\StaffProfile;
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
 use EmmetBlue\Core\Factory\DatabaseQueryFactory as DBQueryFactory;
+use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
 use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
 use EmmetBlue\Core\Exception\SQLException;
+use EmmetBlue\Core\Exception\UndefinedValueException;
 use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
+
+use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
  * class NewStaffProfile.
@@ -28,154 +32,185 @@ use EmmetBlue\Core\Constant;
  */
 class StaffProfile
 {
-    /**
-     * @param array $data
-     */
+    CONST STAFF_ARCHIVE_DIR = "bin\\data\\records\\archives\\staff\\";
+
+    protected static $staffFolders = [];
+
+    protected static function base64ToJpeg($base64_string, $output_file) {
+        $ifp = fopen($output_file, "wb"); 
+
+       if (is_string($base64_string)){
+            $data = explode(',', $base64_string);
+
+            fwrite($ifp, base64_decode($data[1])); 
+            fclose($ifp);
+       } 
+
+        return $output_file; 
+    }
+
+    protected static function createStaffFolders(string $staffUuid)
+    {
+        /**
+         * Create 'profile' and 'repositories' folders inside a folder named
+         * '$staffUuid' which will also be created inside the STAFF_ARCHIVE_DIR
+         * directory.
+         */
+        $staffDir = self::STAFF_ARCHIVE_DIR.$staffUuid;
+        $profileDir = $staffDir.DIRECTORY_SEPARATOR.'profile';
+        if (!mkdir($staffDir)){
+            return false;
+        }
+        if (!mkdir($profileDir)){
+            unlink($staffDir);
+            return false;
+        }
+
+        self::$staffFolders = [
+            "staff" => $staffDir,
+            "profile" => $profileDir
+        ];
+
+        return true;
+    }
+
+    protected static function uploadPhotoAndDocuments($passport, $documents){
+        if (!isset(self::$staffFolders["profile"]) || is_null(self::$staffFolders["profile"])){
+            return false;
+        }
+
+        // $handler = fopen(self::$staffFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
+        // fwrite($handler, (!is_null($passport)) ? $passport : "");
+        // fclose($handler);
+        // $handler = fopen(self::$staffFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
+        // fwrite($handler, (!is_null($documents)) ? $documents : "");
+        // fclose($handler);
+
+        self::base64ToJpeg($passport, self::$staffFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
+        self::base64ToJpeg($documents, self::$staffFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
+        return true;
+    }
+
     public static function create(array $data)
     {
-        $staff = $data['staff'] ?? null;
-        unset($data['staff']);
+        if (isset($data["staffName"])){
+            $staffId = $data["staffId"];
+            $fullName = $data["staffName"];
+            $passport = $data["staffPassport"] ?? null;
+            $documents = $data["documents"] ?? null;
+            
+            $query = "SELECT StaffUUID FROM Staffs.Staff WHERE StaffID = $staffId";
+            $staffUuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["StaffUUID"];
 
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
-        try
-        {
-           $selectBuilder->columns('*')->from('Staffs.StaffProfileRecords');
-
-            $result = (
-                    DBConnectionFactory::getConnection()
-                    ->query((string)$selectBuilder)
-                )->fetchAll(\PDO::FETCH_ASSOC);
-
-            $staffProfileRecords = [];
-            $staffProfile = [];
-            foreach ($result as $value)
+            unset(
+                $data["staffPassport"],
+                $data["documents"],
+                $data["staffName"],
+                $data["staffId"]
+            );
+            
+            try
             {
-                $staffProfileRecords[strtolower($value["RecordName"])] = $value;
-            }
+                $result = DBQueryFactory::insert('Staffs.StaffProfile', [
+                    'StaffID'=>$staffId,
+                    'StaffFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
+                    'StaffPicture'=> QB::wrapString(self::STAFF_ARCHIVE_DIR.$staffUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
+                    'StaffIdentificationDocument'=> QB::wrapString(self::STAFF_ARCHIVE_DIR.$staffUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'")
+                ]);
 
-            foreach ($data as $key=>$value)
-            {
-                $key = strtolower($key);
-                if (isset($staffProfileRecords[$key]))
-                {
-                    $record = $staffProfileRecords[$key];
-                    $staffProfile[$record["RecordID"]] = $value;
+                if ($result){
+                    $id = $result['lastInsertId'];
+
+                    $values = [];
+                    foreach ($data as $key=>$value){
+                        $values[] = "($staffId, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
+                    }
+
+                    $values[] = "($staffId, 'StaffProfile', '$id')";
+
+                    $query = "INSERT INTO Staffs.StaffRecordsFieldValue (StaffID, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
+
+                    $queryResult = (
+                        DBConnectionFactory::getConnection()
+                        ->exec($query)
+                    );
+                    
+                    if ($queryResult){
+                        //upload documents now
+                        if(!self::createStaffFolders($staffUuid)){
+                            self::delete((int)$staffId);
+                        }
+                        else {
+                            if (!self::uploadPhotoAndDocuments($passport, $documents)){
+                                self::delete((int)$staffId);
+                            }
+                        }
+                    }
+                    else {
+                        self::delete((int)$staffId);
+                    }
+
+                    DatabaseLog::log(
+                        Session::get('USER_ID'),
+                        Constant::EVENT_INSERT,
+                        'Staffs',
+                        'StaffRecordsFieldValue',
+                        $query
+                    );                
                 }
-            }
 
-            print_r($_FILES);
-            die();
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to retrieve requested data, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }
-
-        /*try
-        {
-            $result = DBQueryFactory::insert('Staffs.StaffProfiles', [
-                'RecordName'=>QB::wrapString($name, "'"),
-                'RecordType'=>QB::wrapString($type, "'"),
-                'RecordDescription'=>QB::wrapString($description, "'")
-            ]);
-            
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process request, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }*/
-    }
-
-    public static function edit(int $resourceId, array $data)
-    {
-        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
-
-        try
-        {
-            $data['RecordName'] = QB::wrapString($data['RecordName'], "'");
-            $data['RecordDescription'] = QB::wrapString($data['RecordDescription'], "'");
-            $updateBuilder->table("Staffs.StaffProfiles");
-            $updateBuilder->set($data);
-            $updateBuilder->where("RecordID = $resourceId");
-
-            $result = (
-                    DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_INSERT,
+                    'Staffs',
+                    'Staff',
+                    (string)(serialize($result))
                 );
-
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process update, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }
-    }
-
-    /**
-     * Returns department group data
-     *
-     * @param int $resourceId optional
-     */
-    public static function view(int $resourceId = 0, array $data = [])
-    {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
-        try
-        {
-            if (empty($data)){
-                $selectBuilder->columns("*");
+                
+                
+                return $result;
             }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
+            catch (\PDOException $e)
+            {
+                self::delete((int)$id);
+                throw new SQLException(sprintf(
+                    "Unable to process request (staff profile not created), %s",
+                    $e->getMessage()
+                ), Constant::UNDEFINED);
             }
-            
-            $selectBuilder->from("Staffs.StaffProfiles");
-
-            if ($resourceId !== 0){
-                $selectBuilder->where("RecordID = $resourceId");
-            }
-
-            $result = (
-                    DBConnectionFactory::getConnection()
-                    ->query((string)$selectBuilder)
-                )->fetchAll(\PDO::FETCH_ASSOC);
-
-            return $result;
         }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to retrieve requested data, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }
+
+        throw new \Exception("Required data not set");
     }
 
     public static function delete(int $resourceId)
     {
-        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+        $query = "SELECT StaffUUID FROM Staffs.Staff WHERE StaffID = $resourceId";
+        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["StaffUUID"];
+        $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
+
+        if (is_dir(self::STAFF_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid)){
+            unlink(self::STAFF_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid);
+        }
 
         try
         {
             $deleteBuilder
-                ->from("Staffs.StaffProfiles")
-                ->where("RecordID = $resourceId");
+                ->from("Staffs.Staff")
+                ->where("StaffID = $resourceId");
             
             $result = (
-                    DBConnectionFactory::getConnection()
-                    ->exec((string)$deleteBuilder)
-                );
+                DBConnectionFactory::getConnection()
+                ->exec((string)$deleteBuilder)
+            );
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Staffs',
+                'Staff',
+                (string)$deleteBuilder
+            );
 
             return $result;
         }
@@ -186,5 +221,12 @@ class StaffProfile
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function viewAllStaffs(){
+        $query = "Staffs.GetStaffBasicProfile";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
     }
 }
