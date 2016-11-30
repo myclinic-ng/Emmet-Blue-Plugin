@@ -70,6 +70,28 @@ class PatientAdmission
         }
     }
 
+    public static function discharge(array $data){
+        $admissionId = $data["admissionId"] ?? null;
+        $dischargedBy = $data["dischargedBy"] ?? null;
+
+        $result = DBQueryFactory::insert('Consultancy.PatientDischargeInformation', [
+            'PatientAdmissionID'=>$admissionId,
+            'DischargedBy'=>$dischargedBy
+        ]);
+
+        DatabaseLog::log(
+            Session::get('USER_ID'),
+            Constant::EVENT_SELECT,
+            'Consultancy',
+            'PatientAdmission',
+            (string)serialize($result)
+        );
+
+        DBConnectionFactory::getConnection()->exec("UPDATE Consultancy.PatientAdmission SET DischargeStatus = -1 WHERE PatientAdmissionID = $admissionId");
+
+        return $result;
+    }
+
     /**
      * view allergies
      */
@@ -83,6 +105,53 @@ class PatientAdmission
             ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
             ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID')
             ->where('a.DischargeStatus = 0');
+
+        if ($resourceId != 0){
+            $selectBuilder->andWhere('a.Ward ='.$resourceId);
+        }
+
+        if (isset($data["admissionId"])){
+            $selectBuilder->andWhere('a.PatientAdmissionID = '.$data["admissionId"]);
+        }
+        
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'PatientAdmission',
+                (string)$selectBuilder
+            );
+
+            return $result;
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request: %s",
+                    $e->getMessage()
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function viewDischargedPatients(int $resourceId = 0, array $data = [])
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('a.*, b.*, c.WardSectionName, d.WardName')
+            ->from('Consultancy.PatientAdmission a')
+            ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
+            ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
+            ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID')
+            ->innerJoin('Consultancy.PatientDischargeInformation e', 'a.PatientAdmissionID = e.PatientAdmissionID')
+            ->where('a.DischargeStatus = -1');
 
         if ($resourceId != 0){
             $selectBuilder->andWhere('a.Ward ='.$resourceId);

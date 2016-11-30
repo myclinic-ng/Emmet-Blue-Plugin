@@ -42,6 +42,20 @@ class PatientAdmission
         return $result;
     }
 
+    public static function discharge(array $data)
+    {
+        $result = PatientAdmission\PatientAdmission::discharge($data);
+
+        return $result;
+    }
+
+    public static function viewDischargedPatients(int $resourceId=0, array $data = [])
+    {
+        $result = PatientAdmission\PatientAdmission::viewDischargedPatients($resourceId, $data);
+
+        return $result;
+    }
+
     public static function editPatientAdmission(int $resourceId=0, array $data)
     {
         $result = PatientAdmission\PatientAdmission::editPatientAdmission($resourceId, $data);

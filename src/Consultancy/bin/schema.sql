@@ -78,7 +78,7 @@ CREATE TABLE Consultancy.PatientAdmission (
 	Diagnosis INT,
 	AdmissionDate DATETIME NOT NULL DEFAULT GETDATE(),
 	ReceivedInWard BIT DEFAULT 0,
-	DischargeStatus BIT DEFAULT 0,
+	DischargeStatus INT DEFAULT 0,
 	FOREIGN KEY (Patient) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (Diagnosis) REFERENCES Patients.PatientDiagnosis (DiagnosisID) ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -92,6 +92,16 @@ CREATE TABLE Consultancy.ConsultationSheet (
 	Consultant INT,
 	DateTaken DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (PatientAdmissionID) REFERENCES Consultancy.PatientAdmission(PatientAdmissionID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID)
 )
+GO
+
+CREATE TABLE Consultancy.PatientDischargeInformation (
+	DischargeStatusID INT PRIMARY KEY IDENTITY,
+	PatientAdmissionID INT,
+	DischargedBy INT,
+	DischargeDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (PatientAdmissionID) REFERENCES Consultancy.PatientAdmission(PatientAdmissionID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (DischargedBy) REFERENCES [Staffs].[Staff] (StaffID)
+)	
 GO

@@ -40,7 +40,7 @@ GO
 
 CREATE TABLE Pharmacy.EligibleDispensory(
 	EligibleDispensoryID INT PRIMARY KEY IDENTITY NOT NULL,
-	EligibleDispensory VARCHAR(20) UNIQUE
+	EligibleDispensory VARCHAR(50) UNIQUE
 )
 GO
 

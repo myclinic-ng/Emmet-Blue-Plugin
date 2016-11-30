@@ -223,11 +223,11 @@ class StoreInventory
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID");
+            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID")->where("StoreID = $resourceId");
 
-            if ($resourceId !== 0){
-                $selectBuilder->where("StoreID = $resourceId");
-            }
+            // if ($resourceId !== 0){
+            //     $selectBuilder->where("StoreID = $resourceId");
+            // }
 
             $result = (
                 DBConnectionFactory::getConnection()

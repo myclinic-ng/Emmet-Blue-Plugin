@@ -59,8 +59,8 @@ class EligibleDispensory
 
         try
         {
-            if (isset($data['dispensoryName'])){
-                $data['dispensoryName'] = QB::wrapString($data['dispensoryName'], "'");
+            if (isset($data['EligibleDispensory'])){
+                $data['EligibleDispensory'] = QB::wrapString($data['EligibleDispensory'], "'");
             }
 
             $updateBuilder->table("Pharmacy.EligibleDispensory");

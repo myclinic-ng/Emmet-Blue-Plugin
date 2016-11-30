@@ -98,7 +98,7 @@ class PatientRepository
      * view patients UUID
      */
     public static function view(int $resourceId) {
-        $query = "SELECT * FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
+        $query = "SELECT * FROM Patients.PatientRepository WHERE RepositoryID = $resourceId ORDER BY RepositoryID DESC";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         if (isset($result[0])){
@@ -121,7 +121,7 @@ class PatientRepository
     }
 
     public static function viewByPatient(int $resourceId) {
-        $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId";
+        $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId ORDER BY RepositoryID DESC";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
