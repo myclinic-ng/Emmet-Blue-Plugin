@@ -68,6 +68,15 @@ class Staff
 
         return $result;
     }
+
+    public static function viewStaffsWithNoProfile(int $resourceId = 0)
+    {
+        $result = Staff\Staff::viewStaffsWithNoProfile($resourceId);
+
+        return $result;
+    }
+
+    
     /**
      * Deletes a staff
      */

@@ -169,6 +169,15 @@ class Staff
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function viewStaffsWithNoProfile(){
+        $query = "SELECT a.StaffID, a.StaffUsername FROM Staffs.StaffPassword a LEFT JOIN Staffs.StaffProfile b ON a.StaffID = b.StaffID WHERE B.StaffID IS NULL";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
