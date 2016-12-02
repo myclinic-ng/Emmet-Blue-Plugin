@@ -122,6 +122,13 @@ class Staff
         }
     }
 
+    public static function viewStaffProfile(int $id){
+        $query = "SELECT * FROM Staffs.StaffProfile WHERE StaffID = $id";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
      /* view staff profile */
     public static function viewStaffRootUrl(int $id)
     {

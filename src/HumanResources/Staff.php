@@ -76,6 +76,11 @@ class Staff
         return $result;
     }
 
+    public static function viewStaffProfile(int $id){
+        $result = Staff\Staff::viewStaffProfile($id);
+
+        return $result;
+    }
     
     /**
      * Deletes a staff
