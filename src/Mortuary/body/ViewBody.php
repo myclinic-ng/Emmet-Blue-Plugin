@@ -48,7 +48,7 @@ class ViewBody
 			$bodyBuilder->innerJoin('Mortuary.BodyStatus d', 'a.BodyStatus = d.StatusShortCode');
 		if ($bodyId != 0){
 
-			$bodyBuilder->where('BodyID ='.$bodyId);
+			$bodyBuilder->where('a.BodyID ='.$bodyId);
 		}
 		try
 		{
@@ -64,13 +64,16 @@ class ViewBody
 
 			foreach ($viewBodyOperation as $key => $value) {
 				$id = $value["BodyID"];
+				$patient = $value["PatientID"];
 				$tags = [];
 				$query = "SELECT * FROM Mortuary.BodyTag WHERE BodyID = $id";
 				$result = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+				$patientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient);
 				foreach ($result as $value){
 					$tags[] = $value["TagName"];
 				}
-				$viewBodyOperation[$key]["Tags"] = $tags;	
+				$viewBodyOperation[$key]["Tags"] = $tags;
+				$viewBodyOperation[$key]["PatientInfo"] = $patientInfo["_source"];	
 			}
 			
 			return $viewBodyOperation;	
@@ -79,7 +82,8 @@ class ViewBody
 		{
 			throw new SQLException(
 				sprintf(
-					"Error procesing request"
+					"Error procesing request %s",
+					$e->getMessage()
 				),
 				Constant::UNDEFINED
 			);

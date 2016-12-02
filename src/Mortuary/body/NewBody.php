@@ -31,8 +31,9 @@ class NewBody
 {
 	public static function default(array $data)
 	{
-		$physicianId = 3;//$data['physicianId'] ?? 'NULL';
+		$physicianId = null;//$data['physicianId'] ?? 'NULL';
 		$tags = $data['tag'] ?? 'NULL';
+		$patient = $data['patientId'] ?? null;
 		$dateOfDeath = $data['dateOfDeath'] ?? 'NULL';
 		$placeOfDeath = $data['placeOfDeath'] ?? 'NULL';
 		//body Info
@@ -57,7 +58,7 @@ class NewBody
 		$nextOfKinPhoneNumber = $data['nextOfKinPhoneNumber'] ?? 'NULL';
 
 		$packed = [
-			'DeathPhysicianID'=>$physicianId,
+			'PatientID'=>$patient,
 			'DateOfDeath'=>($dateOfDeath !== 'NULL') ? QB::wrapString($dateOfDeath, "'") : $dateOfDeath,
 			'PlaceOfDeath'=>($placeOfDeath !== 'NULL') ? QB::wrapString($placeOfDeath, "'") : $placeOfDeath,
 			'BodyStatus'=>QB::wrapString('RIP', "'")
