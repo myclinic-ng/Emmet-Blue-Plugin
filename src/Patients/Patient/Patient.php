@@ -331,6 +331,19 @@ class Patient
         }
     }
 
+    public static function viewByPatientType(int $resourceId){
+        $query = "SELECT * FROM Patients.Patient WHERE PatientType = $resourceId";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key=>$value){
+            $id = $value["PatientID"];
+
+            $result[$key] = self::view((int) $id)["_source"];
+        }
+
+        return $result;
+    }
+
     public static function search(array $data)
     {
         if ($data["query"] == ""){

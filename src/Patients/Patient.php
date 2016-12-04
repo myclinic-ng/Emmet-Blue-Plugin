@@ -50,6 +50,13 @@ class Patient
         return $result;
     }
 
+    public static function viewByPatientType(int $resourceId=0)
+    {
+        $result = Patient\Patient::viewByPatientType($resourceId);
+
+        return $result;
+    }
+
     public static function viewHospitalHistory(int $patientId)
     {
         $result = Patient\HospitalHistory::view($patientId);

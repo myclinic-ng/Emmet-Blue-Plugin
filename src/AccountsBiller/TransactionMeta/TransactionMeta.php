@@ -53,7 +53,6 @@ class TransactionMeta
             $result = DBQueryFactory::insert('Accounts.BillingTransactionMeta', [
                 'BillingTransactionNumber'=>QB::wrapString($transactionNumber, "'"),
                 'PatientID'=>$patient,
-                'BillingType'=>QB::wrapString((string)$type, "'"),
                 'CreatedByUUID'=>(is_null($createdBy)) ? "NULL" : QB::wrapString($createdBy, "'"),
                 'DateCreated'=>'GETDATE()',
                 'BilledAmountTotal'=>(is_null($amount)) ? "NULL" : QB::wrapString((string)$amount, "'"),

@@ -7,13 +7,6 @@ CREATE TABLE Accounts.BillingType (
 	BillingTypeDescription VARCHAR (100)
 );
 
--- DEPRECATED
-CREATE TABLE Accounts.BillingTypeCustomerCategories (
-	CustomerCategoryID INT PRIMARY KEY IDENTITY,
-	CustomerCategoryName VARCHAR(100) UNIQUE NOT NULL,
-	CustomerCategoryDescription VARCHAR(250)
-)
--- /DEPRECATED
 
 CREATE TABLE Accounts.BillingTransactionStatuses (
 	StatusID INT PRIMARY KEY IDENTITY,
@@ -26,17 +19,6 @@ CREATE TABLE Accounts.BillingPaymentMethods (
 	PaymentMethodName VARCHAR(20) UNIQUE NOT NULL,
 	PaymentMethodDescription VARCHAR(250)
 )
-
--- DEPRECATED
-CREATE TABLE Accounts.BillingCustomerInfo (
-	CustomerContactID INT PRIMARY KEY IDENTITY,
-	CustomerCategoryID INT,
-	CustomerContactName VARCHAR(100),
-	CustomerContactPhone VARCHAR(20),
-	CustomerContactAddress VARCHAR(500),
-	FOREIGN KEY (CustomerCategoryID) REFERENCES [Accounts].[BillingTypeCustomerCategories] (CustomerCategoryID) ON UPDATE CASCADE ON DELETE SET NULL
-)
--- /DEPRECATED
 
 CREATE TABLE Accounts.BillingTypeItems (
 	BillingTypeItemID INT PRIMARY KEY IDENTITY(1000, 1),
@@ -154,27 +136,40 @@ CREATE TABLE Accounts.BillPaymentRules (
 	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
 	CHECK(RuleType = '*' OR RuleType = '+' OR RuleType = '-' OR RuleType = '%')
 )
-GO
 
-CREATE TRIGGER Accounts.PreventBillingTypeItemsDuplicates
- ON Accounts.BillingTypeItems
- INSTEAD OF INSERT
-AS
-BEGIN
-  SET NOCOUNT ON;
+CREATE TABLE Accounts.DepartmentPatientTypesReportLink (
+	LinkID INT IDENTITY,
+	DepartmentID INT,
+	PatientTypeID INT,
+	FOREIGN KEY (DepartmentID) REFERENCES Staffs.Department (DepartmentID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (PatientTypeID) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	PRIMARY KEY (LinkID, DepartmentID, PatientTypeID) 
+)
 
-  IF NOT EXISTS (SELECT 1 FROM inserted AS i 
-    INNER JOIN Accounts.BillingTypeItems AS t
-    ON i.BillingType = t.BillingType
-    AND i.BillingTypeItemName = t.BillingTypeItemName
-  )
-  BEGIN
-    INSERT Accounts.BillingTypeItems(BillingType, BillingTypeItemName)
-      SELECT BillingType, BillingTypeItemName FROM inserted;
-  END
-  ELSE
-  BEGIN
-    RAISERROR('Error: Duplicate items are not allowed', 16, 1);
-  END
-END
+CREATE TABLE Accounts.PatientCategoriesHmoFieldTitles (
+	FieldTitleID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientCategory INT,
+	FieldTitleName VARCHAR(50) UNIQUE,
+	FieldTitleType VARCHAR(50),
+	FieldTitleDescription VARCHAR(50),
+	FOREIGN KEY (FieldTitleType) REFERENCES Patients.FieldTitleType(TypeName) ON UPDATE CASCADE ON DELETE NO ACTION,
+	FOREIGN KEY (PatientCategory) REFERENCES Patients.PatientTypeCategories(CategoryID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Accounts.PatientHmoProfile (
+	ProfileID INT PRIMARY KEY IDENTITY(1000, 1),
+	PatientID INT UNIQUE,
+	PatientIdentificationDocument VARCHAR(500),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID)
+)
+
+CREATE TABLE Accounts.PatientHmoFieldValues (
+	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
+	ProfileID INT,
+	FieldTitle VARCHAR(50),
+	FieldValue VARCHAR(max),
+	LastModified DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (ProfileID) REFERENCES Accounts.PatientHmoProfile(ProfileID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (FieldTitle) REFERENCES Accounts.PatientCategoriesHmoFieldTitles(FieldTitleName) ON UPDATE CASCADE
+)
 GO
