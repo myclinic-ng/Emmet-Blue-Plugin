@@ -42,8 +42,12 @@ class StoreInventory
         $itemName = $data['item'] ?? null;
         $itemBrand = $data['brand'] ?? null;
         $itemManufacturer = $data['manufacturer'] ?? null;
-        $itemQuantity = $data['quantity'] ?? null;
+        $itemQuantity = $data['quantity'] ?? 0;
 
+        if ($itemQuantity == ""){
+            $itemQuantity = 0;
+        }
+        
         try
         {
             $result = DBQueryFactory::insert('Pharmacy.StoreInventory', [

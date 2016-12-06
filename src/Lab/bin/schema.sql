@@ -52,7 +52,7 @@ CREATE TABLE Lab.Patients (
 	InvestigationRequired VARCHAR(100),
 	RegistrationDate DateTime DEFAULT GETDATE(),
 	FOREIGN KEY (InvestigationTypeRequired) REFERENCES Lab.InvestigationTypes (InvestigationTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL
 )
 
 CREATE TABLE Lab.LabRequests (
@@ -68,7 +68,7 @@ CREATE TABLE Lab.LabRequests (
 	RequestDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (InvestigationType) REFERENCES Lab.InvestigationTypes (InvestigationTypeID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION,
+	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 
 CREATE TABLE Lab.LabResults (

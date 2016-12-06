@@ -38,6 +38,54 @@ CREATE TABLE Pharmacy.StoreInventoryTags(
 )
 GO
 
+CREATE TABLE Pharmacy.StoreRestockHistory (
+	HistoryID INT PRIMARY KEY IDENTITY,
+	ItemID INT,
+	QuantityBefore INT,
+	QuantityAdded INT,
+	Comment VARCHAR(500),
+	StaffID INT,
+	RestockDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (ItemID) REFERENCES Pharmacy.StoreInventory(ItemID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffID) on UPDATE CASCADE ON DELETE SET NULL
+)
+GO
+
+CREATE TABLE Pharmacy.StoreRestockHistoryTags (
+	TagID INT PRIMARY KEY IDENTITY NOT NULL,
+	HistoryID INT,
+	TagTitle VARCHAR(50),
+	TagName VARCHAR(100),
+	FOREIGN KEY (HistoryID) REFERENCES Pharmacy.StoreRestockHistory(HistoryID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Pharmacy.GlobalRestockLog (
+	LogID INT PRIMARY KEY IDENTITY,
+	StoreID INT,
+	ItemQuantity INT,
+	Comment VARCHAR(500),
+	StaffID INT,
+	RestockDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffID) on UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Pharmacy.StoreTransferLog (
+	LogID INT PRIMARY KEY IDENTITY,
+	TransferringStore INT,
+	RecipientStore INT,
+	ItemID INT,
+	ItemQuantity INT,
+	StaffID INT,
+	TransferDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffID) on UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (TransferringStore) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (ItemID) REFERENCES Pharmacy.StoreInventory(ItemID)
+)
+GO
+
 CREATE TABLE Pharmacy.EligibleDispensory(
 	EligibleDispensoryID INT PRIMARY KEY IDENTITY NOT NULL,
 	EligibleDispensory VARCHAR(50) UNIQUE
@@ -54,12 +102,6 @@ CREATE TABLE Pharmacy.DispensoryStoreLink(
 )
 GO
 
--- CREATE TABLE Pharmacy.Dispensee(
--- 	DispenseeID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	DispenseeType VARCHAR(20),
--- 	DispenseeTypeID INT
--- )
--- GO
 
 CREATE TABLE Pharmacy.Dispensation(
 	DispensationID INT PRIMARY KEY IDENTITY NOT NULL,
@@ -81,5 +123,19 @@ CREATE TABLE Pharmacy.DispensedItems(
 	ItemID INT,
 	DispensedQuantity INT,
 	FOREIGN KEY (DispensationID) REFERENCES Pharmacy.Dispensation(DispensationID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Pharmacy.PrescriptionRequests (
+	RequestID INT PRIMARY KEY IDENTITY(1000, 1),
+	PatientID INT NOT NULL,
+	Request VARCHAR(MAX),
+	RequestedBy INT,
+	RequestDate DATETIME DEFAULT GETDATE(),
+	Acknowledged INT,
+	AcknowledgedBy INT,
+	Status VARCHAR(10),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO
