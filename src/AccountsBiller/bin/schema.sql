@@ -173,3 +173,22 @@ CREATE TABLE Accounts.PatientHmoFieldValues (
 	FOREIGN KEY (FieldTitle) REFERENCES Accounts.PatientCategoriesHmoFieldTitles(FieldTitleName) ON UPDATE CASCADE
 )
 GO
+
+CREATE TABLE Accounts.HmoSalesVerification (
+	SalesID INT PRIMARY KEY IDENTITY(1000, 1) NOT NULL,
+	DepartmentID INT,
+	PatientID INT,
+	SaleRequest VARCHAR(MAX),
+	StaffID INT,
+	RequestDate DATETIME DEFAULT GETDATE(),
+	ProceedStatus INT,
+	SignedBy INT,
+	SignComment VARCHAR(400),
+	SignedDate DATETIME,
+	Status VARCHAR(10),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID),
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID),
+	FOREIGN KEY (SignedBy) REFERENCES [Staffs].[Staff] (StaffID),
+	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] (DepartmentID)
+)
+GO
