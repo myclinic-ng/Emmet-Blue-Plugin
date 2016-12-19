@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\FinancialAccounts\AccountTypeCategory;
+namespace EmmetBlue\Plugins\FinancialAccounts\AccountingPeriod;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -19,31 +19,43 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class AccountTypeCategory.
+ * class AccountingPeriodBeginningBalance.
  *
- * AccountTypeCategory Controller
+ * AccountingPeriodBeginningBalance Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class AccountTypeCategory {
+class AccountingPeriodBeginningBalance {
 
 	public static function create(array $data)
 	{
-    	$name = $data["name"];
-		$description = $data['description'] ?? null;
+        $periodId = $data["period"];
+        $balances = $data["balances"];
+
+        $values = [];
+
+        foreach ($balances as $typeId=>$value){
+           $balance = $value["balance"];
+
+           $values[] = "($periodId, $typeId, '$balance')";
+        }
+
+        $query = "INSERT INTO FinancialAccounts.AccountingPeriodBeginningBalances (AccountingPeriodID, AccountID, BalanceValue) VALUES ".implode(", ", $values);
 
 		try {
-			 $result = DBQueryFactory::insert('FinancialAccounts.AccountTypeCategories', [
-                'CategoryName'=>QB::wrapString($name, "'"),
-                'CategoryDescription'=>QB::wrapString($description, "'")
-            ]);
+            // die($query);
+			$result = DBConnectionFactory::getConnection()->exec($query);
+
+            if($result){
+                \EmmetBlue\Plugins\FinancialAccounts\AccountingPeriod\AccountingPeriodAlias::edit((int) $periodId, ["PeriodEditable"=>0]);
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'FinancialAccounts',
-                'AccountTypeCategories',
+                'AccountingPeriodBeginningBalances',
                 (string)serialize($result)
             );
 
@@ -52,22 +64,20 @@ class AccountTypeCategory {
 		catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (category not created), %s",
+                "Unable to process request (balance not saved), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
 	}
 
 
-	public static function view(int $resourceId = 0)
+	public static function view(int $resourceId)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('FinancialAccounts.AccountTypeCategories');
-        if ($resourceId != 0){
-            $selectBuilder->where('CategoryID ='.$resourceId);
-        }
+            ->from('FinancialAccounts.AccountingPeriodBeginningBalances')
+            ->where('AccountingPeriodID ='.$resourceId);
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -76,7 +86,7 @@ class AccountTypeCategory {
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'FinancialAccounts',
-                'AccountTypeCategories',
+                'AccountingPeriodBeginningBalances',
                 (string)$selectBuilder
             );
 
@@ -86,23 +96,13 @@ class AccountTypeCategory {
         {
             throw new SQLException(
                 sprintf(
-                    "Error procesing request"
+                    "Error procesing request: %s",
+                    $e->getMessage()
                 ),
                 Constant::UNDEFINED
             );
             
-        }
-    }
-
-    public static function viewWithTypes()
-    {
-        $categories = self::view();
-
-        foreach ($categories as $key=>$category) {
-            $categories[$key]["types"] = \EmmetBlue\Plugins\FinancialAccounts\AccountType::viewAccountType((int) $category["CategoryID"]);
-        }
-        
-        return $categories;
+            }
     }
 
     public static function edit(int $resourceId, array $data)
@@ -111,17 +111,13 @@ class AccountTypeCategory {
 
         try
         {
-            if (isset($data["CategoryDescription"])){
-                $data["CategoryDescription"] = QB::wrapString($data["CategoryDescription"], "'");
+            if (isset($data["BalanceValue"])){
+                $data["BalanceValue"] = QB::wrapString($data["BalanceValue"], "'");
             }
 
-            if (isset($data["CategoryName"])){
-                $data["CategoryName"] = QB::wrapString($data["CategoryName"], "'");
-            }
-
-            $updateBuilder->table("FinancialAccounts.AccountTypeCategories");
+            $updateBuilder->table("FinancialAccounts.AccountingPeriodBeginningBalances");
             $updateBuilder->set($data);
-            $updateBuilder->where("CategoryID = $resourceId");
+            $updateBuilder->where("BeginningBalanceID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -132,7 +128,7 @@ class AccountTypeCategory {
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'FinancialAccounts',
-                'AccountTypeCategories',
+                'AccountingPeriodBeginningBalances',
                 (string)(serialize($result))
             );
 

@@ -91,7 +91,7 @@ CREATE TABLE Consultancy.ConsultationSheet (
 	Note VARCHAR(MAX),
 	Consultant INT,
 	DateTaken DATETIME DEFAULT GETDATE(),
-	FOREIGN KEY (PatientAdmissionID) REFERENCES Consultancy.PatientAdmission(PatientAdmissionID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (PatientAdmissionID) REFERENCES Nursing.WardAdmission (WardAdmissionID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (Consultant) REFERENCES [Staffs].[Staff] (StaffID)
 )
 GO

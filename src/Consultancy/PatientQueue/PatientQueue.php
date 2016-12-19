@@ -85,6 +85,10 @@ class PatientQueue
                 (string)$selectBuilder
             );
 
+            foreach ($viewOperation as $key=>$value){
+                $viewOperation[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"];
+            }
+
             return $viewOperation;     
         } 
         catch (\PDOException $e) 

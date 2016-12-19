@@ -51,6 +51,7 @@ class Observation
             $repoData = [
                 "patient"=>$patientId,
                 "name"=>$observationTypeName. " (Nursing observation, ".$date.")",
+                "type"=>"observation",
                 "creator"=>$staffId
             ];
             $repoId = \EmmetBlue\Plugins\Patients\PatientRepository\PatientRepository::create($repoData)["lastInsertId"];

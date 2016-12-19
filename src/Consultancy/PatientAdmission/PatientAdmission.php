@@ -118,6 +118,23 @@ class PatientAdmission
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
+            foreach ($result as $key=>$value){
+                $admissionId = $value["PatientAdmissionID"];
+
+                $wardDetailsString = "SELECT * FROM Nursing.WardAdmission WHERE PatientAdmissionID = $admissionId";
+                $WardDetails = DBConnectionFactory::getConnection()->query($wardDetailsString)->fetchAll(\PDO::FETCH_ASSOC);
+                if (isset($WardDetails[0])){
+                    $result[$key]["WardDetails"] = $WardDetails[0];
+                }
+                else {
+                    $result[$key]["WardDetails"] = [
+                        "WardAdmissionID"=>null,
+                        "Bed"=>null,
+                        "AdmissionProcessedBy"=>null
+                    ];
+                }
+            }
+
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,

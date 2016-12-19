@@ -34,6 +34,16 @@ CREATE TABLE Nursing.ObservationTypeFieldDefaults (
 )
 GO
 
+CREATE TABLE Nursing.ObservationTypeFieldDirtyValues (
+	FieldDirtyValueID INT PRIMARY KEY IDENTITY,
+	Field INT,
+	Condition CHAR(3) NOT NULL,
+	Value VARCHAR(50),
+	FOREIGN KEY (Field) REFERENCES Nursing.ObservationTypeFields (FieldID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CHECK (Condition IN ('>', '<', '='))
+)
+GO
+
 CREATE TABLE Nursing.Observations (
 	ObservationID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,

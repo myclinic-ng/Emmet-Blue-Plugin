@@ -26,6 +26,10 @@ class AccountTypeCategory {
 		return AccountTypeCategory\AccountTypeCategory::view($data);
 	}
 
+	public static function viewWithTypes(int $data = 0){
+		return AccountTypeCategory\AccountTypeCategory::viewWithTypes($data);
+	}
+
 	public static function editAccountTypeCategory(int $resourceId, array $data){
 		return AccountTypeCategory\AccountTypeCategory::edit($resourceId, $data);
 	}

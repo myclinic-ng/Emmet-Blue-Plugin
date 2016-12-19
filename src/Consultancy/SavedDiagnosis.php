@@ -52,10 +52,7 @@ class SavedDiagnosis
         return $result;
    }
 
-   public static function deleteSavedDiagnosis(array $data){
-        $patient = $data["patient"];
-        $consultant = $data["consultant"];
-
-        DBConnectionFactory::getConnection()->exec("DELETE FROM Consultancy.SavedDiagnosis WHERE Consultant = $consultant AND Patient = $patient");
+   public static function deleteSavedDiagnosis(int $diagnosisId){
+      return DBConnectionFactory::getConnection()->exec("DELETE FROM Consultancy.SavedDiagnosis WHERE SavedDiagnosisID = $diagnosisId");
    }
 }
