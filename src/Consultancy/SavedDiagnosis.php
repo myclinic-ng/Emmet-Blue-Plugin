@@ -52,6 +52,14 @@ class SavedDiagnosis
         return $result;
    }
 
+   public static function viewPatients(int $consultant){
+        $query = "select a.SavedDiagnosisID, b.* from Consultancy.SavedDiagnosis a INNER JOIN Patients.Patient b ON a.Patient = b.PatientID WHERE a.Consultant = $consultant";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+   }
+
    public static function deleteSavedDiagnosis(int $diagnosisId){
       return DBConnectionFactory::getConnection()->exec("DELETE FROM Consultancy.SavedDiagnosis WHERE SavedDiagnosisID = $diagnosisId");
    }

@@ -112,9 +112,8 @@ class AllergyTrigger
         $selectBuilder
             ->columns('a.*, b.AllergyName')
             ->from('Consultancy.AllergyTriggers a')
-            ->innerJoin('Consultancy.Allergies b', "a.TriggerID = b.AllergyID")
-            ->where('Allergy ='.$resourceId);
-
+            ->innerJoin('Consultancy.Allergies b', "a.Allergy = b.AllergyID")
+            ->where('a.Allergy ='.$resourceId);
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);

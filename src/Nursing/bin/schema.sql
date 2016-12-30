@@ -145,37 +145,26 @@ CREATE TABLE Nursing.AdmissionBillingItems (
 )
 GO
 
--- CREATE TABLE Nursing.ObservationFieldValue (
--- 	FieldValueID INT PRIMARY KEY IDENTITY NOT NULL,
--- 	ObservationID INT,
--- 	Field VARCHAR(50),
--- 	FieldValue VARCHAR(max),
--- 	FOREIGN KEY (Field) REFERENCES Nursing.ObservationField(FieldName) ON UPDATE CASCADE ON DELETE NO ACTION,
--- 	FOREIGN KEY (ObservationID) REFERENCES Nursing.Observation(ObservationID) ON UPDATE CASCADE ON DELETE CASCADE
--- )
--- GO
--- CREATE TABLE Nursing.BedAssignment(
--- 	BedAssignmentID INT PRIMARY KEY IDENTITY NOT NUll,
--- 	BedName VARCHAR(50),
--- 	AssignmentLeased BIT,
--- 	AssignmentDate DATE NOT NULL DEFAULT GETDATE(),
--- 	FOREIGN KEY (BedName) REFERENCES Nursing.SectionBed(BedName) ON UPDATE CASCADE ON DELETE CASCADE
--- )
--- GO
+CREATE TABLE Nursing.PharmacyRequests (
+	PharmacyRequestID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	Request VARCHAR(500) NOT NULL,
+	RequestDate DATETIME NOT NULL DEFAULT GETDATE(),
+	Staff INT,
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID),
+	FOREIGN KEY (Staff) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
 
--- CREATE TABLE Nursing.ServicesRendered(
--- 	ServicesRenderedID INT PRIMARY KEY IDENTITY,
--- 	PatientID INT,
--- 	ServicesRenderedDate DATETIME NOT NULL,
--- 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL
--- )
--- GO
-
--- CREATE TABLE Nursing.ServicesRenderedItems (
--- 	ServicesRenderedItemID INT PRIMARY KEY IDENTITY,
--- 	ServicesRenderedID INT,
--- 	ServicesRenderedItem INT,
--- 	FOREIGN KEY (ServicesRenderedItem) REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
--- 	FOREIGN KEY (ServicesRenderedID) REFERENCES Nursing.ServicesRendered (ServicesRenderedID) ON UPDATE CASCADE ON DELETE CASCADE
--- )
--- GO
+CREATE TABLE Nursing.PharmacyRequestsTreatmentCharts (
+	TreatmentChartID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT NOT NULL,
+	Drug VARCHAR(100),
+	Dose VARCHAR(50),
+	Route VARCHAR(50),
+	Time VARCHAR(10),
+	Note VARCHAR(500),
+	Nurse INT,
+	Date DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID),
+	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)

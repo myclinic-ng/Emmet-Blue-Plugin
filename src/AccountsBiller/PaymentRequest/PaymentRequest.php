@@ -129,75 +129,61 @@ class PaymentRequest
      *
      * @param int $resourceId optional
      */
-    public static function view(int $resourceId = 0, array $data = [])
+    public static function viewUnprocessed(int $resourceId = 0, array $data = [])
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
+        $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID WHERE a.RequestFulfillmentStatus NOT IN (1)";
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("*");
-            }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
+            $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Accounts',
+                'PaymentRequest',
+                (string)$query
+            );
             
-            $selectBuilder->from("Accounts.BillingPaymentRequest a");
-
-            if ($resourceId !== 0){
-                $selectBuilder->where("BillingPaymentRequestID = $resourceId");
-            }
-
-
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->query((string)$selectBuilder)
-            )->fetchAll(\PDO::FETCH_ASSOC);
-
-           if (empty($data)){
-                foreach ($result as $key=>$metaItem)
-                {
-                    $id = $metaItem["BillingPaymentRequestID"];
-                    $patient = $metaItem["PatientID"];
-                    $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingPaymentRequestID = $id";
-                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient";
-
-                    $queryResult = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $queryResult2 = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query2)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $name = "";
-                    foreach ($queryResult2 as $value){
-                        if ($value["FieldTitle"] == 'Title'){
-                            $name .= $value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'FirstName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'LastName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                    }
-
-                    $result[$key]["BillingTransactionItems"] = $queryResult;
-                    $result[$key]["PatientName"] = $name;
-                }
-           }
-
-            return $result;
-        }
-        catch (\PDOException $e)
+            return $viewPaymentRequestOperation;  
+        } 
+        catch (\PDOException $e) 
         {
-            throw new SQLException(sprintf(
-                "Unable to retrieve requested data, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function viewProcessed(int $resourceId = 0, array $data = [])
+    {
+        $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID WHERE a.RequestFulfillmentStatus NOT IN (0, -1)";
+        try
+        {
+            $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Accounts',
+                'PaymentRequest',
+                (string)$query
+            );
+            
+            return $viewPaymentRequestOperation;  
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
         }
     }
 
@@ -221,7 +207,7 @@ class PaymentRequest
 
     /*loading all request for Account Department*/
     public static function loadAllRequests(){
-       $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
+        $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
