@@ -229,4 +229,12 @@ class StaffProfile
 
         return $result;
     }
+
+    public static function viewStaffFullName(int $id){
+        $query = "SELECT StaffID, StaffFullName FROM Staffs.StaffProfile WHERE StaffID = $id";
+
+        $result = DBConnectionFactory::getConnection()->query($query);
+
+        return $result->fetchAll(\PDO::FETCH_ASSOC)[0];
+    }
 }

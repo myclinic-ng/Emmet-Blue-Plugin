@@ -206,10 +206,32 @@ class PaymentRequest
     }
 
     /*loading all request for Account Department*/
-    public static function loadAllRequests(){
+    public static function loadAllRequests($data){
         $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
+
+        switch($data["filtertype"]){
+            case "patient":{
+                $query .= " WHERE c.PatientUUID = '".$data["query"]."'";
+                break;
+            }
+            case "date":{
+                $sDate = QB::wrapString($data["startdate"], "'");
+                $eDate = QB::wrapString($data["enddate"], "'");
+                $query .= " WHERE CONVERT(date, a.RequestDate) BETWEEN $sDate AND $eDate";
+                break;
+            }
+            case "department":{
+                $query .= " WHERE a.RequestDepartment = ".$data["query"];
+                break;
+            }
+            case "status":{
+                $query .= " WHERE a.RequestFulfillmentStatus = ".$data["query"];
+                break;
+            }
+        }
         try
         {
+            // die($query);
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
 
             DatabaseLog::log(

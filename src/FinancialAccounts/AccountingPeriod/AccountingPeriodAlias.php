@@ -171,7 +171,7 @@ class AccountingPeriodAlias {
             
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$deleteBuilder)
+                    ->exec((string)$deleteBuilder)
                 );
 
             return $result;

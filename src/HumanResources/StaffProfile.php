@@ -60,4 +60,10 @@ class StaffProfile
 
         return $result;
     }
+
+    public static function viewStaffFullName(int $id){
+        $result = StaffProfile\StaffProfile::viewStaffFullName($id);
+
+        return $result;
+    }
 }

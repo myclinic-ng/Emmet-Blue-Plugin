@@ -46,3 +46,28 @@ CREATE TABLE FinancialAccounts.AccountingPeriodBeginningBalances (
 	FOREIGN KEY (AccountingPeriodID) REFERENCES FinancialAccounts.AccountingPeriods (PeriodID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (AccountID) REFERENCES FinancialAccounts.Accounts (AccountID) ON UPDATE CASCADE
 )
+
+CREATE TABLE FinancialAccounts.GeneralJournal (
+	GeneralJournalID INT PRIMARY KEY IDENTITY(1000, 1),
+	GeneralJournalDate DATE NOT NULL DEFAULT GETDATE(),
+	GeneralJournalTotalAmount MONEY NOT NULL,
+	GeneralJournalDescription VARCHAR(100),
+	StaffID INT,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff (StaffID) ON UPDATE CASCADE
+)
+
+CREATE TABLE FinancialAccounts.GeneralJournalEntries (
+	EntryID INT PRIMARY KEY IDENTITY,
+	GeneralJournalID INT,
+	EntryDescription VARCHAR(100),
+	AccountID INT NOT NULL,
+	EntryType CHAR(6) NOT NULL,
+	EntryValue MONEY NOT NULL,
+	DateModified DATETIME,
+	FOREIGN KEY (AccountID) REFERENCES FinancialAccounts.Accounts (AccountID) ON UPDATE CASCADE,
+	FOREIGN KEY (GeneralJournalID) REFERENCES FinancialAccounts.GeneralJournal (GeneralJournalID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CHECK (EntryType IN ('credit', 'debit'))
+)
+GO
