@@ -120,6 +120,22 @@ class PatientRepository
         return $result;
     }
 
+    public static function viewMostRecentJsonByPatient(int $patient) {
+        $query = "BEGIN
+                    DECLARE @repo AS INT
+                    SELECT @repo = RepositoryID FROM Patients.PatientRepository WHERE PatientID = $patient ORDER BY RepositoryCreationDate ASC
+                    SELECT * FROM Patients.PatientRepositoryItems WHERE RepositoryID = @repo AND RepositoryItemCategory = 'json'
+                END";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
+
+        $result['ReposityDetails'] = self::view((int)$result['RepositoryID']);
+
+        $result['RepositoryItemContent'] = unserialize(file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
+
+        return $result;
+    }
+
     public static function viewByPatient(int $resourceId) {
         $query = "SELECT * FROM Patients.PatientRepository WHERE PatientID = $resourceId ORDER BY RepositoryID DESC";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);

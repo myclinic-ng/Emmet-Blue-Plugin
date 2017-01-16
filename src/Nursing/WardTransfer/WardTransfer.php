@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\PharmacyRequestTreatmentChart;
+namespace EmmetBlue\Plugins\Nursing\WardTransfer;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -18,47 +18,55 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 /**
- * class PharmacyRequestTreatmentChart.
+ * class WardTransfer.
  *
- * PharmacyRequestTreatmentChart Controller
+ * WardTransfer Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 19/08/2016 13:35
  */
-class PharmacyRequestTreatmentChart
+class WardTransfer
 {
     /**
-     * creates new PharmacyRequestTreatmentChart
+     * creates new WardTransfer
      *
      * @param array $data
      */
     public static function create(array $data)
     {
-        $patientId = $data['admissionId'] ?? 'NULL';
-        $drug = $data['drug'] ?? null;
-        $nurse = $data["nurse"] ?? 'NULL';
-        $dose = $data["dose"] ?? null;
-        $route = $data["route"] ?? null;
-        $note = $data["note"] ?? null;
-        $time = date("H:i:s");
+        
+        $admissionId = $data['admissionId'] ?? 'NULL';
+        $wardFrom = $data['wardFrom'] ?? 'NULL';
+        $wardTo = $data['wardTo'] ?? 'NULL';
+        $sectionTo = $data['sectionTo'] ?? 'NULL';
+        $bedTo = $data['bedTo'] ?? 'NULL';
+        $transferBy = $data["transferBy"] ?? 'NULL';
+        $transferNote = $data["transferNote"] ?? NULL;
 
         try
         {
-            $result = DBQueryFactory::insert('Nursing.PharmacyRequestsTreatmentCharts', [
-                'PatientID'=>$patientId,
-                'Drug'=>QB::wrapString($drug, "'"),
-                'Nurse'=>$nurse,
-                'Dose'=>QB::wrapString($dose, "'"),
-                'Route'=>QB::wrapString($route, "'"),
-                'Note'=>QB::wrapString((string)$note, "'"),
-                'Time'=>QB::wrapString($time, "'")
+
+            DBConnectionFactory::getConnection()->exec(
+                "UPDATE Consultancy.PatientAdmission SET Ward = $wardTo, Section = $sectionTo WHERE PatientAdmissionID = $admissionId"
+            );
+
+            DBConnectionFactory::getConnection()->exec(
+                "UPDATE Nursing.WardAdmission SET Bed = $bedTo WHERE PatientAdmissionID = $admissionId"
+            );
+
+            $result = DBQueryFactory::insert('Nursing.WardTransferLog', [
+                'PatientAdmissionID'=>$admissionId,
+                'WardFrom'=>$wardFrom,
+                'WardTo'=>$wardTo,
+                'TransferNote'=>QB::wrapString($transferNote, "'"),
+                'TransferredBy'=>$transferBy
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'Nursing',
-                'PharmacyRequestsTreatmentChart',
+                'WardTransferLog',
                 (string)serialize($result)
             );
 
@@ -67,7 +75,7 @@ class PharmacyRequestTreatmentChart
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (chart not saved), %s",
+                "Unable to process request (patient not transferred), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
@@ -80,23 +88,24 @@ class PharmacyRequestTreatmentChart
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('*')
-            ->from('Nursing.PharmacyRequestsTreatmentCharts')
-            ->where('PatientID = '.$resourceId);
-
+            ->columns('a.*, b.WardName as WardToName')
+            ->from('Nursing.WardTransferLog a')
+            ->innerJoin('Nursing.Ward b', 'a.WardTo = b.WardID')
+            ->where("a.PatientAdmissionID = $resourceId");
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-            
-            foreach ($result as $i=>$j){
-                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"])["StaffFullName"];
+
+            foreach($result as $key=>$value){
+                $id = $value["TransferredBy"];
+                $result[$key]["TransferredByName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $id)["StaffFullName"];
             }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Nursing',
-                'PharmacyRequestsTreatmentChart',
+                'WardTransferLOG',
                 (string)$selectBuilder
             );
 
@@ -114,10 +123,4 @@ class PharmacyRequestTreatmentChart
             
         }
     }
-
-    
-    public static function editPharmacyRequestTreatmentChart(int $resourceId, array $data)
-    {
-
-    }    
 }

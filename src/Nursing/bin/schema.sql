@@ -168,3 +168,29 @@ CREATE TABLE Nursing.PharmacyRequestsTreatmentCharts (
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID),
 	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
 )
+
+CREATE TABLE Nursing.WardTransferLog (
+	TransferLogID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientAdmissionID INT,
+	WardFrom INT,
+	WardTo INT,
+	TransferNote VARCHAR(1000),
+	TransferredBy INT,
+	TransferDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (TransferredBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
+	FOREIGN KEY (WardTo) REFERENCES Nursing.Ward(WardID) ON UPDATE CASCADE
+)
+
+CREATE TABLE Nursing.ShiftSummary (
+	SummaryID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientAdmissionID INT,
+	Nurse INT NOT NULL,
+	Ward INT NOT NULL,
+	SummaryTitle VARCHAR(50),
+	Summary VARCHAR(1000),
+	SummaryDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (Ward) REFERENCES Nursing.Ward(WardID) ON UPDATE CASCADE,
+	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
+	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE
+)

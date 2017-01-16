@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\PharmacyRequestTreatmentChart;
+namespace EmmetBlue\Plugins\Nursing\ShiftSummary;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -18,47 +18,44 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 /**
- * class PharmacyRequestTreatmentChart.
+ * class ShiftSummary.
  *
- * PharmacyRequestTreatmentChart Controller
+ * ShiftSummary Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 19/08/2016 13:35
  */
-class PharmacyRequestTreatmentChart
+class ShiftSummary
 {
     /**
-     * creates new PharmacyRequestTreatmentChart
+     * creates new ShiftSummary
      *
      * @param array $data
      */
     public static function create(array $data)
     {
-        $patientId = $data['admissionId'] ?? 'NULL';
-        $drug = $data['drug'] ?? null;
+        
+        $admissionId = $data['admissionId'] ?? 'NULL';
+        $ward = $data['ward'] ?? 'NULL';
+        $title = $data['title'] ?? 'NULL';
+        $summary = $data['summary'] ?? 'NULL';
         $nurse = $data["nurse"] ?? 'NULL';
-        $dose = $data["dose"] ?? null;
-        $route = $data["route"] ?? null;
-        $note = $data["note"] ?? null;
-        $time = date("H:i:s");
 
         try
         {
-            $result = DBQueryFactory::insert('Nursing.PharmacyRequestsTreatmentCharts', [
-                'PatientID'=>$patientId,
-                'Drug'=>QB::wrapString($drug, "'"),
+            $result = DBQueryFactory::insert('Nursing.ShiftSummary', [
+                'PatientAdmissionID'=>$admissionId,
                 'Nurse'=>$nurse,
-                'Dose'=>QB::wrapString($dose, "'"),
-                'Route'=>QB::wrapString($route, "'"),
-                'Note'=>QB::wrapString((string)$note, "'"),
-                'Time'=>QB::wrapString($time, "'")
+                'Ward'=>$ward,
+                'SummaryTitle'=>QB::wrapString($title, "'"),
+                'Summary'=>QB::wrapString($summary, "'")
             ]);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'Nursing',
-                'PharmacyRequestsTreatmentChart',
+                'ShiftSummary',
                 (string)serialize($result)
             );
 
@@ -67,7 +64,7 @@ class PharmacyRequestTreatmentChart
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (chart not saved), %s",
+                "Unable to process request (summary not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
@@ -76,27 +73,39 @@ class PharmacyRequestTreatmentChart
     /**
      * view allergies
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId = 0, array $data)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('*')
-            ->from('Nursing.PharmacyRequestsTreatmentCharts')
-            ->where('PatientID = '.$resourceId);
+            ->columns('a.*, b.WardName as WardName')
+            ->from('Nursing.ShiftSummary a')
+            ->innerJoin('Nursing.Ward b', 'a.Ward = b.WardID');
+        if (isset($data["date"])){
+            $date = QB::wrapString($data["date"], "'");
+            $selectBuilder->where("CAST(a.SummaryDate AS DATE) = $date");
+        }
+        else{
+            $selectBuilder->where("CAST(a.SummaryDate AS DATE) = CAST(GETDATE() AS DATE)");
+        }
 
+        if ($resourceId != 0){
+            $selectBuilder->andWhere('a.PatientAdmissionID ='.$resourceId);
+        }
+        
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-            
-            foreach ($result as $i=>$j){
-                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"])["StaffFullName"];
+
+            foreach($result as $key=>$value){
+                $id = $value["Nurse"];
+                $result[$key]["NurseName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $id)["StaffFullName"];
             }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Nursing',
-                'PharmacyRequestsTreatmentChart',
+                'ShiftSummary',
                 (string)$selectBuilder
             );
 
@@ -114,10 +123,4 @@ class PharmacyRequestTreatmentChart
             
         }
     }
-
-    
-    public static function editPharmacyRequestTreatmentChart(int $resourceId, array $data)
-    {
-
-    }    
 }

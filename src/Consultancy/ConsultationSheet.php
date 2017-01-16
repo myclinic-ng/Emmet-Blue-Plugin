@@ -50,6 +50,20 @@ class ConsultationSheet
         return $result;
     }
 
+    public static function viewMostRecentNote(int $resourceId)
+    {
+        $result = ConsultationSheet\ConsultationSheet::viewMostRecentNote($resourceId);
+
+        return $result;
+    }
+
+    public static function getFilterableConsultants(int $resourceId=0)
+    {
+        $result = ConsultationSheet\ConsultationSheet::getFilterableConsultants($resourceId);
+
+        return $result;
+    }
+
     /**
      * edit ConsultationSheet
      */

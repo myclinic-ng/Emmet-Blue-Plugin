@@ -60,7 +60,7 @@ GO
 
 CREATE TABLE Consultancy.PatientQueue (
 	QueueID INT PRIMARY KEY IDENTITY,
-	Patient INT,
+	Patient INT NOT NULL,
 	Consultant INT NOT NULL,
 	QueueDate DATETIME NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (Patient) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -100,8 +100,30 @@ CREATE TABLE Consultancy.PatientDischargeInformation (
 	DischargeStatusID INT PRIMARY KEY IDENTITY,
 	PatientAdmissionID INT,
 	DischargedBy INT,
+	DischargeNote VARCHAR(1000),
 	DischargeDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (PatientAdmissionID) REFERENCES Consultancy.PatientAdmission(PatientAdmissionID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (DischargedBy) REFERENCES [Staffs].[Staff] (StaffID)
 )	
+GO
+
+CREATE TABLE Consultancy.PatientReferrals (
+	ReferralID INT PRIMARY KEY IDENTITY,
+	ReferedTo INT NOT NULL,
+	DateReferred DATETIME NOT NULL DEFAULT GETDATE(),
+	ReferralArchived INT NOT NULL DEFAULT 0,
+	FOREIGN KEY (ReferedTo) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE
+)
+GO
+
+CREATE TABLE Consultancy.PatientReferralInfo (
+	ReferralInfoID INT PRIMARY KEY IDENTITY,
+	ReferralID INT,
+	Patient INT NOT NULL,
+	Referrer INT NOT NULL,
+	ReferralNote VARCHAR(500),
+	FOREIGN KEY (Patient) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE,
+	FOREIGN KEY (Referrer) REFERENCES [Staffs].[Staff] (StaffID),
+	FOREIGN KEY (ReferralID) REFERENCES Consultancy.PatientReferrals (ReferralID) ON UPDATE CASCADE ON DELETE CASCADE
+)
 GO

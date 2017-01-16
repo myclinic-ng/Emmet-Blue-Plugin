@@ -43,10 +43,13 @@ class LoadDoctors
 
         foreach ($departments as $department){
             $query = "SELECT a.StaffID, a.StaffUsername FROM Staffs.StaffPassword a INNER JOIN Staffs.StaffDepartment b ON a.StaffID = b.StaffID WHERE b.DepartmentID = ".$department["Department"];
-            $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
-            if (isset($r[0])){
-                $result[] = $r[0];
+            $re = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($re as $key=>$r){
+                $re[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $r["StaffID"])["StaffFullName"];
+                $re[$key]["StaffRole"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $r["StaffID"])["Name"];
             }
+
+            $result = array_merge($result, $re);
         }
 
         return $result;

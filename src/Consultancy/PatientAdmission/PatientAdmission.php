@@ -73,10 +73,13 @@ class PatientAdmission
     public static function discharge(array $data){
         $admissionId = $data["admissionId"] ?? null;
         $dischargedBy = $data["dischargedBy"] ?? null;
+        $dischargeNote = $data['dischargeNote'] ?? null;
+
 
         $result = DBQueryFactory::insert('Consultancy.PatientDischargeInformation', [
             'PatientAdmissionID'=>$admissionId,
-            'DischargedBy'=>$dischargedBy
+            'DischargedBy'=>$dischargedBy,
+            'DischargeNote'=>QB::wrapString((string)$dischargeNote, "'")
         ]);
 
         DatabaseLog::log(
@@ -87,7 +90,7 @@ class PatientAdmission
             (string)serialize($result)
         );
 
-        DBConnectionFactory::getConnection()->exec("UPDATE Consultancy.PatientAdmission SET DischargeStatus = -1 WHERE PatientAdmissionID = $admissionId");
+        // DBConnectionFactory::getConnection()->exec("UPDATE Consultancy.PatientAdmission SET DischargeStatus = -1 WHERE PatientAdmissionID = $admissionId");
 
         return $result;
     }
@@ -162,7 +165,7 @@ class PatientAdmission
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('a.*, b.*, c.WardSectionName, d.WardName')
+            ->columns('a.*, b.*, c.WardSectionName, d.WardName, e.DischargedBy, e.DischargeNote, e.DischargeDate')
             ->from('Consultancy.PatientAdmission a')
             ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
             ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')

@@ -86,6 +86,10 @@ class ServicesRendered
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($result as $key=>$service){
+                $result[$key]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $service["Nurse"])["StaffFullName"];
+                $result[$key]["DoctorInChargeFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $service["DoctorInCharge"])["StaffFullName"];
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),

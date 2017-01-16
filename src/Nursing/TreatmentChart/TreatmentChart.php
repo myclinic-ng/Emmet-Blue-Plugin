@@ -86,7 +86,11 @@ class TreatmentChart
 
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $i=>$j){
+                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"])["StaffFullName"];
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -97,6 +101,46 @@ class TreatmentChart
             );
 
             return $result;
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request %s",
+                    $e->getMessage()
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+
+    public static function viewMostRecent(int $resourceId)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('TOP 1 *')
+            ->from('Nursing.AdmissionTreatmentChart')
+            ->where('PatientAdmissionID = '.$resourceId);
+
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $i=>$j){
+                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"])["StaffFullName"];
+            }
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Nursing',
+                'AdmissionTreatmentChart',
+                (string)$selectBuilder
+            );
+
+            return (isset($result[0])) ? $result[0] : $result;
         } 
         catch (\PDOException $e) 
         {

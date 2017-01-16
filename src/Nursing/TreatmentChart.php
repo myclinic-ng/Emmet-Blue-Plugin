@@ -42,6 +42,13 @@ class TreatmentChart
         return $result;
     }
 
+    public static function viewMostRecent(int $resourceId)
+    {
+        $result = TreatmentChart\TreatmentChart::viewMostRecent($resourceId);
+
+        return $result;
+    }
+
     // public static function editTreatmentChart(int $resourceId=0, array $data)
     // {
     //     $result = TreatmentChart\TreatmentChart::editTreatmentChart($resourceId, $data);

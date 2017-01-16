@@ -104,12 +104,39 @@ class Staff
         try
         {            
     
-            $query = "SELECT a.AccountActivated, a.StaffUUID, b.* FROM Staffs.Staff a INNER JOIN (SELECT b.DepartmentID, b.Name, a.StaffID FROM Staffs.StaffDepartment a INNER JOIN Staffs.Department b ON a.DepartmentID=b.DepartmentID) b ON a.StaffID = b.StaffID WHERE StaffUUID = $staffUUID";
+            $query = "SELECT a.AccountActivated, a.StaffUUID, b.* FROM Staffs.Staff a INNER JOIN (SELECT b.DepartmentID, b.Name, a.StaffID FROM Staffs.StaffDepartment a INNER JOIN Staffs.Department b ON a.DepartmentID=b.DepartmentID) b ON a.StaffID = b.StaffID WHERE a.StaffUUID = $staffUUID";
 
             $result = (
                     DBConnectionFactory::getConnection()
                     ->query((string)$query)
                 )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function viewStaffRole(int $id)
+    {
+        try
+        {            
+    
+            $query = "SELECT b.Name FROM Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID WHERE a.StaffID = $id";
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            if (isset($result[0])){
+                $result = $result[0];
+            }
 
             return $result;
         }
@@ -140,7 +167,14 @@ class Staff
             $result = (
                     DBConnectionFactory::getConnection()
                     ->query((string)$query)
-                )->fetchAll(\PDO::FETCH_ASSOC)[0];
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            if (isset($result[0])){
+                $result = $result[0];
+            }
+            else {
+                throw new \Exception("Root Url Not Found");
+            }
 
             return $result;
         }

@@ -50,6 +50,12 @@ class PatientRepository
         return $result;
     }
 
+    public static function viewMostRecentJsonByPatient(int $resourceId){
+        $result = PatientRepository\PatientRepository::viewMostRecentJsonByPatient($resourceId);
+
+        return $result;
+    }
+    
     public static function viewByPatient(int $resourceId){
         $result = PatientRepository\PatientRepository::viewByPatient($resourceId);
 

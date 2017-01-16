@@ -233,8 +233,12 @@ class StaffProfile
     public static function viewStaffFullName(int $id){
         $query = "SELECT StaffID, StaffFullName FROM Staffs.StaffProfile WHERE StaffID = $id";
 
-        $result = DBConnectionFactory::getConnection()->query($query);
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        return $result->fetchAll(\PDO::FETCH_ASSOC)[0];
+        if (isset($result[0])){
+            return $result[0];
+        }
+
+        return ["StaffID"=>$id, "StaffFullName"=>null];
     }
 }

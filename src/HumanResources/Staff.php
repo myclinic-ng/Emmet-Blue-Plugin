@@ -55,6 +55,13 @@ class Staff
         return $result;
     }
 
+    public static function viewStaffRole(int $id)
+    {
+        $result = Staff\Staff::viewStaffRole($id);
+
+        return $result;
+    }
+
     public static function viewRootUrl(int $id) {
         $result = Staff\Staff::viewStaffRootUrl($id);
 

@@ -77,13 +77,16 @@ class ConsultationSheet
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('a.*, b.StaffUsername')
+            ->columns('a.*')
             ->from('Consultancy.ConsultationSheet a')
-            ->innerJoin('Staffs.StaffPassword b', 'a.Consultant = b.StaffID')
             ->where('a.PatientAdmissionID ='.$resourceId);
         try
         {
-            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder. " ORDER BY DateTaken DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $i=>$j){
+                $result[$i]["ConsultantFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Consultant"])["StaffFullName"];
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -93,7 +96,76 @@ class ConsultationSheet
                 (string)$selectBuilder
             );
 
-           return $viewOperation;
+           return $result;
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function viewMostRecentNote(int $resourceId)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('TOP 1 a.*')
+            ->from('Consultancy.ConsultationSheet a')
+            ->where('a.PatientAdmissionID ='.$resourceId);
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder. " ORDER BY DateTaken DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $i=>$j){
+                $result[$i]["ConsultantFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Consultant"])["StaffFullName"];
+            }
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'ConsultationSheet',
+                (string)$selectBuilder
+            );
+
+           return ($result[0]) ? $result[0] : $result;
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function getFilterableConsultants(int $resourceId){
+        $selectBuilder = "SELECT DISTINCT Consultant FROM Consultancy.ConsultationSheet WHERE PatientAdmissionID = $resourceId";
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $i=>$j){
+                $result[$i]["ConsultantFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Consultant"])["StaffFullName"];
+            }
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'ConsultationSheet',
+                (string)$selectBuilder
+            );
+
+           return $result;
         } 
         catch (\PDOException $e) 
         {
