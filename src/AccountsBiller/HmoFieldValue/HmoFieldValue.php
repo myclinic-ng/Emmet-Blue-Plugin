@@ -52,7 +52,7 @@ class HmoFieldValue
     protected static function createHmoFolders(string $hmoUuid)
     {
         $hmoDir = self::PATIENTHMO_ARCHIVE_DIR.$hmoUuid;
-        if (!mkdir($hmoDir)){
+        if (is_dir($hmoDir) || !mkdir($hmoDir)){
             return false;
         }
 
@@ -155,12 +155,16 @@ class HmoFieldValue
 
     public static function delete(int $resourceId)
     {
-        if (is_dir(self::PATIENTHMO_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$resourceId)){
-            unlink(self::PATIENTHMO_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$resourceId);
-        }
-
         try
         {
+	        if (is_dir(self::PATIENTHMO_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$resourceId)){
+	        	$oldPath = self::PATIENTHMO_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$resourceId;
+	        	$newPath = self::PATIENTHMO_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$resourceId."-deleted-".date("mdy")."-".time();
+	        	rename("$oldPath", "$newPath");
+	            //unlink(self::PATIENTHMO_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$resourceId);
+	        }
+
+        	$deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
             $deleteBuilder
                 ->from("Accounts.PatientHmoProfile")
                 ->where("PatientID = $resourceId");
@@ -172,7 +176,7 @@ class HmoFieldValue
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_DELETE,
                 'Accounts',
                 'PatientHmoProfile',
                 (string)$deleteBuilder
@@ -196,9 +200,12 @@ class HmoFieldValue
         else {
             $query = "Accounts.GetPatientHmoProfile $resourceId";
         }
-
-        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
-
+        try {
+        	$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        }
+        catch (\PDOException $e){
+        	$result = [];
+        }
         // foreach ($result as $key=>$value){
         //     $id = (int) $value["PatientID"];
 

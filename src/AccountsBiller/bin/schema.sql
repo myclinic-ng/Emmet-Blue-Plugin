@@ -147,13 +147,14 @@ CREATE TABLE Accounts.DepartmentPatientTypesReportLink (
 )
 
 CREATE TABLE Accounts.PatientCategoriesHmoFieldTitles (
-	FieldTitleID INT PRIMARY KEY IDENTITY NOT NULL,
+	FieldTitleID INT IDENTITY NOT NULL,
 	PatientCategory INT,
-	FieldTitleName VARCHAR(50) UNIQUE,
+	FieldTitleName VARCHAR(50),
 	FieldTitleType VARCHAR(50),
 	FieldTitleDescription VARCHAR(50),
 	FOREIGN KEY (FieldTitleType) REFERENCES Patients.FieldTitleType(TypeName) ON UPDATE CASCADE ON DELETE NO ACTION,
-	FOREIGN KEY (PatientCategory) REFERENCES Patients.PatientTypeCategories(CategoryID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (PatientCategory) REFERENCES Patients.PatientTypeCategories(CategoryID) ON UPDATE CASCADE ON DELETE CASCADE,
+	PRIMARY KEY (FieldTitleID, PatientCategory, FieldTitleName)
 )
 
 CREATE TABLE Accounts.PatientHmoProfile (
@@ -170,7 +171,7 @@ CREATE TABLE Accounts.PatientHmoFieldValues (
 	FieldValue VARCHAR(max),
 	LastModified DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (ProfileID) REFERENCES Accounts.PatientHmoProfile(ProfileID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (FieldTitle) REFERENCES Accounts.PatientCategoriesHmoFieldTitles(FieldTitleName) ON UPDATE CASCADE
+	UNIQUE(ProfileID, FieldTitle)
 )
 GO
 
