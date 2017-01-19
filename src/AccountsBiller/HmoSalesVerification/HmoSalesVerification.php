@@ -80,59 +80,32 @@ class HmoSalesVerification
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("*");
+                $selectBuilder->columns("a.*, b.Name as DepartmentName");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingHmoSalesVerification a");
+            $selectBuilder->from("Accounts.HmoSalesVerification a")->innerJoin("Staffs.Department b", "a.DepartmentID = b.DepartmentID");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingHmoSalesVerificationID = $resourceId");
+                $selectBuilder->where("SalesID = $resourceId");
             }
-
 
             $result = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
 
-           if (empty($data)){
-                foreach ($result as $key=>$metaItem)
-                {
-                    $id = $metaItem["BillingHmoSalesVerificationID"];
-                    $patient = $metaItem["PatientID"];
-                    $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingHmoSalesVerificationID = $id";
-                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient";
-
-                    $queryResult = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $queryResult2 = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query2)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $name = "";
-                    foreach ($queryResult2 as $value){
-                        if ($value["FieldTitle"] == 'Title'){
-                            $name .= $value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'FirstName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'LastName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                    }
-
-                    $result[$key]["BillingTransactionItems"] = $queryResult;
-                    $result[$key]["PatientName"] = $name;
+            foreach($result as $key=>$data){
+                $result[$key]["SaleRequest"] = unserialize(base64_decode($data["SaleRequest"]));
+                $result[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["StaffID"])["StaffFullName"];
+                if ($data["SignedBy"] != null){
+                    $result[$key]["SignedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["SignedBy"])["StaffFullName"];
                 }
-           }
+
+                $result[$key]["PatientInformation"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $data["PatientID"])["_source"];
+            }
 
             return $result;
         }
@@ -143,6 +116,21 @@ class HmoSalesVerification
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function loadUnprocessedRequests(int $patientType){
+        $query = "SELECT a.SalesID, a.DepartmentID, a.StaffID, a.RequestDate, b.PatientFullName, b.PatientUUID, c.Name as DepartmentName FROM Accounts.HmoSalesVerification a INNER JOIN Patients.Patient b On a.PatientID = b.PatientID INNER JOIN Staffs.Department c ON a.DepartmentID = c.DepartmentID WHERE b.PatientType=$patientType AND a.ProceedStatus IS NULL";
+
+        $result = (
+            DBConnectionFactory::getConnection()
+            ->query((string)$query)
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach($result as $key=>$data){
+            $result[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["StaffID"])["StaffFullName"];
+        }
+
+        return $result;
     }
 
     public static function getStatus(array $data)
@@ -159,6 +147,20 @@ class HmoSalesVerification
         $query = "SELECT TOP 1 * FROM Accounts.HmoSalesVerification WHERE Status IS NULL AND PatientID = $patientId ORDER BY RequestDate DESC";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        return $result;
+    }
+
+    public static function verifyRequest(array $data){
+        $proceedStatus = $data["proceedStatus"] ?? null;
+        $signComment = $data["signComment"] ?? null;
+        $signedBy = $data["signedBy"] ?? null;
+        $status = $data["status"] ?? null;
+        $request = $data["request"] ?? null;
+
+        $query = "UPDATE Accounts.HmoSalesVerification SET ProceedStatus = $proceedStatus, SignedBy = $signedBy, SignComment = '$signComment', SignedDate = GETDATE(), Status = '$status' WHERE SalesID = $request";
+
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
         return $result;
     }
 }

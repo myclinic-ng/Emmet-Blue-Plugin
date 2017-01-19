@@ -53,6 +53,11 @@ class PaymentRequest
 		return PaymentRequest\PaymentRequest::loadAllRequests($data);
 	}
 
+	public static function analyseRequests(array $data)
+	{
+		return PaymentRequest\PaymentRequest::analyseRequests($data);
+	}
+
 	public static function loadPaymentRequestBillingItems(int $resourceId)
 	{
 		return PaymentRequest\PaymentRequest::loadPaymentRequestBillingItems($resourceId);

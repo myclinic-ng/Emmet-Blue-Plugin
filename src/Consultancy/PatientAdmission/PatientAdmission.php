@@ -74,7 +74,25 @@ class PatientAdmission
         $admissionId = $data["admissionId"] ?? null;
         $dischargedBy = $data["dischargedBy"] ?? null;
         $dischargeNote = $data['dischargeNote'] ?? null;
+        $staff = $data['staff'] ?? null;
 
+        $query = "SELECT * FROM Nursing.ServicesRendered WHERE PatientAdmissionID = $admissionId";
+
+        $paymentRequest = [];
+        $items = [];
+
+        $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($res as $key => $value) {
+            $items[] = ["item"=>$value["BillingTypeItem"], "quantity"=>$value["BillingTypeItemQuantity"]];
+        }
+
+        $paymentRequest["items"] = $items;
+        $paymentRequest["requestBy"] = $staff;
+
+        $paymentRequest["patient"] = DBConnectionFactory::getConnection()->query("SELECT Patient FROM Consultancy.PatientAdmission WHERE PatientAdmissionID = $admissionId")->fetchAll(\PDO::FETCH_ASSOC)[0]["Patient"];
+
+        $makeBillersHappy = \EmmetBlue\Plugins\AccountsBiller\PaymentRequest\PaymentRequest::create($paymentRequest);
 
         $result = DBQueryFactory::insert('Consultancy.PatientDischargeInformation', [
             'PatientAdmissionID'=>$admissionId,

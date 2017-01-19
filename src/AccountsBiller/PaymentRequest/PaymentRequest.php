@@ -229,11 +229,19 @@ class PaymentRequest
                 break;
             }
         }
+
+        unset($data["filtertype"], $data["query"]);
+
+        if (!empty($data)){
+            $string = implode(" OR ", $data);
+
+            $query .= " AND (".$string.")";
+        }
+
+        // die($query);
         try
         {
-            // die($query);
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
-
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
@@ -241,9 +249,15 @@ class PaymentRequest
                 'PaymentRequest',
                 (string)$query
             );
+
+            foreach ($viewPaymentRequestOperation as $key => $value) {
+               if ($value["AttachedInvoice"] != ""){
+                    $viewPaymentRequestOperation[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::view((int) $value["AttachedInvoice"], ["a.BillingTransactionNumber"])[0]["BillingTransactionNumber"];
+               }
+            }
             
             return $viewPaymentRequestOperation;  
-        } 
+        }
         catch (\PDOException $e) 
         {
             throw new SQLException(
@@ -254,6 +268,23 @@ class PaymentRequest
             );
             
         }
+    }
+
+    public static function analyseRequests($data){
+        $dataToCrunch = self::loadAllRequests($data);
+        $analysis = [];
+        $totals = [];
+        foreach ($dataToCrunch as $key => $value)
+        {
+            $billingItem = self::loadPaymentRequestBillingItems($value["PaymentRequestID"]);
+
+            $totals[] = $billingItem[0]["totalPrice"];
+        }
+
+
+        $analysis["Net Total"] = array_sum($totals);
+
+        return $analysis;
     } 
 
     /** load payment billing Items and price for each request*/

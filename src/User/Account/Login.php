@@ -55,6 +55,8 @@ class Login
         			QB::wrapString((string)$username, "'")
         		);
 
+                // die($selectBuilder);
+
         	 $result = (
         	 		DBConnectionFactory::getConnection()
         	 		->query((string)$selectBuilder)

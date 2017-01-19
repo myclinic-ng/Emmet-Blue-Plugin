@@ -43,13 +43,18 @@ class HmoSalesVerification
 		return HmoSalesVerification\HmoSalesVerification::getStatus($data);
 	}
 
-	public static function loadRequests(int $resourceId=0, array $data = [])
+	public static function loadUnprocessedRequests(int $resourceId)
 	{
-		return HmoSalesVerification\HmoSalesVerification::loadRequests($resourceId, $data);
+		return HmoSalesVerification\HmoSalesVerification::loadUnprocessedRequests($resourceId);
 	}
 
 	public static function loadAllRequests()
 	{
 		return HmoSalesVerification\HmoSalesVerification::loadAllRequests();
+	}
+
+	public static function verifyRequest(array $data)
+	{
+		return HmoSalesVerification\HmoSalesVerification::verifyRequest($data);
 	}
 }

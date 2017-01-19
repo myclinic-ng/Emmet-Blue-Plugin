@@ -141,10 +141,14 @@ class TransactionMeta
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransactionMeta a")->where("a.Status IS NULL");
+            $selectBuilder->from("Accounts.BillingTransactionMeta a");
 
-            if ($resourceId !== 0){
+            if ($resourceId == 0){
+                $selectBuilder->where("a.Status IS NULL");
                 $selectBuilder->andWhere("BillingTransactionMetaID = $resourceId");
+            }
+            else {
+                $selectBuilder->where("BillingTransactionMetaID = $resourceId");
             }
 
 

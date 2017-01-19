@@ -178,7 +178,7 @@ GO
 CREATE TABLE Accounts.HmoSalesVerification (
 	SalesID INT PRIMARY KEY IDENTITY(1000, 1) NOT NULL,
 	DepartmentID INT,
-	PatientID INT,
+	PatientID INT NOT NULL,
 	SaleRequest VARCHAR(MAX),
 	StaffID INT,
 	RequestDate DATETIME DEFAULT GETDATE(),
@@ -186,7 +186,7 @@ CREATE TABLE Accounts.HmoSalesVerification (
 	SignedBy INT,
 	SignComment VARCHAR(400),
 	SignedDate DATETIME,
-	Status VARCHAR(10),
+	Status VARCHAR(100),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID),
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID),
 	FOREIGN KEY (SignedBy) REFERENCES [Staffs].[Staff] (StaffID),
