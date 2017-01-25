@@ -39,10 +39,15 @@ class BillPaymentRule
                 continue;
             }
 
-			$queryValue[] = "($patientType, '$ruleType', $ruleValue)";
+            foreach ($data["billingTypes"] as $key => $value) {
+                if (is_null($value)){
+                    continue;
+                }
+                $queryValue[] = "($patientType, $value, '$ruleType', $ruleValue)";
+            }
 		}
 
-		$query = "INSERT INTO Accounts.BillPaymentRules VALUES ". implode(",", $queryValue);
+		$query = "INSERT INTO Accounts.BillPaymentRules(PatientType, BillingTypeItem, RuleType, RuleValue) VALUES ". implode(",", $queryValue);
 
 		$result = DBConnectionFactory::getConnection()->exec($query);
 
@@ -78,8 +83,12 @@ class BillPaymentRule
         }
 	}
 
-    public static function view(int $resourceId = 0){
-        $query = "SELECT * FROM Accounts.BillPaymentRules a JOIN Patients.PatientType b ON a .PatientType = b.PatientTypeID";
+    public static function view(int $resourceId = 0, array $data = []){
+        $query = "SELECT a.*, b.PatientTypeName, c.BillingTypeItemName FROM Accounts.BillPaymentRules a JOIN Patients.PatientType b ON a.PatientType = b.PatientTypeID JOIN Accounts.BillingTypeItems c ON a.BillingTypeItem = c.BillingTypeItemID JOIN Patients.PatientTypeCategories d ON b.CategoryName = d.CategoryName WHERE c.BillingType = $resourceId";
+
+        if (isset($data["patientcategory"]) && $data["patientcategory"] != ""){
+            $query .= " AND d.CategoryID = ".$data["patientcategory"];
+        }
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 

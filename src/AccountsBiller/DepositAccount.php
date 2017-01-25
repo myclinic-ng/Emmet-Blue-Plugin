@@ -19,28 +19,28 @@ use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 
 /**
- * class BillPaymentRule.
- *
- * BillPaymentRule Controller
- *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20
  */
-class BillPaymentRule
+class DepositAccount
 {
-	public static function newBillPaymentRule(array $data){
-		return BillPaymentRule\BillPaymentRule::create($data);
+	public static function newTransaction(array $data)
+	{
+		return DepositAccount\DepositAccount::newTransaction($data);
 	}
 
-	public static function updateBillPaymentRule(int $resourceId, array $data){
-		return BillPaymentRule\BillPaymentRule::edit($resourceId, $data);
+	public static function viewTransactions(int $data)
+	{
+		return DepositAccount\DepositAccount::viewTransactions($data);
 	}
 
-	public static function deleteBillPaymentRule(int $resourceId){
-		return BillPaymentRule\BillPaymentRule::delete($resourceId);
+	public static function viewAccountInfo(int $data)
+	{
+		return DepositAccount\DepositAccount::viewAccountInfo($data);
 	}
 
-	public static function viewBillPaymentRule(int $resourceId = 0, array $data = []){
-		return BillPaymentRule\BillPaymentRule::view($resourceId, $data);
+	public static function accountExists(int $data)
+	{
+		return DepositAccount\DepositAccount::accountExists($data);
 	}
 }

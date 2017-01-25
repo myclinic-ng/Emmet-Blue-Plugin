@@ -130,68 +130,97 @@ class TransactionMeta
      */
     public static function view(int $resourceId = 0, array $data = [])
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("*");
+
+            if ($resourceId == 0) {
+                $query = "
+                            SELECT 
+                            ROW_NUMBER() OVER (ORDER BY a.BillingTransactionMetaID) AS RowNum, a.*, b.BillingAmountPaid, b.BillingAmountBalance , b.BillingTransactionDate
+                            FROM Accounts.BillingTransactionMeta a 
+                            FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID
+                        ";
+
+                $cQuery = "SELECT COUNT(*) as total FROM Accounts.BillingTransactionMeta a FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID";
+
+                switch($data["filtertype"]){
+                    case "patient":{
+                        $add = " WHERE a.PatientID = '".$data["query"]."'";
+                        break;
+                    }
+                    case "date":{
+                        $sDate = QB::wrapString($data["startdate"], "'");
+                        $eDate = QB::wrapString($data["enddate"], "'");
+                        $add = " WHERE (CONVERT(date, a.DateCreated) BETWEEN $sDate AND $eDate) OR (CONVERT(date, b.BillingTransactionDate) BETWEEN $sDate AND $eDate)";
+                        break;
+                    }
+                    case "department":{
+                        $query .= " WHERE a.RequestDepartment = ".$data["query"];
+                        break;
+                    }
+                    case "status":{
+                        $add = " WHERE a.BillingTransactionStatus = ".$data["query"];
+                        break;
+                    }
+                    case "staff":{
+                        $add = " WHERE b.StaffID = ".$data["query"];
+                        break;
+                    }
+                }
+
+                $query .= $add;
+                $cQuery .= $add;
+                $from = $data["from"];
+                $to = $data["to"];
+
+                $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= $from AND RowNum < $to ORDER BY RowNum";
             }
             else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Accounts.BillingTransactionMeta a");
-
-            if ($resourceId == 0){
-                $selectBuilder->where("a.Status IS NULL");
-                $selectBuilder->andWhere("BillingTransactionMetaID = $resourceId");
-            }
-            else {
-                $selectBuilder->where("BillingTransactionMetaID = $resourceId");
+                $query = "
+                    SELECT 
+                    a.*, b.BillingAmountPaid, b.BillingAmountBalance , b.BillingTransactionDate
+                    FROM Accounts.BillingTransactionMeta a 
+                    FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID
+                    WHERE a.BillingTransactionMetaID = $resourceId
+                ";
             }
 
+            // die($query);
 
             $result = (
                 DBConnectionFactory::getConnection()
-                ->query((string)$selectBuilder)
+                ->query((string)$query)
             )->fetchAll(\PDO::FETCH_ASSOC);
 
-           if (empty($data)){
-                foreach ($result as $key=>$metaItem)
-                {
-                    $id = $metaItem["BillingTransactionMetaID"];
-                    $patient = $metaItem["PatientID"];
-                    $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
-                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient";
-
-                    $queryResult = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $queryResult2 = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query2)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $name = "";
-                    foreach ($queryResult2 as $value){
-                        if ($value["FieldTitle"] == 'Title'){
-                            $name .= $value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'FirstName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'LastName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                    }
-
-                    $result[$key]["BillingTransactionItems"] = $queryResult;
-                    $result[$key]["PatientName"] = $name;
+           
+            foreach ($result as $key=>$metaItem)
+            {
+                $id = $metaItem["BillingTransactionMetaID"];
+                $patient = $metaItem["PatientID"];
+                $_patient = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient);
+                if (isset($_patient["_source"])){
+                    $result[$key]["PatientName"] = $_patient["_source"]["patientfullname"];
                 }
-           }
+                if (is_null($metaItem["BillingAmountPaid"])){
+                    $status = 0;
+                }
+                else{
+                    $status = 1;
+                }
+                $result[$key]["_meta"] = [
+                    "status"=>$status
+                ];
+            }
+
+            if ($resourceId == 0){
+                $count = DBConnectionFactory::getConnection()->query($cQuery)->fetchAll(\PDO::FETCH_ASSOC)[0]["total"];
+
+                // $result["_meta"] = [
+                //     "pageCount"=>$count,
+                //     "pageFrom"=>$from,
+                //     "pageTo"=>$to
+                // ];
+            }
 
             return $result;
         }
@@ -206,22 +235,9 @@ class TransactionMeta
 
     public static function viewByNumber(int $resourceId = 0, array $data = [])
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("*");
-            }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Accounts.BillingTransactionMeta a")->where("a.Status IS NULL");
-
-            if ($resourceId !== 0){
-                $selectBuilder->andWhere("BillingTransactionNumber = $resourceId");
-            }
+           $selectBuilder = "SELECT TOP 1 a.*, b.BillingTransactionCustomerName, b.BillingTransactionCustomerPhone, b.BillingAmountPaid, b.BillingAmountBalance FROM Accounts.BillingTransactionMeta a FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID WHERE BillingTransactionNumber = CAST($resourceId AS NUMERIC) ORDER BY b.BillingTransactionDate DESC";
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -232,35 +248,25 @@ class TransactionMeta
                 foreach ($result as $key=>$metaItem)
                 {
                     $id = $metaItem["BillingTransactionMetaID"];
+                    $result[$key]["BillingAmountPaid"] = $metaItem["BillingAmountPaid"] = DBConnectionFactory::getConnection()->query("SELECT SUM(BillingAmountPaid) AS total FROM Accounts.BillingTransaction WHERE BillingTransactionMetaID = $id")->fetchAll(\PDO::FETCH_ASSOC)[0]["total"];
                     $patient = $metaItem["PatientID"];
                     $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
-                    $query2 = "SELECT FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID=$patient";
-
                     $queryResult = (
                         DBConnectionFactory::getConnection()
                         ->query($query)
                     )->fetchAll(\PDO::FETCH_ASSOC);
 
-                    $queryResult2 = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query2)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
-
-                    $name = "";
-                    foreach ($queryResult2 as $value){
-                        if ($value["FieldTitle"] == 'Title'){
-                            $name .= $value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'FirstName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                        else if ($value["FieldTitle"] == 'LastName'){
-                            $name .= " ".$value["FieldValue"];
-                        }
-                    }
-
                     $result[$key]["BillingTransactionItems"] = $queryResult;
-                    $result[$key]["PatientName"] = $name;
+                    $result[$key]["PatientName"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient)["_source"]["patientfullname"];
+                    if (is_null($metaItem["BillingAmountPaid"])){
+                        $status = 0;
+                    }
+                    else{
+                        $status = 1;
+                    }
+                    $result[$key]["_meta"] = [
+                        "status"=>$status
+                    ];
                 }
            }
 

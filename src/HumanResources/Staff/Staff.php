@@ -156,6 +156,18 @@ class Staff
         return $result;
     }
 
+    public static function getStaffID(array $data){
+        $username = $data["name"];
+
+        $query = "SELECT StaffID FROM Staffs.StaffPassword WHERE StaffUsername = '$username'";
+        $result = (
+            DBConnectionFactory::getConnection()
+            ->query((string)$query)
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result[0] ?? [];
+    }
+
      /* view staff profile */
     public static function viewStaffRootUrl(int $id)
     {

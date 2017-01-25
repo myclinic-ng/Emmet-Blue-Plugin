@@ -86,14 +86,16 @@ CREATE TABLE Accounts.BillingTransaction (
 	BillingPaymentMethod VARCHAR(20) NOT NULL,
 	BillingAmountPaid MONEY NOT NULL,
 	BillingAmountBalance MONEY,
+	StaffID INT,
 	FOREIGN KEY (BillingTransactionMetaID) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (BillingPaymentMethod) REFERENCES [Accounts].[BillingPaymentMethods] (PaymentMethodName) ON UPDATE CASCADE ON DELETE NO ACTION
+	FOREIGN KEY (BillingPaymentMethod) REFERENCES [Accounts].[BillingPaymentMethods] (PaymentMethodName) ON UPDATE CASCADE ON DELETE NO ACTION,
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID),
 )
 GO
 
 CREATE TABLE Accounts.PaymentRequest (
 	PaymentRequestID INT PRIMARY KEY IDENTITY,
-	PaymentRequestUUID VARCHAR(20),
+	PaymentRequestUUID VARCHAR(20) UNIQUE,
 	RequestPatientID INT NOT NULL,
 	RequestBy VARCHAR(20),
 	RequestDepartment INT,
@@ -108,7 +110,6 @@ CREATE TABLE Accounts.PaymentRequest (
 	FOREIGN KEY (RequestDepartment) REFERENCES Staffs.Department (DepartmentID) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	FOREIGN KEY (AttachedInvoice) REFERENCES [Accounts].[BillingTransactionMeta] (BillingTransactionMetaID) ON UPDATE NO ACTION ON DELETE SET NULL
 )
-GO
 
 CREATE TABLE Accounts.PaymentRequestItems (
 	PaymentRequestItemsItems INT PRIMARY KEY IDENTITY,
@@ -117,6 +118,28 @@ CREATE TABLE Accounts.PaymentRequestItems (
 	ItemQuantity INT,
 	FOREIGN KEY (RequestID) REFERENCES Accounts.PaymentRequest (PaymentRequestID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (ItemID) REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+
+CREATE TABLE Accounts.PatientDepositsAccount (
+	AccountID INT PRIMARY KEY NOT NULL IDENTITY(1000, 1),
+	PatientID INT NOT NULL,
+	AccountBalance MONEY NOT NULL DEFAULT 0.00,
+	CreatedBy INT,
+	DateCreated DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID),
+	FOREIGN KEY (CreatedBy) REFERENCES [Staffs].[Staff] (StaffID),
+	UNIQUE(PatientID)
+)
+
+CREATE TABLE Accounts.PatientDepositsAccountTransactions (
+	TransactionID INT PRIMARY KEY NOT NULL IDENTITY(1000, 1),
+	AccountID INT NOT NULL,
+	StaffID INT,
+	TransactionAmount MONEY,
+	TransactionComment VARCHAR(500),
+	TransactionDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (AccountID) REFERENCES Accounts.PatientDepositsAccount (AccountID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID)
 )
 
 CREATE TABLE Accounts.DepartmentBillingLink (
@@ -130,10 +153,13 @@ CREATE TABLE Accounts.DepartmentBillingLink (
 
 CREATE TABLE Accounts.BillPaymentRules (
 	RuleID INT PRIMARY KEY IDENTITY,
-	PatientType INT NOT NULL UNIQUE,
+	PatientType INT NOT NULL,
+	BillingTypeItem INT NOT NULL,
 	RuleType CHAR(1) NOT NULL,
 	RuleValue INT NOT NULL,
 	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (BillingTypeItem) REFERENCES Accounts.BillingTypeItems (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(PatientType, BillingTypeItem),
 	CHECK(RuleType = '*' OR RuleType = '+' OR RuleType = '-' OR RuleType = '%')
 )
 
@@ -193,3 +219,14 @@ CREATE TABLE Accounts.HmoSalesVerification (
 	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] (DepartmentID)
 )
 GO
+
+CREATE TABLE Accounts.HmoDocuments (
+	DocumentID INT PRIMARY KEY IDENTITY(1000, 1) NOT NULL,
+	DocumentNumber VARCHAR(50) NOT NULL UNIQUE,
+	DocumentName VARCHAR(100),
+	DocumentDescription VARCHAR(4000),
+	DocumentCategory VARCHAR(20),
+	DocumentCreator INT,
+	DocumentCreationDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (DocumentCreator) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+)

@@ -51,5 +51,5 @@ class HmoInPatients
         return $result;
     }
 
-    public static 
+    //public static 
 }

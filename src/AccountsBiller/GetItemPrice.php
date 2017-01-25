@@ -41,12 +41,12 @@ class GetItemPrice
 		$query = "SELECT * FROM Accounts.BillingTypeItemsPrices WHERE BillingTypeItem = $item AND PatientType = $patientType";
 		$result = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
 		if (empty($result)){
-			throw new \Exception("Price structure does not exist for the specified item");
+			$result[0]["BillingTypeItemPrice"] = 0;
 		}
 
 		$result = $result[0];
 		$price = $result["BillingTypeItemPrice"];
-		if ($result["IntervalBased"]){
+		if (isset($result["IntervalBased"]) && $result["IntervalBased"]){
 			$query = "SELECT * FROM Accounts.BillingTypeItemsInterval WHERE BillingTypeItemID = $item";
 			$results = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
 			if (empty($result)){
@@ -69,7 +69,7 @@ class GetItemPrice
 			$totalPrice = self::calculateNonIntervalBasedPrice((int)$price, (int)$quantity);
 		}
 
-		return !is_null($result["RateIdentifier"]) ? ["rateIdentifier"=>strtolower($result["RateIdentifier"]), "totalPrice"=>$totalPrice] : ["totalPrice"=>$totalPrice];
+		return (isset($result["RateIdentifier"]) && !is_null($result["RateIdentifier"])) ? ["rateIdentifier"=>strtolower($result["RateIdentifier"]), "totalPrice"=>$totalPrice] : ["totalPrice"=>$totalPrice];
 	}
 
 	private static function calculateNonIntervalBasedPrice(int $price, int $quantity){
@@ -129,7 +129,10 @@ class GetItemPrice
 	}
 
 	public static function applyPaymentRule(int $patient, array $data){
-		$amount = (int)$data["amount"];
+		$amount = $data["amounts"];
+		$items = $data["items"];
+
+		$itemsIm = implode(" OR BillingTypeItem=", $items);
 
 		$query = "SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient";
 		$patientType = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC)[0]["PatientType"];
@@ -137,73 +140,90 @@ class GetItemPrice
 			throw new \Exception("Patient's Category has no associated price structure for the specified item");
 		}
 
-		$query = "SELECT * FROM Accounts.BillPaymentRules WHERE PatientType = $patientType";
-		$rule = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
+		$query = "SELECT * FROM Accounts.BillPaymentRules WHERE PatientType = $patientType AND (BillingTypeItem = $itemsIm)";
+		$rules = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
 
-		if (isset($rule[0])){
-			$rule = $rule[0];
-			switch($rule["RuleType"])
-			{
-				case "%":
-				{
-					$ruleValue = (int)$rule["RuleValue"];
-					$amnt = $ruleValue * $amount / 100;
-					$bal = $amount - $amnt;
+		// die($query);
 
-					$result = [
-						"amount"=>$amnt,
-						"balance"=>$bal
-					];
+		$result = [];
+		foreach ($items as $key => $value) {
+			foreach ($rules as $rule) {
+				if ($rule["BillingTypeItem"] == $value){
+					switch($rule["RuleType"])
+					{
+						case "%":
+						{
+							$ruleValue = (int)$rule["RuleValue"];
+							$amnt = $ruleValue * $amount[$value] / 100;
+							$bal = $amount[$value] - $amnt;
 
-					break;
-				}
-				case "+":
-				{
-					$ruleValue = (int)$rule["RuleValue"];
-					$amnt = $ruleValue + $amount;
-					$bal = $amount - $amnt;
+							$result[$value] = [
+								"amount"=>$amnt,
+								"balance"=>$bal
+							];
 
-					$result = [
-						"amount"=>$amnt,
-						"balance"=>$bal
-					];
+							break;
+						}
+						case "+":
+						{
+							$ruleValue = (int)$rule["RuleValue"];
+							$amnt = $ruleValue + $amount[$value];
+							$bal = $amount[$value] - $amnt;
 
-					break;
-				}
-				case "*":
-				{
-					$ruleValue = (int)$rule["RuleValue"];
-					$amnt = $ruleValue * $amount;
-					$bal = $amount - $amnt;
+							$result[$value] = [
+								"amount"=>$amnt,
+								"balance"=>$bal
+							];
 
-					$result = [
-						"amount"=>$amnt,
-						"balance"=>$bal
-					];
+							break;
+						}
+						case "*":
+						{
+							$ruleValue = (int)$rule["RuleValue"];
+							$amnt = $ruleValue * $amount[$value];
+							$bal = $amount[$value] - $amnt;
 
-					break;
-				}
-				case "-":
-				{
-					$ruleValue = (int)$rule["RuleValue"];
-					$amnt = $amount - $ruleValue;
-					$bal = $amount - $amnt;
+							$result[$value] = [
+								"amount"=>$amnt,
+								"balance"=>$bal
+							];
 
-					$result = [
-						"amount"=>$amnt,
-						"balance"=>$bal
-					];
+							break;
+						}
+						case "-":
+						{
+							$ruleValue = (int)$rule["RuleValue"];
+							$amnt = $amount[$value] - $ruleValue;
+							$bal = $amount[$value] - $amnt;
 
-					break;
+							$result[$value] = [
+								"amount"=>$amnt,
+								"balance"=>$bal
+							];
+
+							break;
+						}
+					}
+
+					continue;
 				}
 			}
+
+			if (!isset($result[$value])){
+				$result[$value] = [
+					"amount"=>$amount[$value],
+					"balance"=>0
+				];
+			}
 		}
-		else {
-			$result = [
-				"amount"=>$amount,
-				"balance"=>0
-			];
+
+		$meta = ["amount"=>0, "balance"=>0];
+		foreach ($result as $value){
+			$meta["amount"] += $value["amount"];
+			$meta["balance"] += $value["balance"];
 		}
+
+		$result["_meta"] = $meta;
 
 		return $result;
 	}

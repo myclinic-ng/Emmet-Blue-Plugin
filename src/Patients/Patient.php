@@ -128,9 +128,9 @@ class Patient
         return $result;
     }
 
-    public static function viewUnlockedProfiles(int $resourceId = 0)
+    public static function viewUnlockedProfiles(array $data = [])
     {
-        $result = Patient\Patient::getUnlockedProfiles();
+        $result = Patient\Patient::getUnlockedProfiles($data);
 
         return $result;
     }

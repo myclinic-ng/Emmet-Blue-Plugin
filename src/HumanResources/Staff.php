@@ -68,6 +68,12 @@ class Staff
         return $result;
     }
 
+    public static function getStaffID(array $data){
+        $result = Staff\Staff::getStaffID($data);
+
+        return $result;
+    }
+
     /*view Departmental staff profile*/
     public static function viewDepartmentStaff(int $resourceId)
     {

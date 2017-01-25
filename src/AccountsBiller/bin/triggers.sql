@@ -20,3 +20,23 @@ BEGIN
   END
 END
 GO
+
+CREATE TRIGGER Accounts.UpdatePatientAccountsDepositBalance 
+ON Accounts.PatientDepositsAccountTransactions 
+AFTER INSERT 
+AS 
+BEGIN
+  DECLARE @amount AS MONEY, @account AS INT, @oldAmount AS MONEY;
+  SELECT @amount = TransactionAmount, @account = AccountID FROM inserted;
+  SELECT @oldAmount = AccountBalance FROM Accounts.PatientDepositsAccount WHERE AccountID = @account;
+  IF (@amount + @oldAmount < 0)
+  BEGIN
+    ROLLBACK TRANSACTION;
+    RAISERROR('Error: Balance in deposit account cannot be less than zero', 16, 1);
+  END
+  ELSE
+  BEGIN
+    UPDATE Accounts.PatientDepositsAccount SET AccountBalance = CAST(@amount + @oldAmount AS MONEY) WHERE AccountID = @account;
+  END
+END
+GO

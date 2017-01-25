@@ -111,9 +111,31 @@ class Patient
     }
 
     public static function unlockProfile(array $data){
-        $patient = $data['patient'];
-        $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
-        $result = DBConnectionFactory::getConnection()->exec($query);
+        $patient = $data['patient'] ?? null;
+        $staff = $data['staff'] ?? null;
+        $department = $data['department'] ?? null;
+        $requestNumber = $data['paymentRequest'] ?? null;
+
+        $salesData = [
+            "patient"=>$patient,
+            "staff"=>$staff,
+            "department"=>$department,
+            "salesAction"=>"Unlocked Profile"
+        ];
+
+        if (!is_null($requestNumber)){
+            $salesData["paymentRequest"] = $requestNumber;
+        }
+
+        $logSales = \EmmetBlue\Plugins\Audit\SalesLog\SalesLog::create($salesData);
+
+        if ($logSales){
+            $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
+            $result = DBConnectionFactory::getConnection()->exec($query);
+        }
+        else {
+            throw new \Exception("Unable to log this action");
+        }
 
         return $result;
     }
@@ -364,8 +386,8 @@ class Patient
         $params = [
             'index'=>'archives',
             'type'=>'patient-info',
-            'size'=>$data['size'],
-            'from'=>$data['from'],
+            'size'=>$data['size'] ?? 1,
+            'from'=>$data['from'] ?? 0,
             'body'=>array(
                 "query"=>array(
                     "query_string"=>array(
@@ -423,8 +445,17 @@ class Patient
         }
     }
 
-    public static function getUnlockedProfiles(){
-        $query = "SELECT * FROM Patients.Patient WHERE PatientProfileLockStatus = 0";
+    public static function getUnlockedProfiles(array $data){
+        $query = "SELECT * FROM Patients.Patient a INNER JOIN Patients.PatientType b ON a.PatientType = b.PatientTypeID WHERE PatientProfileLockStatus = 0";
+
+        if (isset($data["patienttype"]) && $data["patienttype"] != ""){
+            $types = explode(",", $data["patienttype"]);
+
+            $str = implode(" OR a.PatientType=", $types);
+
+            $query .= " AND (a.PatientType=$str)";
+        }
+
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;

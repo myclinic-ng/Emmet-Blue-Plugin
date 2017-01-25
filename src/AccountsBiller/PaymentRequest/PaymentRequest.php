@@ -199,7 +199,7 @@ class PaymentRequest
     public static function loadRequests(int $resourceId = 0, array $data = [])
     {
         $staff = $data["staff"];
-        $query = "SELECT * FROM Accounts.PaymentRequest a JOIN (SELECT b.DepartmentID FROM Staffs.Staff a JOIN Staffs.StaffDepartment b ON a.StaffID = b.StaffID WHERE StaffUUID = '$staff') b ON a.RequestDepartment = b.DepartmentID";
+        $query = "SELECT DISTINCT * FROM Accounts.PaymentRequest a JOIN (SELECT b.DepartmentID FROM Staffs.Staff a JOIN Staffs.StaffDepartment b ON a.StaffID = b.StaffID WHERE StaffUUID = '$staff') b ON a.RequestDepartment = b.DepartmentID";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
@@ -207,7 +207,26 @@ class PaymentRequest
 
     /*loading all request for Account Department*/
     public static function loadAllRequests($data){
-        $query = "SELECT a.*, b.Name, b.GroupID, c.PatientUUID, c.PatientFullName, c.PatientType, d.GroupName, e.CategoryName as PatientCategoryName, e.PatientTypeName FROM Accounts.PaymentRequest a JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID";
+        $query = 
+                "
+                    SELECT 
+                        a.*, 
+                        b.Name, 
+                        b.GroupID, 
+                        c.PatientUUID, 
+                        c.PatientFullName, 
+                        c.PatientType, 
+                        d.GroupName, 
+                        e.CategoryName AS PatientCategoryName, 
+                        e.PatientTypeName, 
+                        f.BillingAmountPaid 
+                    FROM Accounts.PaymentRequest a 
+                    JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID 
+                    JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID 
+                    JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID 
+                    JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID 
+                    LEFT OUTER JOIN Accounts.BillingTransaction f ON f.BillingTransactionMetaID = a.AttachedInvoice
+                ";
 
         switch($data["filtertype"]){
             case "patient":{
@@ -228,14 +247,69 @@ class PaymentRequest
                 $query .= " WHERE a.RequestFulfillmentStatus = ".$data["query"];
                 break;
             }
+            case "staff":{
+                $query .= " WHERE f.StaffID = ".$data["query"];
+                break;
+            }
+            case "patienttype":{
+                $query .= " WHERE e.PatientTypeID = ".$data["query"];
+                break;
+            }
         }
 
-        unset($data["filtertype"], $data["query"]);
+        unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
+
+        if (isset($data["constantstatus"]) && $data["constantstatus"] != ""){
+           $query .= " AND a.RequestFulfillmentStatus = ".$data["constantstatus"];
+           unset($data["constantstatus"]);
+        }
+
+        // die($query);
 
         if (!empty($data)){
-            $string = implode(" OR ", $data);
+            $_filters = ["status"=>[], "department"=>[], "date"=>[]];
+            if (isset($data["_status"]) && $data["_status"] != ""){
+                $data["_status"] = explode(",", str_replace(" ", "", $data["_status"]));
 
-            $query .= " AND (".$string.")";
+                foreach ($data["_status"] as $value) {
+                    $_filters["status"][] = "a.RequestFulfillmentStatus=".$value;
+                }
+            }
+
+            if (isset($data["_date"]) && $data["_date"] != ""){
+                $data["_date"] = explode(",", str_replace(" ", "", $data["_date"]));
+
+                foreach ($data["_date"] as $value) {
+                    $_filters["date"][] = "CAST(a.RequestDate AS DATE) ='".$value."'";
+                }
+            }
+
+            if (isset($data["_department"]) && $data["_department"] != ""){
+                $data["_department"] = explode(",", str_replace(" ", "", $data["_department"]));
+
+                foreach ($data["_department"] as $value) {
+                    $_filters["department"][] = "a.RequestDepartment =".$value;
+                }
+            }
+
+            if (isset($data["_patienttype"]) && $data["_patienttype"] != ""){
+                $data["_patienttype"] = explode(",", str_replace(" ", "", $data["_patienttype"]));
+
+                foreach ($data["_patienttype"] as $value) {
+                    $_filters["patienttype"][] = "e.PatientTypeID =".$value;
+                }
+            }
+
+            $string[] = empty($_filters["status"]) ? "1=1" : "(".implode(" OR ", $_filters["status"]).")";
+            $string[] = empty($_filters["date"]) ? "1=1" : "(".implode(" OR ", $_filters["date"]).")";
+            $string[] = empty($_filters["department"]) ? "1=1" : "(".implode(" OR ", $_filters["department"]).")";
+            $string[] = empty($_filters["patienttype"]) ? "1=1" : "(".implode(" OR ", $_filters["patienttype"]).")";
+
+            $string = implode(" AND ", $string);
+
+            if ($string != ""){
+                $query .= " AND (".$string.")";
+            }
         }
 
         // die($query);
@@ -250,13 +324,27 @@ class PaymentRequest
                 (string)$query
             );
 
-            foreach ($viewPaymentRequestOperation as $key => $value) {
-               if ($value["AttachedInvoice"] != ""){
-                    $viewPaymentRequestOperation[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::view((int) $value["AttachedInvoice"], ["a.BillingTransactionNumber"])[0]["BillingTransactionNumber"];
-               }
+            $result = [];
+            foreach ($viewPaymentRequestOperation as $value) {
+                $key = $value["PaymentRequestID"];
+                if (!isset($result[$key])){
+                    $result[$key] = $value; 
+                }
+                else {
+                    $result[$key]["BillingAmountPaid"] += $value["BillingAmountPaid"];
+                }
+
+                if ($value["AttachedInvoice"] != ""){
+                    $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::view((int) $value["AttachedInvoice"], ["a.BillingTransactionNumber"])[0]["BillingTransactionNumber"];
+                }
             }
-            
-            return $viewPaymentRequestOperation;  
+                
+            $_result = [];
+            foreach ($result as $value){
+                $_result[] = $value;
+            }
+
+            return $_result;  
         }
         catch (\PDOException $e) 
         {
@@ -272,17 +360,58 @@ class PaymentRequest
 
     public static function analyseRequests($data){
         $dataToCrunch = self::loadAllRequests($data);
-        $analysis = [];
-        $totals = [];
-        foreach ($dataToCrunch as $key => $value)
+        $analysis = ["summary"=>[], "breakdown"=>[]];
+        $finalData = [
+            "totals"=>[],
+            "totalExPrice"=>[],
+            "totalMoReceived"=>[]
+        ];
+        foreach ($dataToCrunch as $key => $data)
         {
-            $billingItem = self::loadPaymentRequestBillingItems($value["PaymentRequestID"]);
+            $billingItem = self::loadPaymentRequestBillingItems($data["PaymentRequestID"]);
+            $sums = [
+                "sum"=>0,
+                "sumExPrice"=>0
+            ];
+            foreach ($billingItem as $value) {
+                if (!isset($analysis["breakdown"][$value["ItemID"]])){
+                    $analysis["breakdown"][$value["ItemID"]] = ["name"=>$value["BillingTypeItemName"],  "value"=>0, "qty"=>0, "expectedPrice"=>0];
+                }
 
-            $totals[] = $billingItem[0]["totalPrice"];
+                $analysis["breakdown"][$value["ItemID"]]["value"] += $value["totalPrice"];
+                $payRuleData = [
+                    "amounts"=>[
+                        $value["ItemID"]=>$value["totalPrice"]
+                    ],
+                    "items"=>[$value["ItemID"]]
+                ];
+                $exPrice = \EmmetBlue\Plugins\AccountsBiller\GetItemPrice::applyPaymentRule((int) $value["PatientID"], $payRuleData)["_meta"]["amount"];
+                $analysis["breakdown"][$value["ItemID"]]["expectedPrice"] += $exPrice;
+                $analysis["breakdown"][$value["ItemID"]]["balPrice"] = $analysis["breakdown"][$value["ItemID"]]["value"] - $analysis["breakdown"][$value["ItemID"]]["expectedPrice"];
+                $analysis["breakdown"][$value["ItemID"]]["qty"] += 1;
+                $sums["sum"] += $value["totalPrice"];
+                $sums["sumExPrice"] += $exPrice;
+            }
+
+            //$analysis["breakdown"][] = $billingItem;
+            $finalData["totals"][] = $sums["sum"];
+            $finalData["totalExPrice"][] = $sums["sumExPrice"];
+            $finalData["totalMoReceived"][] = $data["BillingAmountPaid"];
         }
 
 
-        $analysis["Net Total"] = array_sum($totals);
+        $analysis["summary"]["Net Total"] = ["value"=>array_sum($finalData["totals"]), "type"=>"netTotal"];
+        $analysis["summary"]["Total With Payment Rules Applied"] = ["value"=>array_sum($finalData["totalExPrice"]), "type"=>"netTotal"];
+        $analysis["summary"]["Total Money Received"] = ["value"=>array_sum($finalData["totalMoReceived"]), "type"=>"netTotal"];
+        $analysis["summary"]["Total Money Unaccounted For"] = ["value"=>
+            ($analysis["summary"]["Total Money Received"]["value"] - $analysis["summary"]["Total With Payment Rules Applied"]["value"]), 
+            "type"=>"netTotal"
+        ];
+        $analysis["summary"]["Total Money Accrued By HMOS/Companies"] = ["value"=>
+            ($analysis["summary"]["Net Total"]["value"] - $analysis["summary"]["Total With Payment Rules Applied"]["value"]), 
+            "type"=>"netTotal"
+        ];
+        // $analysis["Net Total Accumulated Over"] = ["value"=>"10 days", "type"=>""];
 
         return $analysis;
     } 

@@ -38,12 +38,20 @@ class Transaction
         $paymentMethod = $data['paymentMethod'] ?? null;
         $amountPaid = $data['amountPaid'] ?? 0;
         $transactionStatus = $data["transactionStatus"] ?? "";
+        $staff = $data["staff"] ?? null;
 
-        $query = "SELECT BilledAmountTotal FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID = $metaId";
+        $query = "SELECT TOP 1 a.BilledAmountTotal, b.BillingAmountBalance FROM Accounts.BillingTransactionMeta a FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID WHERE a.BillingTransactionMetaID = $metaId ORDER BY b.BillingTransactionDate DESC";
 
         $queryResult = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
         $totalBilledAmount = (int)$queryResult[0]["BilledAmountTotal"];
-        $amountBalance = $totalBilledAmount - (int)$amountPaid;
+        $totalBalLeft = $queryResult[0]["BillingAmountBalance"];
+
+        if ($totalBalLeft !== "" && $totalBalLeft !== null && $totalBalLeft !== 0){
+            $amountBalance = (int)$totalBalLeft - (int)$amountPaid;
+        }
+        else {
+            $amountBalance = $totalBilledAmount - (int)$amountPaid;
+        }
 
         try
         {
@@ -55,7 +63,8 @@ class Transaction
                 'BillingTransactionCustomerAddress'=>(is_null($customerAddress)) ? "NULL" : QB::wrapString((string)$customerAddress, "'"),
                 'BillingPaymentMethod'=>(is_null($paymentMethod)) ? "NULL" : QB::wrapString((string)$paymentMethod, "'"),
                 'BillingAmountPaid'=>(is_null($amountPaid)) ? "NULL" : QB::wrapString((string)$amountPaid, "'"),
-                'BillingAmountBalance'=>(is_null($amountBalance)) ? "NULL" : QB::wrapString((string)$amountBalance, "'")
+                'BillingAmountBalance'=>(is_null($amountBalance)) ? "NULL" : QB::wrapString((string)$amountBalance, "'"),
+                'StaffID'=>$staff,
             ]);
 
             $id = $result["lastInsertId"];
