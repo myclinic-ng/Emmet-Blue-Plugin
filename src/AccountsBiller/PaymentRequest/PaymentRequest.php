@@ -255,6 +255,10 @@ class PaymentRequest
                 $query .= " WHERE e.PatientTypeID = ".$data["query"];
                 break;
             }
+            case "invoice":{
+                $query .= " WHERE a.AttachedInvoice = ".$data["query"];
+                break;
+            }
         }
 
         unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
