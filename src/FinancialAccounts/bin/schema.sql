@@ -38,13 +38,23 @@ CREATE TABLE FinancialAccounts.AccountingPeriods (
 	DateCreated DATETIME NOT NULL DEFAULT GETDATE()
 )
 
+CREATE TABLE FinancialAccounts.CurrentAccountingPeriod (
+	CurrentAccountingPeriodID INT PRIMARY KEY IDENTITY,
+	AccountingPeriodID INT NOT NULL,
+	StaffID INT,
+	SetDate DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff (StaffID) ON UPDATE CASCADE,
+	FOREIGN KEY (AccountingPeriodID) REFERENCES FinancialAccounts.AccountingPeriods (PeriodID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
 CREATE TABLE FinancialAccounts.AccountingPeriodBeginningBalances (
 	BeginningBalanceID INT PRIMARY KEY IDENTITY,
 	AccountingPeriodID INT NOT NULL,
 	AccountID INT NOT NULL,
 	BalanceValue MONEY DEFAULT 0.00,
 	FOREIGN KEY (AccountingPeriodID) REFERENCES FinancialAccounts.AccountingPeriods (PeriodID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (AccountID) REFERENCES FinancialAccounts.Accounts (AccountID) ON UPDATE CASCADE
+	FOREIGN KEY (AccountID) REFERENCES FinancialAccounts.Accounts (AccountID) ON UPDATE CASCADE,
+	UNIQUE(AccountingPeriodID, AccountID)
 )
 
 CREATE TABLE FinancialAccounts.GeneralJournal (

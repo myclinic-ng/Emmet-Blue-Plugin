@@ -43,7 +43,7 @@ class AccountingPeriodAlias {
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_INSERT,
                 'FinancialAccounts',
                 'AccountingPeriods',
                 (string)serialize($result)
@@ -72,7 +72,7 @@ class AccountingPeriodAlias {
         }
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder . " ORDER BY DateCreated DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             $query = "SELECT AccountingPeriodID, SUM(BalanceValue) as NetBalance FROM FinancialAccounts.AccountingPeriodBeginningBalances GROUP BY AccountingPeriodID";
             $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
@@ -109,8 +109,7 @@ class AccountingPeriodAlias {
                 ),
                 Constant::UNDEFINED
             );
-            
-            }
+        }
     }
 
     public static function edit(int $resourceId, array $data)
@@ -142,7 +141,7 @@ class AccountingPeriodAlias {
             
             DatabaseLog::log(
                 Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
+                Constant::EVENT_UPDATE,
                 'FinancialAccounts',
                 'AccountingPeriods',
                 (string)(serialize($result))

@@ -42,7 +42,23 @@ class AccountingPeriod {
 		return AccountingPeriod\AccountingPeriodBeginningBalance::view($data);
 	}
 
+	public static function viewBeginningBalanceByAccount(int $period, array $data){
+		return AccountingPeriod\AccountingPeriodBeginningBalance::viewByAccount($period, $data);
+	}
+
 	public static function editBeginningBalance(int $resourceId, array $data){
 		return AccountingPeriod\AccountingPeriodBeginningBalance::edit($resourceId, $data);
+	}
+
+	public static function setCurrentPeriod(array $data){
+		return AccountingPeriod\CurrentAccountingPeriod::create($data);
+	}
+
+	public static function getCurrentPeriod(){
+		return AccountingPeriod\CurrentAccountingPeriod::view();
+	}
+
+	public static function viewPeriodHistory(){
+		return AccountingPeriod\CurrentAccountingPeriod::viewHistory();
 	}
 }

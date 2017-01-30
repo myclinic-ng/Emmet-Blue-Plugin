@@ -61,7 +61,7 @@ class Account {
 	}
 
 
-	public static function view(int $resourceId)
+	public static function view(int $resourceId=0)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
@@ -99,16 +99,13 @@ class Account {
         }
     }
 
-    public static function viewAll(int $resourceId)
+    public static function viewAll()
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
             ->from('FinancialAccounts.Accounts a')
             ->innerJoin('FinancialAccounts.AccountTypes b', 'a.AccountTypeID = b.TypeID');
-        if ($resourceId != 0){
-            $selectBuilder->where('a.AccountID ='.$resourceId);
-        }
 
         try
         {
@@ -135,6 +132,17 @@ class Account {
             );
             
         }
+    }
+
+    public static function viewAllWithRunningBalances(int $period=0)
+    {
+        $accounts = self::view();
+
+        foreach ($accounts as $key=>$account){
+            $accounts[$key]["Balance"] = \EmmetBlue\Plugins\FinancialAccounts\AccountRegister\AccountRegister::getRunningBalance((int) $account["AccountID"], ["period"=>$period]);
+        }
+
+        return $accounts;
     }
 
     public static function edit(int $resourceId, array $data)

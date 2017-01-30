@@ -26,8 +26,12 @@ class Account {
 		return Account\Account::view($data);
 	}
 
-	public static function viewAllAccounts(int $data = 0){
-		return Account\Account::viewAll($data);
+	public static function viewAllAccounts(){
+		return Account\Account::viewAll();
+	}
+
+	public static function viewAllAccountsWithRunningBalances(int $period=0){
+		return Account\Account::viewAllWithRunningBalances($period);
 	}
 
 	public static function editAccount(int $resourceId, array $data){

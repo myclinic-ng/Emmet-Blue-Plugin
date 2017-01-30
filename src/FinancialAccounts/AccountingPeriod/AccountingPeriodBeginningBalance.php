@@ -101,8 +101,41 @@ class AccountingPeriodBeginningBalance {
                 ),
                 Constant::UNDEFINED
             );
-            
-            }
+        }
+    }
+
+    public static function viewByAccount(int $periodId, array $data)
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('*')
+            ->from('FinancialAccounts.AccountingPeriodBeginningBalances')
+            ->where('AccountingPeriodID ='.$periodId)
+            ->andWhere('AccountID ='.$data["account"]);
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'FinancialAccounts',
+                'AccountingPeriodBeginningBalances',
+                (string)$selectBuilder
+            );
+
+            return $result;     
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request: %s",
+                    $e->getMessage()
+                ),
+                Constant::UNDEFINED
+            );
+        }
     }
 
     public static function edit(int $resourceId, array $data)
