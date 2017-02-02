@@ -34,6 +34,11 @@ class Account {
 		return Account\Account::viewAllWithRunningBalances($period);
 	}
 
+    public static function viewAllAccountsWithRunningBalancesGroupByType(int $period=0)
+    {
+       return Account\Account::viewAllWithRunningBalancesGroupByType($period);
+    }
+
 	public static function editAccount(int $resourceId, array $data){
 		return Account\Account::edit($resourceId, $data);
 	}

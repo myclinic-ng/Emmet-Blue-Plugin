@@ -145,6 +145,47 @@ class Account {
         return $accounts;
     }
 
+    public static function viewAllWithRunningBalancesGroupByType(int $period=0)
+    {
+        $runningBalance = self::viewAllWithRunningBalances($period);
+        $accountTypes = [];
+        $categories = [];
+        $period = [];
+
+        foreach($runningBalance as $key=>$value){
+            $period = $value["Balance"]["period"];
+            if (!isset($accountTypes[$value["TypeID"]])){
+                $accountTypes[$value["TypeID"]] = ["_meta"=>["TypeName"=>$value["TypeName"], "Total"=>0]];
+            }
+
+            $accountTypes[$value["TypeID"]][] = $value;
+            $accountTypes[$value["TypeID"]]["_meta"]["Total"] += $value["Balance"]["value"];
+        }
+
+        $query = "SELECT a.CategoryID, a.CategoryName, a.SideOnEquation, b.TypeID FROM FinancialAccounts.AccountTypeCategories a INNER JOIN FinancialAccounts.AccountTypes b ON a.CategoryID = b.CategoryID";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key => $value) {
+             if (!isset($categories[$value["CategoryID"]])){
+                $categories[$value["CategoryID"]] = [
+                    "_meta"=>[
+                        "CategoryName"=>$value["CategoryName"],
+                        "SideOnEquation"=>$value["SideOnEquation"],
+                        "Total"=>0
+                    ]
+                ];
+             } 
+
+             if (isset($accountTypes[$value["TypeID"]])){
+                $categories[$value["CategoryID"]][] = $accountTypes[$value["TypeID"]];
+                $categories[$value["CategoryID"]]["_meta"]["Total"] += $accountTypes[$value["TypeID"]]["_meta"]["Total"];
+             }  
+        }
+
+        return ["categories"=>$categories, "period"=>$period[0]];
+    }
+
     public static function edit(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();

@@ -72,8 +72,6 @@ class AccountRegister {
                 $begBal += $entry["EntryValue"];
             }
         }
-        return ["value"=>$begBal];
+        return ["value"=>$begBal, "period"=>$periodInfo];
     }
-
-
 }
