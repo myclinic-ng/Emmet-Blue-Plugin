@@ -20,7 +20,7 @@ use EmmetBlue\Core\Constant;
 
 
 class Records{
-	public static function(array $data){
+	public static function indexRecords(array $data){
 		$dir = $data["dir"];
 		$path = realpath($dir));
 
