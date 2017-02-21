@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Chukwuma Nwali
+ * @author Samuel Adeshina
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -20,11 +20,13 @@ use EmmetBlue\Core\Constant;
 
 
 class Records{
+	public static function(array $data){
+		$dir = $data["dir"];
+		$path = realpath($dir));
 
-
-
-
-
-
-	
+		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+		foreach($objects as $name => $object){
+		    echo "$name\n";
+		}
+	}
 }
