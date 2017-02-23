@@ -22,11 +22,35 @@ use EmmetBlue\Core\Constant;
 class Records{
 	public static function indexRecords(array $data){
 		$dir = $data["dir"];
-		$path = realpath($dir));
+		$path = realpath($dir);
 
-		$objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+		$data = [];
+
+		$objects = new \RecursiveDirectoryIterator($path);
+		$counter = 0;
 		foreach($objects as $name => $object){
-		    echo "$name\n";
+			if ($counter == 1000){
+				break;
+			}
+
+			if (is_dir($name)){
+				if (file_exists($name."\meta.json")){
+					$content = file_get_contents($name."\meta.json");
+
+					while(!is_array(json_decode($content, true))){
+						$content = json_decode($content, true);
+					}
+
+					$folderEx = explode("\\", $name);
+					$folder = $folderEx[count($folderEx) - 1];
+					$data[$folder] = json_decode($content, true);
+					$data[$folder]["folder"] = $folder;
+
+					$counter++;
+				}
+			}
 		}
+
+		return ["records"=>$data, "total"=>$counter];
 	}
 }

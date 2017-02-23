@@ -81,6 +81,13 @@ class Patient
             return false;
         }
 
+        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
+        // fwrite($handler, (!is_null($passport)) ? $passport : "");
+        // fclose($handler);
+        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
+        // fwrite($handler, (!is_null($documents)) ? $documents : "");
+        // fclose($handler);
+
         self::base64ToJpeg($passport, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
         self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
         return true;
