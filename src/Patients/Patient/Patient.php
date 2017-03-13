@@ -81,13 +81,6 @@ class Patient
             return false;
         }
 
-        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.img", "w");
-        // fwrite($handler, (!is_null($passport)) ? $passport : "");
-        // fclose($handler);
-        // $handler = fopen(self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.img", "w");
-        // fwrite($handler, (!is_null($documents)) ? $documents : "");
-        // fclose($handler);
-
         self::base64ToJpeg($passport, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
         self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
         return true;
@@ -229,6 +222,22 @@ class Patient
                     (string)(serialize($result))
                 );
                 
+                try {
+                	$body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile $id")->fetchAll(\PDO::FETCH_ASSOC)[0];
+
+		            $esClient = ESClientFactory::getClient();
+
+		            $params = [
+		                'index'=>'archives',
+		                'type' =>'patient-info',
+		                'id'=>$id,
+		                'body'=>$body
+		            ];
+
+		            $esClient->index($params);
+		        }
+		        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+		        }
                 
                 return $result;
             }
@@ -328,13 +337,7 @@ class Patient
             $esClient = ESClientFactory::getClient();
             if ($resourceId == 0)
             {
-                $params = [
-                    'index'=>'archives',
-                    'type'=>'patient-info',
-                    'size'=>100
-                ];
-
-                return $esClient->search($params);
+                return self::search(["query"=>"", "size"=>100, "from"=>0]);
             }
 
             $params = [
@@ -343,10 +346,17 @@ class Patient
                 'id'=>$resourceId
             ];
 
-            return $esClient->get($params);
+            $result = $esClient->get($params);
+
+            foreach ($result["_source"] as $key=>$value){
+            	unset($result["_source"][$key]);
+            	$result["_source"][strtolower($key)] = $value;
+            }
+
+            return $result;
         }
         catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
-            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId";
+            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId AND ProfileDeleted = 0";
             $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
             return $result;
@@ -354,7 +364,7 @@ class Patient
     }
 
     public static function viewByPatientType(int $resourceId){
-        $query = "SELECT * FROM Patients.Patient WHERE PatientType = $resourceId";
+        $query = "SELECT * FROM Patients.Patient WHERE PatientType = $resourceId AND ProfileDeleted = 0";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($result as $key=>$value){
@@ -369,10 +379,7 @@ class Patient
     public static function search(array $data)
     {
         if ($data["query"] == ""){
-            throw new UndefinedValueException(sprintf(
-                "Empty search query provided, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+            $data["query"] = "*";
         }
 
         $query = explode(" ", $data["query"]);
@@ -399,7 +406,15 @@ class Patient
 
         $esClient = ESClientFactory::getClient();
 
-        return $esClient->search($params);
+        $result = $esClient->search($params);
+
+        foreach ($result["hits"]["hits"] as $key=>$hit){
+        	foreach($result["hits"]["hits"][$key]["_source"] as $k=>$v){
+        		unset($result["hits"]["hits"][$key]["_source"][$k]);
+        		$result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
+        	}
+        }
+        return $result;
     }
 
     /**
@@ -407,34 +422,35 @@ class Patient
      */
     public static function delete(int $resourceId)
     {
-        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $resourceId";
-        $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
-        $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
-
-        if (is_dir(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid)){
-            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid);
-        }
-
         try
         {
-            $deleteBuilder
-                ->from("Patients.Patient")
-                ->where("PatientID = $resourceId");
-            
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->exec((string)$deleteBuilder)
-            );
+            $query = "UPDATE Patients.Patient SET ProfileDeleted = 1 WHERE PatientID = $resourceId";
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'Patient',
-                (string)$deleteBuilder
-            );
+            $result = DBConnectionFactory::getConnection()->exec($query);
 
-            return $result;
+            if ($result){
+	            DatabaseLog::log(
+	                Session::get('USER_ID'),
+	                Constant::EVENT_DELETE,
+	                'Patients',
+	                'Patient',
+	                (string)$deleteBuilder
+	            );
+
+            	try {            
+		            $esClient = ESClientFactory::getClient();
+
+		            $params = [
+		                'index'=>'archives',
+		                'type' =>'patient-info',
+		                'id'=>$resourceId
+		            ];
+
+		            return $esClient->delete($params);
+		        }
+		        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+		        }
+            }
         }
         catch (\PDOException $e)
         {

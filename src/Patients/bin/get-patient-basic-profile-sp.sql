@@ -7,7 +7,7 @@ GO
 -- Create date: 22/09/2016
 -- Description:	
 -- =============================================
-CREATE PROCEDURE Patients.GetPatientBasicProfile 
+CREATE PROCEDURE Patients.GetPatientBasicProfile @PatientID INT = NULL
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
@@ -42,8 +42,16 @@ BEGIN
 
 	--EXEC sp_executesql @query;
 
-	SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N')  b ON a.PatientID = b.Patient) b ON a.PatientTypeID = b.PatientType'
+	SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N')  b ON a.PatientID = b.Patient WHERE a.ProfileDeleted = 0) b ON a.PatientTypeID = b.PatientType'
 
-	EXEC sp_executesql @queryFinal
+	IF (@PatientID IS NOT NULL)
+	BEGIN
+		SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N')  b ON a.PatientID = b.Patient WHERE a.ProfileDeleted = 0 AND a.PatientID = @PatientID) b ON a.PatientTypeID = b.PatientType'
+		EXEC sp_executesql @queryFinal, N'@PatientID INT', @PatientID = @PatientID
+	END
+	ELSE
+	BEGIN
+		EXEC sp_executesql @queryFinal
+	END
 END
 GO

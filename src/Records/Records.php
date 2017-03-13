@@ -46,11 +46,12 @@ class Records{
 					$data[$folder] = json_decode($content, true);
 					$data[$folder]["folder"] = $folder;
 
+					// echo "PROCESSED $counter: $folder";
 					$counter++;
 				}
 			}
 		}
 
-		return ["records"=>$data, "total"=>$counter];
+		return $data;
 	}
 }
