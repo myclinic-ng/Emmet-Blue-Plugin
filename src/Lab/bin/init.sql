@@ -88,3 +88,6 @@ INSERT INTO Consultancy.MedicalImaging(MedicalImagingName) VALUES
 ('Urodynamic Tests'),
 ('Video-assisted Thoracoscopic Surgery'),
 ('X-ray Test');
+
+
+INSERT INTO Lab.InvestigatiovTypeFieldTypes(TypeName) VALUES ('number'), ('text'), ('longtext');

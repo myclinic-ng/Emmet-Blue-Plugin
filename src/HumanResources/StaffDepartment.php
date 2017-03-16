@@ -40,6 +40,13 @@ class StaffDepartment
         return $result;
     }
 
+    public static function assignSecondary(array $data)
+    {
+        $result = StaffDepartment\StaffDepartment::assignSecondary($data);
+
+        return $result;
+    }
+
      /**
      * Edits a department group
      */

@@ -131,7 +131,12 @@ class PatientRepository
 
         $result['ReposityDetails'] = self::view((int)$result['RepositoryID']);
 
-        $result['RepositoryItemContent'] = unserialize(file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
+        if (file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber'])){
+        	$result['RepositoryItemContent'] = unserialize(file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
+        }
+        else {
+        	$result['RepositoryItemContent'] = NULL;
+        }
 
         return $result;
     }

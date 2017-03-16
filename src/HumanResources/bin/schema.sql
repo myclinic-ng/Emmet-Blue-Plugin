@@ -11,7 +11,7 @@ CREATE TABLE [Staffs].[Department] (
 	DepartmentID INT PRIMARY KEY IDENTITY,
 	Name VARCHAR(50),
 	GroupID INT,
-	ModifiedDate DATETIME,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (GroupID) REFERENCES [Staffs].[DepartmentGroup] (DepartmentGroupID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
@@ -27,7 +27,7 @@ CREATE TABLE [Staffs].[Role](
 	Name VARCHAR(50) NOT NULL,
 	DepartmentID INT NOT NULL,
 	Description VARCHAR(200),
-	ModifiedDate DATETIME,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] ON UPDATE CASCADE ON DELETE CASCADE
 )
 
@@ -44,7 +44,7 @@ CREATE TABLE [Staffs].[StaffPassword] (
 	StaffUsername VARCHAR(20) UNIQUE,
 	PasswordHash VARCHAR(MAX),
 	PasswordSalt VARCHAR(20),
-	ModifiedDate DATETIME,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
@@ -52,7 +52,17 @@ CREATE TABLE [Staffs].[StaffDepartment] (
 	StaffDepartmentID INT PRIMARY KEY IDENTITY,
 	StaffID INT UNIQUE,
 	DepartmentID INT,
-	ModifiedDate DATETIME,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Staffs.StaffSecondaryDepartments (
+	StaffDepartmentID INT PRIMARY KEY IDENTITY,
+	StaffID INT,
+	DepartmentID INT,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
+	UNIQUE(StaffID, DepartmentID),
 	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )
@@ -61,7 +71,7 @@ CREATE TABLE [Staffs].[StaffRole] (
 	StaffRoleID INT PRIMARY KEY IDENTITY,
 	StaffID INT UNIQUE,
 	RoleID INT,
-	ModifiedDate DATETIME,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (RoleID) REFERENCES [Staffs].[Role] ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )

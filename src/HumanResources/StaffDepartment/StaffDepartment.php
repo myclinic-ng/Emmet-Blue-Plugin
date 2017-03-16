@@ -40,7 +40,7 @@ class StaffDepartment
 
         try
         {
-        	$result = DBQueryFactory::insert('Staffs.StaffDepartment', [
+            $result = DBQueryFactory::insert('Staffs.StaffDepartment', [
                 'StaffID'=>$staff,
                 'DepartmentID'=>$department
             ]);
@@ -50,7 +50,30 @@ class StaffDepartment
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (new department group creation request), %s",
+                "Unable to process request (department assignment unsuccessful), %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function assignSecondary(array $data)
+    {
+        $staff = $data['staffId'];
+        $department = $data['departmentId'];
+
+        try
+        {
+            $result = DBQueryFactory::insert('Staffs.StaffSecondaryDepartments', [
+                'StaffID'=>$staff,
+                'DepartmentID'=>$department
+            ]);
+            
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process request (secondary department assignment unsuccessful), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
