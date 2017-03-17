@@ -127,15 +127,19 @@ class PatientRepository
                     SELECT * FROM Patients.PatientRepositoryItems WHERE RepositoryID = @repo AND RepositoryItemCategory = 'json'
                 END";
 
-        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        $result['ReposityDetails'] = self::view((int)$result['RepositoryID']);
+        if (isset($result[0])){
+            $result = $result[0];
 
-        if (file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber'])){
-        	$result['RepositoryItemContent'] = unserialize(file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
-        }
-        else {
-        	$result['RepositoryItemContent'] = NULL;
+            $result['ReposityDetails'] = self::view((int)$result['RepositoryID']);
+
+            if (file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber'])){
+                $result['RepositoryItemContent'] = unserialize(file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
+            }
+            else {
+                $result['RepositoryItemContent'] = NULL;
+            }
         }
 
         return $result;

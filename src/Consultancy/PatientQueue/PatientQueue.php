@@ -86,7 +86,9 @@ class PatientQueue
             );
 
             foreach ($viewOperation as $key=>$value){
-                $viewOperation[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"];
+                if (isset(\EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"])){
+                    $viewOperation[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"];
+                }
             }
 
             return $viewOperation;     

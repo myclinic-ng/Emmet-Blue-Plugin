@@ -73,6 +73,8 @@ class LabResult
                 'ReportedBy'=>QB::wrapString((string)$reportedBy, "'"),
             ]);
 
+            DBConnectionFactory::getConnection()->exec("UPDATE Lab.Patients SET Published = 1 WHERE PatientLabNumber = $patientLabNumber");
+            
             $result["repoId"] = $repoId;
             DatabaseLog::log(
                 Session::get('USER_ID'),

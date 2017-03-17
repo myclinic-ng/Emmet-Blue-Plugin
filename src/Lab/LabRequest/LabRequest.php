@@ -49,7 +49,7 @@ class LabRequest
             $result = DBQueryFactory::insert('Lab.LabRequests', [
                 'PatientID'=>$patientID,
                 'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
-                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                // 'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
                 'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
                 'InvestigationType'=>$investigationType,
                 'RequestNote'=>QB::wrapString((string)$requestNote, "'")
@@ -78,10 +78,48 @@ class LabRequest
      */
     public static function view(int $resourceId)
     {
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID WHERE e.LabID = $resourceId";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID WHERE e.LabID = $resourceId AND e.RequestAcknowledged = 0";
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            
+            foreach ($viewOperation as $key=>$result){
+                $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
+            }
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Lab',
+                'LabRequests',
+                (string)$selectBuilder
+            );
+
+            return $viewOperation;        
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function viewByPatient(int $resourceId, array $data)
+    {
+        $resourceId = QB::wrapString($data["patient"], "'");
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID WHERE f.PatientUUID = $resourceId AND e.RequestAcknowledged = 0";
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            
+            foreach ($viewOperation as $key=>$result){
+                $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),

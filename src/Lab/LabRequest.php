@@ -37,6 +37,12 @@ class LabRequest
 	{
 		return LabRequest\LabRequest::view($resourceId);
 	}
+
+	public static function viewByPatient(int $resourceId = 0, array $data)
+	{
+		return LabRequest\LabRequest::viewByPatient($resourceId, $data);
+	}
+
 	public static function editLabRequest(int $resourceId, array $data)
 	{
 		return LabRequest\LabRequest::edit($resourceId, $data);

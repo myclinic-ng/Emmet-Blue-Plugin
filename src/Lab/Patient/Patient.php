@@ -48,6 +48,9 @@ class Patient
         $clinicalDiagnosis = $data['clinicalDiagnosis'] ?? null;
         $investigationTypeRequired = $data['investigationTypeRequired'] ?? 'null';
         $investigationRequired = $data['investigationRequired'] ?? null;
+        $requestedBy = $data['requestedBy'] ?? null;
+        $dateRequested = $data['dateRequested'] ?? null;
+
         $name = $fname." ".$lname;
 
         try
@@ -62,7 +65,9 @@ class Patient
                 'Clinic'=>QB::wrapString((string)$clinic, "'"),
                 'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
                 'InvestigationTypeRequired'=>$investigationTypeRequired,
-                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'")
+                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                'DateRequested'=>QB::wrapString((string)$dateRequested, "'"),
+                'RequestedBy'=>$requestedBy
             ]);
 
             DatabaseLog::log(
@@ -93,13 +98,18 @@ class Patient
             ->columns('a.*, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
             ->from('Lab.Patients a')
             ->innerJoin('Lab.InvestigationTypes b', 'a.InvestigationTypeRequired = b.InvestigationTypeID')
-            ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID');
+            ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID')
+            ->where('a.Published = 0');
         if ($resourceId != 0){
-            $selectBuilder->where('a.PatientLabNumber ='.$resourceId);
+            $selectBuilder->andWhere('a.PatientLabNumber ='.$resourceId);
         }
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($viewOperation as $key=>$result){
+                $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
