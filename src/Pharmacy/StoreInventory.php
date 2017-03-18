@@ -33,6 +33,11 @@ class StoreInventory
 		return StoreInventory\StoreInventory::create($data);
 	}
 
+	public static function newStoreInventoryTags(array $data)
+	{
+		return StoreInventory\StoreInventory::createInventoryTags($data);
+	}
+
 	public static function viewStoreInventory(int $resourceId=0, array $data = [])
 	{
 		return StoreInventory\StoreInventory::view($resourceId, $data);
@@ -57,6 +62,12 @@ class StoreInventory
     public static function editStoreInventoryTags(int $resourceId, array $data)
     {
         $result = StoreInventory\StoreInventory::editStoreInventoryTags($resourceId, $data);
+
+        return $result;
+    }
+    public static function deleteStoreInventoryTag(int $resourceId)
+    {
+        $result = StoreInventory\StoreInventory::deleteStoreInventoryTag($resourceId);
 
         return $result;
     }

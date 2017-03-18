@@ -25,7 +25,7 @@ CREATE TABLE Pharmacy.StoreInventory(
 	ItemQuantity INT,
 	FOREIGN KEY (Item) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(Item, StoreID)
+	UNIQUE(Item, StoreID, ItemBrand)
 )
 GO
 

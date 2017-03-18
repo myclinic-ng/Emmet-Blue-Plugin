@@ -60,23 +60,7 @@ class StoreInventory
             
             $id = $result['lastInsertId']; 
 
-            if (is_array($storeInventoryTags))
-            {
-                foreach ($storeInventoryTags as $datum){
-                    $inventoryTags[] = "($id, ".QB::wrapString($datum['title'], "'").",".QB::wrapString($datum['name'], "'").")";
-                }
-
-                if (isset($inventoryTags))
-                {
-                    $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
-                                VALUES ".implode(", ", $inventoryTags);
-                                   
-                    $result = (
-                        DBConnectionFactory::getConnection()
-                        ->exec($query)
-                    );
-                }
-            }
+            self::createInventoryTags(["tags"=>$data["tags"], "item"=>$id]);
 
             return ['lastInsertId'=>$id];
         }
@@ -87,6 +71,33 @@ class StoreInventory
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function createInventoryTags(array $data){
+        $storeInventoryTags = $data['tags'] ?? null;
+        $id = $data["item"] ?? null;
+
+        if (is_array($storeInventoryTags))
+        {
+            foreach ($storeInventoryTags as $datum){
+                $inventoryTags[] = "($id, ".QB::wrapString($datum['title'], "'").",".QB::wrapString($datum['name'], "'").")";
+            }
+
+            if (isset($inventoryTags))
+            {
+                $query = "INSERT INTO Pharmacy.StoreInventoryTags (ItemID, TagTitle, TagName) 
+                            VALUES ".implode(", ", $inventoryTags);
+                               
+                $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec($query)
+                );
+
+                return $result;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -101,8 +112,17 @@ class StoreInventory
             if (isset($data['Item'])){
                 $data['Item'] = QB::wrapString($data['Item'], "'");
             }
+
             if (isset($data['ItemQuantity'])){
                 $data['ItemQuantity'] = QB::wrapString($data['ItemQuantity'], "'");
+            }
+
+            if (isset($data['ItemBrand'])){
+                $data['ItemBrand'] = QB::wrapString($data['ItemBrand'], "'");
+            }
+
+            if (isset($data['ItemManufacturer'])){
+                $data['ItemManufacturer'] = QB::wrapString($data['ItemManufacturer'], "'");
             }
 
             $updateBuilder->table("Pharmacy.StoreInventory");
@@ -276,6 +296,32 @@ class StoreInventory
                 ->from("Pharmacy.StoreInventory")
                 ->where("ItemID = $resourceId");
             
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$deleteBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process delete request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function deleteStoreInventoryTag(int $resourceId)
+    {
+        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+
+        try
+        {
+            $deleteBuilder
+                ->from("Pharmacy.StoreInventoryTags")
+                ->where("TagID = $resourceId");
+
             $result = (
                     DBConnectionFactory::getConnection()
                     ->exec((string)$deleteBuilder)
