@@ -341,6 +341,8 @@ class PaymentRequest
                 if ($value["AttachedInvoice"] != ""){
                     $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::view((int) $value["AttachedInvoice"], ["a.BillingTransactionNumber"])[0]["BillingTransactionNumber"];
                 }
+
+                $result[$key]["RequestByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$result[$key]["RequestBy"]])["StaffFullName"];
             }
                 
             $_result = [];
@@ -423,7 +425,6 @@ class PaymentRequest
     /** load payment billing Items and price for each request*/
     public static function loadPaymentRequestBillingItems($resourceId)
     {
-        # code...
         $paymentRequestId = $resourceId;
         $query = "SELECT a.*, b.BillingTypeItemName, c.RequestPatientID as PatientID FROM Accounts.PaymentRequestItems a JOIN Accounts.BillingTypeItems b On a.ItemID = b.BillingTypeItemID JOIN Accounts.PaymentRequest c ON a.RequestID = c.PaymentRequestID WHERE a.RequestID = $paymentRequestId" ;
             

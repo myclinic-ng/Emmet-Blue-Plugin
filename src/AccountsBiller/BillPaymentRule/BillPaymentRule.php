@@ -49,6 +49,8 @@ class BillPaymentRule
 
 		$query = "INSERT INTO Accounts.BillPaymentRules(PatientType, BillingTypeItem, RuleType, RuleValue) VALUES ". implode(",", $queryValue);
 
+        // die($query);
+
 		$result = DBConnectionFactory::getConnection()->exec($query);
 
 		return $result;

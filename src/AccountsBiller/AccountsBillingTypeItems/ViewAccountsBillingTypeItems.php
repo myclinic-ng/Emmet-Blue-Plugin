@@ -49,9 +49,7 @@ class ViewAccountsBillingTypeItems
             
             $selectBuilder->from("Accounts.BillingTypeItems");
 
-            if ($resourceId !== 0){
-                $selectBuilder->where("BillingType = $resourceId");
-            }
+            $selectBuilder->where("BillingType = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()
@@ -188,5 +186,29 @@ class ViewAccountsBillingTypeItems
         }
 
         return [];
+    }
+
+    public static function viewCategoryPrice(int $item){
+        $query = "SELECT a.* , b.CategoryName, b.CategoryID FROM Accounts.PatientTypeCategoriesDefaultPrices a RIGHT OUTER JOIN Patients.PatientTypeCategories b ON a.CategoryID = b.CategoryID WHERE a.BillingTypeItem = $item";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($result)){
+            $result = DBConnectionFactory::getConnection()->query("SELECT NULL AS BillingTypeItem, b.CategoryName, b.CategoryID FROM Patients.PatientTypeCategories b")->fetchAll(\PDO::FETCH_ASSOC);
+        }
+
+        return $result;
+    }
+
+    public static function viewGeneralPrice(int $item){
+        $query = "SELECT * FROM Accounts.GeneralDefaultPrices WHERE BillingTypeItem = $item";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($result[0])){
+            $result = $result[0];
+        }
+        
+        return $result;
     }
 }

@@ -241,4 +241,16 @@ class StaffProfile
 
         return ["StaffID"=>$id, "StaffFullName"=>null];
     }
+
+    public static function viewStaffFullNameFromUUID(array $data){
+        $query = "SELECT b.StaffID, b.StaffFullName FROM Staffs.Staff a INNER JOIN Staffs.StaffProfile b ON a.StaffID = b.StaffID WHERE a.StaffUUID = '".$data["uuid"]."'";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($result[0])){
+            return $result[0];
+        }
+
+        return ["StaffID"=>$id, "StaffFullName"=>null];
+    }
 }

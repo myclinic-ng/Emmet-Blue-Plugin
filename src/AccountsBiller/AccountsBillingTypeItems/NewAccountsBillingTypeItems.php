@@ -81,6 +81,48 @@ class NewAccountsBillingTypeItems
 		return $result;
 	}
 
+	public static function newCategoryPrice(array $resource){
+		$prices = $resource["prices"];
+		$str = [];
+		foreach ($prices as $data){
+			$item = $data["billingTypeItem"] ?? 'NULL';
+			$category = $data["categoryId"] ?? 'NULL';
+			$price = $data["price"] ?? 0;
+			$rateBased = isset($data["rate"]);
+			$rateIdentifier = ($rateBased) ? $data["rate"] : null;
+
+			$q = "SELECT CategoryID FROM Accounts.PatientTypeCategoriesDefaultPrices WHERE CategoryID = $category AND BillingTypeItem = $item";
+			if (empty(DBConnectionFactory::getConnection()->query($q)->fetchAll(\PDO::FETCH_ASSOC))){
+				$str[] = "INSERT INTO Accounts.PatientTypeCategoriesDefaultPrices (BillingTypeItem, CategoryID, BillingTypeItemPrice) VALUES ($item, $category, $price)";
+			}
+			else {
+				$str[] = "UPDATE Accounts.PatientTypeCategoriesDefaultPrices SET BillingTypeItemPrice = $price WHERE CategoryID = $category AND BillingTypeItem = $item";
+			}
+		}
+
+		$query = implode("; ", $str);
+
+		$result = DBConnectionFactory::getConnection()->exec($query);
+
+		return $result;		
+	}
+
+	public static function newGeneralPrice(array $data){
+		$item = $data["billingTypeItem"] ?? 'NULL';
+		$price = $data["price"] ?? 0;
+
+		if (empty(DBConnectionFactory::getConnection()->query("SELECT DefaultPriceID FROM Accounts.GeneralDefaultPrices WHERE BillingTypeItem = $item")->fetchAll(\PDO::FETCH_ASSOC))){
+			$query = "INSERT INTO Accounts.GeneralDefaultPrices (BillingTypeItem, BillingTypeItemPrice) VALUES ($item, $price)";
+		}
+		else {
+			$query = "UPDATE Accounts.GeneralDefaultPrices SET BillingTypeItemPrice = $price WHERE BillingTypeItem = $item";
+		}
+
+		$result = DBConnectionFactory::getConnection()->exec($query);
+
+		return $result;
+	}
+
 	public static function newPriceStructure(array $data)
 	{
 		$billingTypeItem = $data['billingTypeItem'] ?? 'NULL';

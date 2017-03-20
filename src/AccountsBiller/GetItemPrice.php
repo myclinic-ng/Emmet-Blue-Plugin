@@ -28,6 +28,13 @@ use EmmetBlue\Core\Constant;
  */
 class GetItemPrice
 {
+	/**
+	 * Multi Level (or multi-tier) Price Determination.
+	 *
+	 * Highest Level: ITEM'S SPECIFIC PRICE
+	 * Intermediate Level: ITEM'S CATEGORY's PRICE. f.ex: Multishield patient gets the price for all public hmo incase it's own price structure is not explicitly registered
+	 * Lowest Level: ITEM ASSUMES THE GENERAL PRICE. 
+	 */
 	public static function calculate(int $patient, array $data){
 		$item = $data["item"] ?? null;
 		$quantity = $data["quantity"] ?? null;
@@ -41,7 +48,22 @@ class GetItemPrice
 		$query = "SELECT * FROM Accounts.BillingTypeItemsPrices WHERE BillingTypeItem = $item AND PatientType = $patientType";
 		$result = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
 		if (empty($result)){
-			$result[0]["BillingTypeItemPrice"] = 0;
+			$q = "SELECT BillingTypeItemPrice FROM Accounts.PatientTypeCategoriesDefaultPrices WHERE CategoryID = (SELECT b.CategoryID FROM Patients.PatientType a INNER JOIN Patients.PatientTypeCategories b On a.CategoryName = b.CategoryName WHERE a.PatientTypeID = $patientType) AND BillingTypeItem = $item";
+			$price = DBConnectionFactory::getConnection()->query($q)->fetchall(\PDO::FETCH_ASSOC);
+
+			if (isset($price[0]["BillingTypeItemPrice"])){
+				$result[0]["BillingTypeItemPrice"] = $price[0]["BillingTypeItemPrice"];
+			}
+			else {
+				$q = "SELECT BillingTypeItemPrice FROM Accounts.GeneralDefaultPrices WHERE BillingTypeItem = $item";
+				$price = DBConnectionFactory::getConnection()->query($q)->fetchall(\PDO::FETCH_ASSOC);
+				if (isset($price[0]["BillingTypeItemPrice"])){
+					$result[0]["BillingTypeItemPrice"] = $price[0]["BillingTypeItemPrice"];
+				}
+				else {
+					$result[0]["BillingTypeItemPrice"] = 0;
+				}
+			}
 		}
 
 		$result = $result[0];

@@ -38,6 +38,16 @@ class BillingTypeItems
 		return AccountsBillingTypeItems\NewAccountsBillingTypeItems::newPriceStructure($data);
 	}
 
+	public static function newPriceStructureByPatientCategory(array $data)
+	{
+		return AccountsBillingTypeItems\NewAccountsBillingTypeItems::newCategoryPrice($data);
+	}
+
+	public static function newGeneralPriceStructure(array $data)
+	{
+		return AccountsBillingTypeItems\NewAccountsBillingTypeItems::newGeneralPrice($data);
+	}
+
 	public static function viewBillingTypeItems(int $resourceId=0, array $data = [])
 	{
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewAccountsBillingTypeItems($resourceId, $data);
@@ -56,6 +66,16 @@ class BillingTypeItems
 	public static function viewItemIntervals(int $resourceId=0, array $data = [])
 	{
 		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewItemIntervals($resourceId, $data);
+	}
+
+	public static function viewItemPriceByCategory(int $resourceId=0)
+	{
+		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewCategoryPrice($resourceId);
+	}
+
+	public static function viewGeneralItemPrice(int $resourceId=0)
+	{
+		return AccountsBillingTypeItems\ViewAccountsBillingTypeItems::viewGeneralPrice($resourceId);
 	}
 
 	public static function isRateBased(int $patientId, array $data)

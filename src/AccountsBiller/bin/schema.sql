@@ -230,3 +230,24 @@ CREATE TABLE Accounts.HmoDocuments (
 	DocumentCreationDate DATETIME NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (DocumentCreator) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
 )
+
+CREATE TABLE Accounts.PatientTypeCategoriesDefaultPrices (
+	DefaultPriceID INT PRIMARY KEY IDENTITY NOT NULL,
+	BillingTypeItem INT,
+	CategoryID INT,
+	BillingTypeItemPrice MONEY NOT NULL,
+	RateBased BIT,
+	RateIdentifier VARCHAR(100),
+	FOREIGN KEY (CategoryID) REFERENCES Patients.PatientTypeCategories (CategoryID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(BillingTypeItem, CategoryID)
+)
+
+CREATE TABLE Accounts.GeneralDefaultPrices (
+	DefaultPriceID INT PRIMARY KEY IDENTITY NOT NULL,
+	BillingTypeItem INT,
+	BillingTypeItemPrice MONEY NOT NULL,
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(BillingTypeItem)
+)
+
