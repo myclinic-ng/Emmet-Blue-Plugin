@@ -212,4 +212,15 @@ class LabRequest
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function closeRequest(array $data){
+        $id = $data["request"] ?? null;
+        $staff = $data["staff"] ?? null;
+        $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = 1, RequestAcknowledgedBy = $staff WHERE RequestID = $id";
+
+        // die($query);
+
+        $result = DBConnectionFactory::getConnection()->exec($query);
+        return $result;
+    }
 }

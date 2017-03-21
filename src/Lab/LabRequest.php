@@ -52,4 +52,9 @@ class LabRequest
 	{
 		return LabRequest\LabRequest::delete($resourceId);
 	}
+
+	public static function closeRequest(array $data)
+	{
+		return LabRequest\LabRequest::closeRequest($data);
+	}
 }
