@@ -78,7 +78,8 @@ class LabRequest
      */
     public static function view(int $resourceId)
     {
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID WHERE e.LabID = $resourceId AND e.RequestAcknowledged = 0";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, g.PatientTypeName, g.CategoryName, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE e.LabID = $resourceId AND e.RequestAcknowledged = 0";
+
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);

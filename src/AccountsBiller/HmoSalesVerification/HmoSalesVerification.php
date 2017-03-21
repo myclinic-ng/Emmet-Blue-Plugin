@@ -136,7 +136,10 @@ class HmoSalesVerification
     public static function getStatus(array $data)
     {
         $patient = $data["uuid"];
-        $department = $data["department"];
+        $staff = $data["staff"];
+
+        $q = "SELECT DepartmentID FROM Staffs.StaffDepartment WHERE StaffID = ".$staff;
+        $department = DBConnectionFactory::getConnection()->query($q)->fetchAll(\PDO::FETCH_ASSOC)[0]["DepartmentID"];
 
         $query = "SELECT PatientID FROM Patients.Patient WHERE PatientUUID = '$patient'";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
@@ -144,7 +147,7 @@ class HmoSalesVerification
 
         $patientId = $result[0]["PatientID"];
 
-        $query = "SELECT TOP 1 * FROM Accounts.HmoSalesVerification WHERE Status IS NULL AND PatientID = $patientId ORDER BY RequestDate DESC";
+        $query = "SELECT TOP 1 * FROM Accounts.HmoSalesVerification WHERE DepartmentID = $department AND PatientID = $patientId ORDER BY RequestDate DESC";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
