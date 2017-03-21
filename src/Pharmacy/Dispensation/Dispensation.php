@@ -146,7 +146,7 @@ class Dispensation
     {
         try
         {
-            $selectBuilder = "SELECT a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID FROM Pharmacy.Dispensation a JOIN Pharmacy.Store b ON a.DispensingStore = b.StoreID JOIN Pharmacy.EligibleDispensory c ON a.EligibleDispensory = c.EligibleDispensoryID JOIN Patients.Patient d ON a.Patient = d.PatientID";
+            $selectBuilder = "SELECT a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, d.PatientFullName FROM Pharmacy.Dispensation a JOIN Pharmacy.Store b ON a.DispensingStore = b.StoreID JOIN Pharmacy.EligibleDispensory c ON a.EligibleDispensory = c.EligibleDispensoryID JOIN Patients.Patient d ON a.Patient = d.PatientID";
 
             if ($resourceId !== 0){
                 $selectBuilder .= " WHERE a.DispensationID = $resourceId";
@@ -156,6 +156,13 @@ class Dispensation
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)
             )->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($dispensationResult as $key => $value) {
+                $itemQ = "SELECT c.*, b.BillingTypeItemName, a.ItemBrand, a.ItemManufacturer FROM Pharmacy.DispensedItems c INNER JOIN Pharmacy.StoreInventory a ON c.ItemID = a.ItemID INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID WHERE c.DispensationID = ".$value["DispensationID"];
+                $items = DBConnectionFactory::getConnection()->query($itemQ)->fetchAll(\PDO::FETCH_ASSOC);
+
+                $dispensationResult[$key]["items"] = $items;
+            }
 
             return $dispensationResult;
         }

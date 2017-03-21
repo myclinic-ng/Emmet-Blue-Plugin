@@ -82,6 +82,7 @@ class PharmacyRequest
                 $id = $value['PatientID'];
                 $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $id);
                 $viewOperation[$key]["patientInfo"] = $patient["_source"];
+                $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["RequestedBy"])["StaffFullName"];
                 $viewOperation[$key]["Request"] = unserialize(base64_decode($value["Request"]));
             }
             DatabaseLog::log(
