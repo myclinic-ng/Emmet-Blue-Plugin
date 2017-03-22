@@ -83,16 +83,18 @@ class PatientAdmission
 
         $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        foreach ($res as $key => $value) {
-            $items[] = ["item"=>$value["BillingTypeItem"], "quantity"=>$value["BillingTypeItemQuantity"]];
+        if (!empty($res)){
+            foreach ($res as $key => $value) {
+                $items[] = ["item"=>$value["BillingTypeItem"], "quantity"=>$value["BillingTypeItemQuantity"]];
+            }
+
+            $paymentRequest["items"] = $items;
+            $paymentRequest["requestBy"] = $staff;
+
+            $paymentRequest["patient"] = DBConnectionFactory::getConnection()->query("SELECT Patient FROM Consultancy.PatientAdmission WHERE PatientAdmissionID = $admissionId")->fetchAll(\PDO::FETCH_ASSOC)[0]["Patient"];
+
+            $makeBillersHappy = \EmmetBlue\Plugins\AccountsBiller\PaymentRequest\PaymentRequest::create($paymentRequest);
         }
-
-        $paymentRequest["items"] = $items;
-        $paymentRequest["requestBy"] = $staff;
-
-        $paymentRequest["patient"] = DBConnectionFactory::getConnection()->query("SELECT Patient FROM Consultancy.PatientAdmission WHERE PatientAdmissionID = $admissionId")->fetchAll(\PDO::FETCH_ASSOC)[0]["Patient"];
-
-        $makeBillersHappy = \EmmetBlue\Plugins\AccountsBiller\PaymentRequest\PaymentRequest::create($paymentRequest);
 
         $result = DBQueryFactory::insert('Consultancy.PatientDischargeInformation', [
             'PatientAdmissionID'=>$admissionId,
@@ -202,6 +204,70 @@ class PatientAdmission
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Consultancy',
+                'PatientAdmission',
+                (string)$selectBuilder
+            );
+
+            return $result;
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request: %s",
+                    $e->getMessage()
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function viewReceivedPatients(int $resourceId = 0, array $data = [])
+    {
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('a.*, b.*, c.WardSectionName, d.WardName, e.DischargedBy, e.DischargeNote, e.DischargeDate')
+            ->from('Consultancy.PatientAdmission a')
+            ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
+            ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
+            ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID')
+            ->innerJoin('Consultancy.PatientDischargeInformation e', 'a.PatientAdmissionID = e.PatientAdmissionID')
+            ->where('a.ReceivedInWard = 1 AND (a.DischargeStatus = 0 OR a.DischargeStatus = -1)');
+
+        if ($resourceId != 0){
+            $selectBuilder->andWhere('a.Ward ='.$resourceId);
+        }
+
+        if (isset($data["admissionId"])){
+            $selectBuilder->andWhere('a.PatientAdmissionID = '.$data["admissionId"]);
+        }
+        
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $key=>$value){
+                $admissionId = $value["PatientAdmissionID"];
+
+                $wardDetailsString = "SELECT * FROM Nursing.WardAdmission WHERE PatientAdmissionID = $admissionId";
+                $WardDetails = DBConnectionFactory::getConnection()->query($wardDetailsString)->fetchAll(\PDO::FETCH_ASSOC);
+                if (isset($WardDetails[0])){
+                    $result[$key]["WardDetails"] = $WardDetails[0];
+                }
+                else {
+                    $result[$key]["WardDetails"] = [
+                        "WardAdmissionID"=>null,
+                        "Bed"=>null,
+                        "AdmissionProcessedBy"=>null
+                    ];
+                }
+            }
 
             DatabaseLog::log(
                 Session::get('USER_ID'),

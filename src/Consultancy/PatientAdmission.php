@@ -56,6 +56,13 @@ class PatientAdmission
         return $result;
     }
 
+    public static function viewReceivedPatients(int $resourceId=0, array $data = [])
+    {
+        $result = PatientAdmission\PatientAdmission::viewReceivedPatients($resourceId, $data);
+
+        return $result;
+    }
+
     public static function editPatientAdmission(int $resourceId=0, array $data)
     {
         $result = PatientAdmission\PatientAdmission::editPatientAdmission($resourceId, $data);

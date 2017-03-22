@@ -40,7 +40,7 @@ class HmoInPatients
 
         $patientTypesString = implode(" OR ", $patientTypes);
 
-        $query = "SELECT a.*, c.WardName, d.WardSectionName FROM Consultancy.PatientAdmission a INNER JOIN Patients.Patient b ON a.Patient = b.PatientID INNER JOIN Nursing.Ward c ON a.Ward = c.WardID INNER JOIN Nursing.WardSection d ON a.Section = d.WardSectionID WHERE (a.DischargeStatus = 0 OR a.DischargeStatus = -1) AND ($patientTypesString)";
+        $query = "SELECT a.*, c.WardName, d.WardSectionName FROM Consultancy.PatientAdmission a INNER JOIN Patients.Patient b ON a.Patient = b.PatientID INNER JOIN Nursing.Ward c ON a.Ward = c.WardID INNER JOIN Nursing.WardSection d ON a.Section = d.WardSectionID WHERE a.ReceivedInWard = 1 AND (a.DischargeStatus = 0 OR a.DischargeStatus = -1) AND ($patientTypesString)";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -50,6 +50,4 @@ class HmoInPatients
 
         return $result;
     }
-
-    //public static 
 }
