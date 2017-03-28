@@ -78,6 +78,13 @@ class Patient
         return $result;
     }
 
+    public static function updatePhoto(array $data)
+    {
+        $result = Patient\Patient::updatePhoto($data);
+
+        return $result;
+    }
+
     public static function getImage(array $data){
         $result = Patient\Patient::getImage($data);
 
@@ -111,9 +118,9 @@ class Patient
     /**
      * edits Patient
      */
-    public static function editPatientRecordsFieldValue(int $resourceId=0)
+    public static function editPatientRecordsFieldValue(array $data)
     {
-        $result = Patient\Patient::editPatientRecordsFieldValue($resourceId);
+        $result = Patient\Patient::editPatientRecordsFieldValue($data);
 
         return $result;
     }
@@ -133,5 +140,14 @@ class Patient
         $result = Patient\Patient::getUnlockedProfiles($data);
 
         return $result;
+    }
+
+
+    public static function changeType(array $data){
+        return Patient\Patient::changeType($data);
+    }
+
+    public static function viewRecordFields(int $data){
+        return Patient\Patient::viewRecordFields($data);
     }
 }

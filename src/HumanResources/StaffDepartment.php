@@ -67,6 +67,13 @@ class StaffDepartment
         return $result;
     }
 
+    public static function viewSecondaryDepartments(int $resourceId=0, array $data = [])
+    {
+        $result = StaffDepartment\StaffDepartment::viewSecondaryDepartments($resourceId, $data);
+
+        return $result;
+    }
+
     /**
      * Deletes a staff
      */

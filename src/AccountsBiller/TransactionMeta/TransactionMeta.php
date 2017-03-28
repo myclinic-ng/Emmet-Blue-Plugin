@@ -35,7 +35,11 @@ class TransactionMeta
         $string = date(DATE_RFC2822);
         $date = new \DateTime($string);
 
-        return $date->format('YmdHis');  
+        $str = $date->format('Ymd');
+        $query = "SELECT TOP 1 BillingTransactionMetaID as id FROM Accounts.BillingTransactionMeta ORDER BY BillingTransactionMetaID DESC";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC)[0]["id"] + 1;
+
+        return $str.$result;  
     }
 
     public static function create(array $data)
@@ -237,7 +241,7 @@ class TransactionMeta
     {
         try
         {
-           $selectBuilder = "SELECT TOP 1 a.*, b.BillingTransactionCustomerName, b.BillingTransactionCustomerPhone, b.BillingAmountPaid, b.BillingAmountBalance FROM Accounts.BillingTransactionMeta a FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID WHERE BillingTransactionNumber = CAST($resourceId AS NUMERIC) ORDER BY b.BillingTransactionDate DESC";
+           $selectBuilder = "SELECT TOP 1 a.*, b.BillingTransactionCustomerName, b.BillingTransactionCustomerPhone, b.BillingAmountPaid, b.BillingAmountBalance, c.RequestDepartment, d.Name as RequestDepartmentName FROM Accounts.BillingTransactionMeta a FULL OUTER JOIN Accounts.BillingTransaction b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID INNER JOIN Accounts.PaymentRequest c ON a.BillingTransactionMetaID = c.AttachedInvoice INNER JOIN Staffs.Department d ON c.RequestDepartment = d.DepartmentID WHERE BillingTransactionNumber = CAST($resourceId AS NUMERIC) ORDER BY b.BillingTransactionDate DESC";
 
             $result = (
                 DBConnectionFactory::getConnection()

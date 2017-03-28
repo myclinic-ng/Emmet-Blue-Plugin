@@ -44,6 +44,7 @@ CREATE TABLE [Staffs].[StaffPassword] (
 	StaffUsername VARCHAR(20) UNIQUE,
 	PasswordHash VARCHAR(MAX),
 	PasswordSalt VARCHAR(20),
+	LoggedIn BIT NOT NULL DEFAULT 0,
 	ModifiedDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )
@@ -53,16 +54,6 @@ CREATE TABLE [Staffs].[StaffDepartment] (
 	StaffID INT UNIQUE,
 	DepartmentID INT,
 	ModifiedDate DATETIME DEFAULT GETDATE(),
-	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] ON UPDATE CASCADE ON DELETE SET NULL,
-	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
-)
-
-CREATE TABLE Staffs.StaffSecondaryDepartments (
-	StaffDepartmentID INT PRIMARY KEY IDENTITY,
-	StaffID INT,
-	DepartmentID INT,
-	ModifiedDate DATETIME DEFAULT GETDATE(),
-	UNIQUE(StaffID, DepartmentID),
 	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )
@@ -98,4 +89,14 @@ CREATE TABLE Staffs.StaffRecordsFieldValue (
 	FieldTitle VARCHAR(50),
 	FieldValue VARCHAR(max),
 	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff(StaffID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+
+CREATE TABLE Staffs.StaffSecondaryDepartments (
+	StaffDepartmentID INT PRIMARY KEY IDENTITY,
+	StaffID INT,
+	DepartmentID INT,
+	ModifiedDate DATETIME DEFAULT GETDATE(),
+	UNIQUE(StaffID, DepartmentID),
+	FOREIGN KEY (DepartmentID) REFERENCES [Staffs].[Department] ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
 )

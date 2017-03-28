@@ -42,11 +42,54 @@ class Account
         if (Account\Login::isLoginDataValid($username, $password))
         {
             $info = self::getAccountInfo(self::getUserID($username));
+            $id = self::getUserID($username);
 
-            return ["status"=>true, "uuid"=>$info['StaffUUID'], "accountActivated"=>$info["AccountActivated"], "id"=>self::getUserID($username)];
+            \EmmetBlue\Plugins\User\Session::activate((int) $id);
+
+            return ["status"=>true, "uuid"=>$info['StaffUUID'], "accountActivated"=>$info["AccountActivated"], "id"=>$id];
         }
 
         return ["status"=>false];
+    }
+
+    public static function getSwitchData($data){
+        $id = $data["staff"] ?? null;
+        $department = $data["department"] ?? null;
+
+        $query = "SELECT COUNT(*) as count FROM Staffs.StaffSecondaryDepartments WHERE StaffID = $id AND DepartmentID = $department";
+        $count = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["count"];
+
+        if ($count == 1){
+            try
+            {            
+        
+                $query = "SELECT * FROM Staffs.DepartmentRootUrl a INNER JOIN Staffs.StaffSecondaryDepartments b ON a.DepartmentID = b.DepartmentID WHERE b.StaffID = $id AND b.DepartmentID = $department";
+
+                $result = (
+                        DBConnectionFactory::getConnection()
+                        ->query((string)$query)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+
+                if (isset($result[0])){
+                    $result = $result[0];
+                }
+                else {
+                    throw new \Exception("Root Url Not Found");
+                }
+
+                return $result;
+            }
+            catch (\PDOException $e)
+            {
+                throw new SQLException(sprintf(
+                    "Unable to retrieve requested data, %s",
+                    $e->getMessage()
+                ), Constant::UNDEFINED);
+            }
+        }
+        else {
+            throw new \Exception("Access Denied!");
+        }
     }
 
      /**

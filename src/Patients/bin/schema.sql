@@ -218,3 +218,15 @@ BEGIN
 	DELETE FROM Patients.PatientRepositoryItems WHERE RepositoryItemID IN (SELECT RepositoryItemID FROM DELETED)
 END
 GO
+
+CREATE TABLE Patients.PatientTypeChangeLog (
+	LogID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	PreviousType INT,
+	NewType INT,
+	ChangedBy INT,
+	DateLogged DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE,
+	FOREIGN KEY (ChangedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO

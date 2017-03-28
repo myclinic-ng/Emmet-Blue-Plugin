@@ -227,6 +227,16 @@ class StaffProfile
         $query = "Staffs.GetStaffBasicProfile";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
+        $usernames = DBConnectionFactory::getConnection()->query("SELECT StaffID, StaffUsername, LoggedIn FROM Staffs.StaffPassword")->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key=>$value){
+            $id = $value["StaffID"];
+
+            $index = array_search($id, array_column($usernames, 'StaffID'));
+            $result[$key]["StaffUsername"] = $usernames[$index]["StaffUsername"];
+            $result[$key]["isLoggedIn"] = $usernames[$index]["LoggedIn"];
+        }
+
         return $result;
     }
 

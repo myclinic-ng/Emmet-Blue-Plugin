@@ -58,8 +58,8 @@ class StaffDepartment
 
     public static function assignSecondary(array $data)
     {
-        $staff = $data['staffId'];
-        $department = $data['departmentId'];
+        $staff = $data['staff'] ?? null;
+        $department = $data['department'] ?? null;
 
         try
         {
@@ -90,11 +90,11 @@ class StaffDepartment
         {
             $updateBuilder->table("Staffs.StaffDepartment");
             $updateBuilder->set($data);
-            $updateBuilder->where("StaffDepartmentID = $resourceId");
-
+            $updateBuilder->where("StaffID = $resourceId");
+            
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->exec((string)$updateBuilder)
                 );
 
             return $result;
@@ -131,6 +131,39 @@ class StaffDepartment
             if ($resourceId !== 0){
                 $selectBuilder->where("StaffDepartmentID = $resourceId");
             }
+
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function viewSecondaryDepartments(int $resourceId = 0, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("*");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Staffs.StaffSecondaryDepartments a")->innerJoin("Staffs.Department b", "a.DepartmentID = b.DepartmentID");
+
+            $selectBuilder->where("StaffID = $resourceId");
 
             $result = (
                     DBConnectionFactory::getConnection()

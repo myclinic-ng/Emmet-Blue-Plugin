@@ -38,30 +38,57 @@ class DrugNames
      $size = $data['size'] ?? 500;
      $from = $data['from'] ?? 0;
 
-     $query = explode(" ", $phrase);
-     $builtQuery = [];
-     foreach ($query as $element){
-         $builtQuery[] = "(".$element."* ".$element."~)";
-     }
+    //  $query = explode(" ", $phrase);
+    //  $builtQuery = [];
+    //  foreach ($query as $element){
+    //      $builtQuery[] = "%".$element."%";
+    //  }
 
-     $builtQuery = implode(" AND ", $builtQuery);
+    // $builtQuery = implode(" OR b.BillingTypeItemName LIKE ", $builtQuery);
+
+    $builtQuery = "%$phrase%";
+
+    $uuid=$data['staff'];
+
+    $query = "SELECT a.BillingTypeName, b.* FROM Accounts.BillingType a JOIN (
+                SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
+                    SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
+                        SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
+                    ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$uuid'
+                ) b ON a.BillingType = b.BillingTypeID
+            ) b ON a.BillingTypeID = b.BillingType WHERE b.BillingTypeItemName LIKE '$builtQuery'";
+
+    // die($query);
+            
+    $result = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$query)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+    $billingTypes = [];
+
+    foreach ($result as $item){
+        $billingTypes[] = $item["BillingTypeItemName"];
+    }
+
+    return $billingTypes;
      
-     $params = [
-         'index'=>'rxnorm',
-         'type'=>'drugnames',
-         'size'=>$size,
-         'from'=>$from,
-         'body'=>array(
-             "query"=>array(
-                 "query_string"=>array(
-                     "query"=>$builtQuery
-                 )
-             )
-         )
-     ];
+     // $params = [
+     //     'index'=>'rxnorm',
+     //     'type'=>'drugnames',
+     //     'size'=>$size,
+     //     'from'=>$from,
+     //     'body'=>array(
+     //         "query"=>array(
+     //             "query_string"=>array(
+     //                 "query"=>$builtQuery
+     //             )
+     //         )
+     //     )
+     // ];
 
-     $esClient = ESClientFactory::getClient();
+     // $esClient = ESClientFactory::getClient();
 
-     return $esClient->search($params);
+     // return $esClient->search($params);
    }
 }

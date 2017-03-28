@@ -8,6 +8,14 @@
  */
 namespace EmmetBlue\Plugins\User;
 
+use EmmetBlue\Core\Builder\BuilderFactory as Builder;
+use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
+use EmmetBlue\Core\Builder\QueryBuilder\QueryBuilder as QB;
+use EmmetBlue\Core\Exception\SQLException;
+use EmmetBlue\Core\Logger\DatabaseLog;
+use EmmetBlue\Core\Logger\ErrorLog;
+use EmmetBlue\Core\Constant;
+
 /**
  * class Session.
  *
@@ -36,5 +44,15 @@ class Session
 		file_put_contents(self::$sessionLocation, $encodedSessionString);
 	}
 
-	
+	public static function activate(int $resourceId){
+		$query = "UPDATE Staffs.StaffPassword SET LoggedIn = 1 WHERE StaffID = $resourceId";
+
+		return DBConnectionFactory::getConnection()->exec($query);
+	}
+
+	public static function deactivate(int $resourceId){
+		$query = "UPDATE Staffs.StaffPassword SET LoggedIn = 0 WHERE StaffID = $resourceId";
+
+		return DBConnectionFactory::getConnection()->exec($query);
+	}	
 }

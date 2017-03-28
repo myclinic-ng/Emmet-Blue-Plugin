@@ -37,13 +37,10 @@ class Patient
     protected static $patientFolders = [];
 
     protected static function base64ToJpeg($base64_string, $output_file) {
-        $ifp = fopen($output_file, "wb"); 
-
-       if (is_string($base64_string)){
+        if (is_string($base64_string)){
             $data = explode(',', $base64_string);
 
-            fwrite($ifp, base64_decode($data[1])); 
-            fclose($ifp);
+            file_put_contents($output_file, base64_decode($data[1]));
        } 
 
         return $output_file; 
@@ -76,13 +73,16 @@ class Patient
         return true;
     }
 
-    protected static function uploadPhotoAndDocuments($passport, $documents){
+    protected static function uploadPhotoAndDocuments($passport, $documents = null){
         if (!isset(self::$patientFolders["profile"]) || is_null(self::$patientFolders["profile"])){
             return false;
         }
 
         self::base64ToJpeg($passport, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."photo.jpg");
-        self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
+        
+        if (!is_null($documents)){
+            self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
+        }
         return true;
     }
 
@@ -91,6 +91,24 @@ class Patient
         $imageLocation = $data["image-dir"];
 
         return file_get_contents($imageLocation);
+    }   
+
+    public static function updatePhoto(array $data){
+        $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = ".$data["patient"];
+        $patientUuid = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
+        if (isset($patientUuid[0])){
+            $patientUuid = $patientUuid[0]["PatientUUID"];
+
+            self::$patientFolders = [
+                "patient" => self::PATIENT_ARCHIVE_DIR.$patientUuid,
+                "profile" => self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile',
+                "repo" => self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'repositories'
+            ];
+
+            return self::uploadPhotoAndDocuments($data['photo']);
+        }
+
+        return false;
     }
 
     public static function lockProfile(array $data){
@@ -293,27 +311,66 @@ class Patient
     /**
      * Modifies the content of a field title type
      */
-    public static function editPatientRecordsFieldValue(int $resourceId, array $data)
-    {
-        $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
-
-        try
-        {
+    public static function editPatientRecordsFieldValue(array $edits)
+    {   
+        $patient = $edits["patient"];
+        $queries = [];
+        foreach ($edits["data"] as $data){
+            $resourceId = $data["resourceId"];
+            unset($data["resourceId"]);
+            $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
             if (isset($data['FieldTitle'])){
                 $data['FieldTitle'] = QB::wrapString((string)$data['FieldTitle'], "'");
             }
+
             if (isset($data['FieldValue'])){
                 $data['FieldValue'] = QB::wrapString((string)$data['FieldValue'], "'");
             }
 
             $updateBuilder->table("Patients.PatientRecordsFieldValue");
             $updateBuilder->set($data);
-            $updateBuilder->where("TypeID = $resourceId");
+            $updateBuilder->where("FieldValueID = $resourceId");
+
+            $queries[] = (string) $updateBuilder;
+        }
+
+        try
+        {
 
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->exec((string)$updateBuilder)
+                    ->exec(implode("; ", $queries))
                 );
+
+            $query = "SELECT FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID = $patient AND (FieldTitle='First Name' OR FieldTitle='Last Name')";
+            $names = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
+
+            $nameStr = "";
+            foreach ($names as $value) {
+                $nameStr .= $value["FieldValue"]. " ";
+            }
+
+            $query = "UPDATE Patients.Patient SET PatientFullName = '$nameStr' WHERE PatientID = $patient";
+            DBConnectionFactory::getConnection()->exec($query);
+                
+            try {
+                $body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile ".$patient)->fetchAll(\PDO::FETCH_ASSOC)[0];
+
+                $body["Date Of Birth"] = (new \DateTime($body["Date Of Birth"]))->format('Y-m-d\TH:i:s');
+
+                $esClient = ESClientFactory::getClient();
+
+                $params = [
+                    'index'=>'archives',
+                    'type' =>'patient-info',
+                    'id'=>$patient,
+                    'body'=>$body
+                ];
+
+                $esClient->index($params);
+            }
+            catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            }
 
             return $result;
         }
@@ -475,5 +532,55 @@ class Patient
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
+    }
+
+    public static function changeType(array $data){
+        $patient = $data["patient"] ?? null;
+        $type = $data["type"] ?? null;
+        $staff = $data["staff"] ?? null;
+
+        $prevType = DBConnectionFactory::getConnection()->query("SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient")->fetchAll(\PDO::FETCH_ASSOC);
+        if (isset($prevType[0])){
+            $prevType = $prevType[0]["PatientType"];
+        }
+        else {
+            $prevType = null;
+        }
+
+        $query = "UPDATE Patients.Patient SET PatientType = $type WHERE PatientID = $patient";
+
+        if (DBConnectionFactory::getConnection()->exec($query)){
+            $q = "INSERT INTO Patients.PatientTypeChangeLog (PatientID, PreviousType, NewType, ChangedBy) VALUES ($patient, $prevType, $type, $staff)";
+            DBConnectionFactory::getConnection()->exec($q);
+
+            try {
+                $body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile ".$patient)->fetchAll(\PDO::FETCH_ASSOC)[0];
+
+                $body["Date Of Birth"] = (new \DateTime($body["Date Of Birth"]))->format('Y-m-d\TH:i:s');
+
+                $esClient = ESClientFactory::getClient();
+
+                $params = [
+                    'index'=>'archives',
+                    'type' =>'patient-info',
+                    'id'=>$patient,
+                    'body'=>$body
+                ];
+
+                $esClient->index($params);
+            }
+            catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function viewRecordFields(int $resourceId){
+        $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
+
+        return DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
     }
 }
