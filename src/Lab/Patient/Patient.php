@@ -77,6 +77,7 @@ class Patient
                 'Patients',
                 (string)(serialize($result))
             );
+            
             return $result;
         }
         catch (\PDOException $e)

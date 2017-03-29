@@ -211,9 +211,14 @@ class TransactionMeta
                 else{
                     $status = 1;
                 }
+
                 $result[$key]["_meta"] = [
                     "status"=>$status
                 ];
+
+
+                $result[$key]["BillingAmountBalance"] = number_format((float)$metaItem["BillingAmountBalance"], 2, '.', '');
+                $result[$key]["BilledAmountTotal"] = number_format((float)$metaItem["BilledAmountTotal"], 2, '.', '');
             }
 
             if ($resourceId == 0){
@@ -252,13 +257,19 @@ class TransactionMeta
                 foreach ($result as $key=>$metaItem)
                 {
                     $id = $metaItem["BillingTransactionMetaID"];
-                    $result[$key]["BillingAmountPaid"] = $metaItem["BillingAmountPaid"] = DBConnectionFactory::getConnection()->query("SELECT SUM(BillingAmountPaid) AS total FROM Accounts.BillingTransaction WHERE BillingTransactionMetaID = $id")->fetchAll(\PDO::FETCH_ASSOC)[0]["total"];
+                    $result[$key]["BillingAmountPaid"] = $metaItem["BillingAmountPaid"] = number_format((float) (DBConnectionFactory::getConnection()->query("SELECT SUM(BillingAmountPaid) AS total FROM Accounts.BillingTransaction WHERE BillingTransactionMetaID = $id")->fetchAll(\PDO::FETCH_ASSOC)[0]["total"]), 2, '.', '');
+                    $result[$key]["BillingAmountBalance"] = number_format((float)$metaItem["BillingAmountBalance"], 2, '.', '');
+                    $result[$key]["BilledAmountTotal"] = number_format((float)$metaItem["BilledAmountTotal"], 2, '.', '');
                     $patient = $metaItem["PatientID"];
                     $query = "SELECT * FROM Accounts.BillingTransactionItems WHERE BillingTransactionMetaID = $id";
                     $queryResult = (
                         DBConnectionFactory::getConnection()
                         ->query($query)
                     )->fetchAll(\PDO::FETCH_ASSOC);
+
+                    foreach ($queryResult as $k=>$i){
+                        $queryResult[$k]["BillingTransactionItemPrice"] = number_format((float)$i["BillingTransactionItemPrice"], 2, '.', '');
+                    }
 
                     $result[$key]["BillingTransactionItems"] = $queryResult;
                     $result[$key]["PatientName"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient)["_source"]["patientfullname"];

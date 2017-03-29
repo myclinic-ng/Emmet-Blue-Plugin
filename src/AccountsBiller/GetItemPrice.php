@@ -91,7 +91,7 @@ class GetItemPrice
 			$totalPrice = self::calculateNonIntervalBasedPrice((int)$price, (int)$quantity);
 		}
 
-		return (isset($result["RateIdentifier"]) && !is_null($result["RateIdentifier"])) ? ["rateIdentifier"=>strtolower($result["RateIdentifier"]), "totalPrice"=>$totalPrice] : ["totalPrice"=>$totalPrice];
+		return (isset($result["RateIdentifier"]) && !is_null($result["RateIdentifier"])) ? ["rateIdentifier"=>strtolower($result["RateIdentifier"]), "totalPrice"=>number_format((float)$totalPrice, 2, '.', '')] : ["totalPrice"=>number_format((float)$totalPrice, 2, '.', '')];
 	}
 
 	public static function getFinalTotal(int $patient, array $data){
@@ -310,7 +310,7 @@ class GetItemPrice
 
 			if (!isset($result[$value])){
 				$result[$value] = [
-					"amount"=>$amount[$value],
+					"amount"=>number_format((float)$amount[$value], 2, '.', ''),
 					"balance"=>0
 				];
 			}
