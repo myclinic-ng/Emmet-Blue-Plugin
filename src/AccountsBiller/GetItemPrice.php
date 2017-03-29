@@ -94,6 +94,83 @@ class GetItemPrice
 		return (isset($result["RateIdentifier"]) && !is_null($result["RateIdentifier"])) ? ["rateIdentifier"=>strtolower($result["RateIdentifier"]), "totalPrice"=>$totalPrice] : ["totalPrice"=>$totalPrice];
 	}
 
+	public static function getFinalTotal(int $patient, array $data){
+		$amount = $data["amount"] ?? null;
+
+		$query = "SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient";
+		$patientType = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
+		if (!isset($patientType[0]["PatientType"])){
+			return $amount;
+		}
+
+		$patientType = $patientType[0]["PatientType"];
+		$query = "SELECT * FROM Accounts.PatientTypeTotalPaymentRules WHERE PatientType = $patientType";
+		$result = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC);
+		if (!isset($result[0])){
+			return $amount;
+		}
+
+		$rule = $result[0];
+
+		switch($rule["RuleType"])
+		{
+			case "%":
+			{
+				$ruleValue = (int)$rule["RuleValue"];
+				$amnt = $ruleValue * $amount / 100;
+				$bal = $amount - $amnt;
+
+				$result = [
+					"amount"=>$amnt,
+					"balance"=>$bal
+				];
+
+				break;
+			}
+			case "+":
+			{
+				$ruleValue = (int)$rule["RuleValue"];
+				$amnt = $ruleValue + $amount;
+				$bal = $amount - $amnt;
+
+				$result = [
+					"amount"=>$amnt,
+					"balance"=>$bal
+				];
+
+				break;
+			}
+			case "*":
+			{
+				$ruleValue = (int)$rule["RuleValue"];
+				$amnt = $ruleValue * $amount;
+				$bal = $amount - $amnt;
+
+				$result = [
+					"amount"=>$amnt,
+					"balance"=>$bal
+				];
+
+				break;
+			}
+			case "-":
+			{
+				$ruleValue = (int)$rule["RuleValue"];
+				$amnt = $amount - $ruleValue;
+				$bal = $amount - $amnt;
+
+				$result = [
+					"amount"=>$amnt,
+					"balance"=>$bal
+				];
+
+				break;
+			}
+		}
+
+		return $result["amount"];
+	}
+
 	private static function calculateNonIntervalBasedPrice(int $price, int $quantity){
 		return $price * $quantity;
 	}

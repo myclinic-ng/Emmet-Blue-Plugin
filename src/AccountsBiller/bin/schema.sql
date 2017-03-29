@@ -251,3 +251,17 @@ CREATE TABLE Accounts.GeneralDefaultPrices (
 	UNIQUE(BillingTypeItem)
 )
 
+CREATE TABLE Accounts.PatientTypeTotalPaymentRules (
+	RuleID INT PRIMARY KEY IDENTITY,
+	PatientType INT NOT NULL UNIQUE,
+	RuleType CHAR(1) NOT NULL,
+	RuleValue INT NOT NULL,
+	FOREIGN KEY (PatientType) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CHECK(RuleType = '*' OR RuleType = '+' OR RuleType = '-' OR RuleType = '%')
+)
+
+CREATE TABLE Accounts.AppendedBillingTypePaymentRules (
+	RuleID INT PRIMARY KEY IDENTITY,
+	BillingTypeItem INT UNIQUE NOT NULL,
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE
+)

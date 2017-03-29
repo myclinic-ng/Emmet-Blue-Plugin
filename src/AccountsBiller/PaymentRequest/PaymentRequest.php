@@ -67,6 +67,12 @@ class PaymentRequest
                 $itemNames[] = "($id, ".$datum['item'].", ".$datum['quantity'].")";
             }
 
+            $appends = \EmmetBlue\Plugins\AccountsBiller\BillPaymentRule::viewAppendItems();
+
+            foreach ($appends as $value){
+                $itemNames[] = "($id, ".$value['BillingTypeItem'].", 1)";
+            }
+
             $query = "INSERT INTO Accounts.PaymentRequestItems (RequestID, ItemID, ItemQuantity) VALUES ".implode(", ", $itemNames);
 
             $result = (

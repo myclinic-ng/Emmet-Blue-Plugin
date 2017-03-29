@@ -558,9 +558,7 @@ class Patient
             try {
                 $body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile ".$patient)->fetchAll(\PDO::FETCH_ASSOC)[0];
 
-                if (isset($body["Date Of Birth"])){
-                   $body["Date Of Birth"] = (new \DateTime($body["Date Of Birth"]))->format('Y-m-d\TH:i:s');
-                }
+                $body["Date Of Birth"] = (new \DateTime($body["Date Of Birth"]))->format('Y-m-d\TH:i:s');
 
                 $esClient = ESClientFactory::getClient();
 

@@ -30,11 +30,11 @@ use EmmetBlue\Core\Constant;
 class BillPaymentRule
 {
 	public static function create(array $data){
-		$queryValue = [];
+        $queryValue = [];
         $ruleType = $data["ruleType"] ?? null;
         $ruleValue = $data["ruleValue"] ?? null;
-		foreach ($data["patientTypes"] as $datum){
-			$patientType = $datum;
+        foreach ($data["patientTypes"] as $datum){
+            $patientType = $datum;
             if ($patientType == null){
                 continue;
             }
@@ -45,16 +45,52 @@ class BillPaymentRule
                 }
                 $queryValue[] = "($patientType, $value, '$ruleType', $ruleValue)";
             }
-		}
+        }
 
-		$query = "INSERT INTO Accounts.BillPaymentRules(PatientType, BillingTypeItem, RuleType, RuleValue) VALUES ". implode(",", $queryValue);
+        $query = "INSERT INTO Accounts.BillPaymentRules(PatientType, BillingTypeItem, RuleType, RuleValue) VALUES ". implode(",", $queryValue);
 
         // die($query);
 
-		$result = DBConnectionFactory::getConnection()->exec($query);
+        $result = DBConnectionFactory::getConnection()->exec($query);
 
-		return $result;
-	}
+        return $result;
+    }
+
+    public static function createTotal(array $data){
+        $queryValue = [];
+        $ruleType = $data["ruleType"] ?? null;
+        $ruleValue = $data["ruleValue"] ?? null;
+        foreach ($data["patientTypes"] as $datum){
+            $patientType = $datum;
+            if ($patientType == null){
+                continue;
+            }
+
+            $queryValue[] = "($patientType, '$ruleType', $ruleValue)";
+        }
+
+        $query = "INSERT INTO Accounts.PatientTypeTotalPaymentRules(PatientType, RuleType, RuleValue) VALUES ". implode(",", $queryValue);
+
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
+    }
+
+    public static function createAppendItem(array $data){
+        $items = $data["items"] ?? null;
+
+        $queryV = [];
+
+        foreach ($items as $key => $value) {
+            $queryV[] = "($value)";
+        }
+
+        $query = "INSERT INTO Accounts.AppendedBillingTypePaymentRules(BillingTypeItem) VALUES ".implode(", ", $queryV);
+
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
+    }
 
 	public static function edit(int $resourceId, array $data){
 		$updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
@@ -97,8 +133,28 @@ class BillPaymentRule
         return $result;
     }
 
+    public static function viewTotal(int $resourceId=0, array $data){
+        $query = "SELECT a.*, b.PatientTypeName FROM Accounts.PatientTypeTotalPaymentRules a JOIN Patients.PatientType b ON a.PatientType = b.PatientTypeID JOIN Patients.PatientTypeCategories d ON b.CategoryName = d.CategoryName";
+
+        if (isset($data["patientcategory"]) && $data["patientcategory"] != ""){
+            $query .= " AND d.CategoryID = ".$data["patientcategory"];
+        }
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
+    public static function viewAppendItems(){
+        $query = "SELECT * FROM Accounts.AppendedBillingTypePaymentRules a INNER JOIN Accounts.BillingTypeItems b ON a.BillingTypeItem = b.BillingTypeItemID";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
 	public static function delete(int $resourceId){
-		$deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
 
         try
         {
@@ -120,5 +176,55 @@ class BillPaymentRule
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-	}
+    }
+
+    public static function deleteTotal(int $resourceId){
+        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+
+        try
+        {
+            $deleteBuilder
+                ->from("Accounts.PatientTypeTotalPaymentRules")
+                ->where("RuleID = $resourceId");
+            
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$deleteBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process delete request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function deleteAppendItem(int $resourceId){
+        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+
+        try
+        {
+            $deleteBuilder
+                ->from("Accounts.AppendedBillingTypePaymentRules")
+                ->where("RuleID = $resourceId");
+            
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$deleteBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process delete request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
 }

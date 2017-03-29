@@ -32,6 +32,14 @@ class BillPaymentRule
 		return BillPaymentRule\BillPaymentRule::create($data);
 	}
 
+	public static function newTotal(array $data){
+		return BillPaymentRule\BillPaymentRule::createTotal($data);
+	}
+
+	public static function newAppendItem(array $data){
+		return BillPaymentRule\BillPaymentRule::createAppendItem($data);
+	}
+
 	public static function updateBillPaymentRule(int $resourceId, array $data){
 		return BillPaymentRule\BillPaymentRule::edit($resourceId, $data);
 	}
@@ -40,7 +48,23 @@ class BillPaymentRule
 		return BillPaymentRule\BillPaymentRule::delete($resourceId);
 	}
 
+	public static function deleteTotal(int $resourceId){
+		return BillPaymentRule\BillPaymentRule::deleteTotal($resourceId);
+	}
+
+	public static function deleteAppendItem(int $resourceId){
+		return BillPaymentRule\BillPaymentRule::deleteAppendItem($resourceId);
+	}
+
 	public static function viewBillPaymentRule(int $resourceId = 0, array $data = []){
 		return BillPaymentRule\BillPaymentRule::view($resourceId, $data);
+	}
+
+	public static function viewTotal(int $resourceId = 0, array $data = []){
+		return BillPaymentRule\BillPaymentRule::viewTotal($resourceId, $data);
+	}
+
+	public static function viewAppendItems(){
+		return BillPaymentRule\BillPaymentRule::viewAppendItems();
 	}
 }
