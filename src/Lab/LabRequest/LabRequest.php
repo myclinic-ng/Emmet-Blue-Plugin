@@ -44,6 +44,9 @@ class LabRequest
         $investigationType = $data['investigationType'] ?? 'null';
         $requestNote = $data['requestNote'] ?? null;
 
+        echo base64_decode($clinicalDiagnosis);
+        die();
+
         try
         {
             $result = DBQueryFactory::insert('Lab.LabRequests', [
