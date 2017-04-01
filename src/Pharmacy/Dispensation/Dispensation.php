@@ -32,12 +32,12 @@ class Dispensation
 
     public static function create(array $data)
     {
-       // $DispensedItem = $data['eligibleDispensories'] ?? null;
         $dispensedItems = $data['dispensedItems'] ?? null;
         $dispensee = QB::wrapString((string)$data['dispensee'], "'") ?? null;
         $eligibleDispensory = $data['eligibleDispensory'] ?? 'null';
         $dispensingStore = $data['dispensingStore'] ?? 'null';
         $patient = $data['patient'] ?? 'null';
+        $request = $data["request"] ?? 'null';
 
         try
         {
@@ -46,16 +46,22 @@ class Dispensation
                 'DispensingStore'=>$dispensingStore,
                 'EligibleDispensory'=>$eligibleDispensory,
                 'DispenseeID'=>$dispensee,
-                'Patient'=>$patient
+                'Patient'=>$patient,
+                'RequestID'=>$request
             ]);
             
             $dispensationId = $dispensationResult['lastInsertId'];
-            //foreach dispensed item
+            $updatesQ = [];
             foreach ($dispensedItems as $datum){
                 $dispensedItem[] = "($dispensationId, ".$datum['itemID'].",".$datum['quantity'].")";
+                $q = DBConnectionFactory::getConnection()->query("SELECT ItemQuantity as Q FROM Pharmacy.StoreInventory WHERE ItemID = ".$datum["itemID"])->fetchAll(\PDO::FETCH_ASSOC)[0]["Q"];
+                $newQ = (int) $q - (int) $datum["quantity"];
+                $updatesQ[] = "UPDATE Pharmacy.StoreInventory SET ItemQuantity = $newQ WHERE ItemID = ".$datum["itemID"]; 
             }
 
             $query = "INSERT INTO Pharmacy.DispensedItems (DispensationID, ItemID, DispensedQuantity) VALUES ".implode(", ", $dispensedItem);
+
+            $query .= "; ".implode(";", $updatesQ);
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -144,12 +150,25 @@ class Dispensation
 
     public static function view(int $resourceId = 0, array $data = [])
     {
+        $filters = $data["filters"] ?? [];
         try
         {
-            $selectBuilder = "SELECT a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, d.PatientFullName FROM Pharmacy.Dispensation a JOIN Pharmacy.Store b ON a.DispensingStore = b.StoreID JOIN Pharmacy.EligibleDispensory c ON a.EligibleDispensory = c.EligibleDispensoryID JOIN Patients.Patient d ON a.Patient = d.PatientID";
+            $selectBuilder = "SELECT a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, d.PatientFullName  
+                                FROM Pharmacy.Dispensation a 
+                                JOIN Pharmacy.Store b ON a.DispensingStore = b.StoreID 
+                                JOIN Pharmacy.EligibleDispensory c ON a.EligibleDispensory = c.EligibleDispensoryID 
+                                JOIN Patients.Patient d ON a.Patient = d.PatientID
+                                LEFT OUTER JOIN Pharmacy.PrescriptionRequests e ON a.RequestID = e.RequestID";
+
+            if (empty($filters)){
+                $selectBuilder .= " WHERE e.Acknowledged = -1";
+            }
+            else {
+                $selectBuilder .= " 1 = 1";
+            }
 
             if ($resourceId !== 0){
-                $selectBuilder .= " WHERE a.DispensationID = $resourceId";
+                $selectBuilder .= " AND a.DispensationID = $resourceId";
             }
 
             $dispensationResult = (

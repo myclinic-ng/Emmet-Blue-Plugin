@@ -473,6 +473,7 @@ class Patient
         		$result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
         	}
         }
+        
         return $result;
     }
 

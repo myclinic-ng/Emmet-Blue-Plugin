@@ -48,6 +48,11 @@ class StoreInventory
 		return StoreInventory\StoreInventory::viewByStore($resourceId, $data);
 	}
 
+	public static function viewAvailableItemsByStore(int $resourceId=0, array $data = [])
+	{
+		return StoreInventory\StoreInventory::viewAvailableItemsByStore($resourceId, $data);
+	}
+
 	public static function deleteStoreInventory(int $resourceId)
 	{
 		return StoreInventory\storeInventory::delete($resourceId);

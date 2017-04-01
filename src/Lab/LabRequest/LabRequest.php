@@ -44,15 +44,12 @@ class LabRequest
         $investigationType = $data['investigationType'] ?? 'null';
         $requestNote = $data['requestNote'] ?? null;
 
-        echo base64_decode($clinicalDiagnosis);
-        die();
-
         try
         {
             $result = DBQueryFactory::insert('Lab.LabRequests', [
                 'PatientID'=>$patientID,
                 'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
-                // 'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
                 'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
                 'InvestigationType'=>$investigationType,
                 'RequestNote'=>QB::wrapString((string)$requestNote, "'")
@@ -81,7 +78,7 @@ class LabRequest
      */
     public static function view(int $resourceId)
     {
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, g.PatientTypeName, g.CategoryName, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE e.LabID = $resourceId AND e.RequestAcknowledged = 0";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, g.PatientTypeName, g.CategoryName, e.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a LEFT OUTER JOIN (SELECT * FROM Lab.InvestigationTypes b LEFT OUTER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE e.LabID = $resourceId AND e.RequestAcknowledged = 0";
 
         try
         {
@@ -116,7 +113,7 @@ class LabRequest
     public static function viewByPatient(int $resourceId, array $data)
     {
         $resourceId = QB::wrapString($data["patient"], "'");
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.* FROM Patients.Patient f INNER JOIN (SELECT * FROM Lab.LabRequests a INNER JOIN (SELECT * FROM Lab.InvestigationTypes b INNER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID WHERE f.PatientUUID = $resourceId AND e.RequestAcknowledged = 0";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a LEFT OUTER JOIN (SELECT * FROM Lab.InvestigationTypes b LEFT OUTER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE f.PatientUUID = $resourceId AND e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1";
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -152,31 +149,7 @@ class LabRequest
      */
     public static function edit(int $resourceId, array $data)
     {
-        // $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
-
-        // try
-        // {
-        //     if (isset($data['FullName'])){
-        //         $data['FullName'] = QB::wrapString($data['FullName'], "'");
-        //     }
-        //     $updateBuilder->table("Lab.LabRequests");
-        //     $updateBuilder->set($data);
-        //     $updateBuilder->where("LabRequestLabNumber = $resourceId");
-
-        //     $result = (
-        //             DBConnectionFactory::getConnection()
-        //             ->query((string)$updateBuilder)
-        //         );
-
-        //     return $result;
-        // }
-        // catch (\PDOException $e)
-        // {
-        //     throw new SQLException(sprintf(
-        //         "Unable to process update, %s",
-        //         $e->getMessage()
-        //     ), Constant::UNDEFINED);
-        // }
+        
     }
 
     /**
@@ -219,9 +192,20 @@ class LabRequest
     public static function closeRequest(array $data){
         $id = $data["request"] ?? null;
         $staff = $data["staff"] ?? null;
-        $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = 1, RequestAcknowledgedBy = $staff WHERE RequestID = $id";
 
-        // die($query);
+        $query = "SELECT COUNT(*) AS Count FROM Lab.LabRequests WHERE RequestID = $id AND RequestAcknowledged = 0";
+        $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Count"];
+        if ($r > 0){
+            $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = -1, RequestAcknowledgedBy = $staff WHERE RequestID = $id";
+        }
+        else {
+            $query = "SELECT COUNT(*) AS Count FROM Lab.LabRequests WHERE RequestAcknowledged = -1 AND RequestID = $id";
+            $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Count"];
+
+            if ($r > 0){
+                $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = 1, RequestAcknowledgedBy = $staff WHERE RequestID = $id; UPDATE Lab.Patients SET Unlocked = 1 WHERE REquestID = $id";
+            }
+        }
 
         $result = DBConnectionFactory::getConnection()->exec($query);
         return $result;

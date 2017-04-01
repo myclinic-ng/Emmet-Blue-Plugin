@@ -67,9 +67,7 @@ class RepositoryItem
         $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
-        $handle = fopen($repoDir. DIRECTORY_SEPARATOR . $name, 'w');
-        fwrite($handle, $file);
-        fclose($handle);
+        file_put_contents($repoDir. DIRECTORY_SEPARATOR . $name, $file);
 
         return true;
     }
@@ -89,6 +87,9 @@ class RepositoryItem
         }
         else if(isset($data["json"])){
             $ext = "json";
+        }
+        else if($category == "file"){
+            $ext = $data["file_ext"];
         }
 
         try
@@ -133,6 +134,14 @@ class RepositoryItem
                         $json = $data["json"] ?? null;
 
                         if (!self::createRepoFile($puuid, $ruuid, serialize($json), $number.".".$ext)){
+                            self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
+                        }
+                        break;
+                    }
+                    case "file":{
+                        $json = $data["file"] ?? null;
+                        
+                        if (!self::createRepoFile($puuid, $ruuid, $json, $number.".".$ext)){
                             self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
                         }
                         break;

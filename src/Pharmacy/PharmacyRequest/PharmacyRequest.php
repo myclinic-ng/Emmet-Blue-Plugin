@@ -72,7 +72,14 @@ class PharmacyRequest
 
     public static function view(int $resourceId)
     {
-        $selectBuilder = "SELECT * FROM Pharmacy.PrescriptionRequests WHERE Status IS NULL";
+        $selectBuilder = "SELECT * FROM Pharmacy.PrescriptionRequests";
+
+        if ($resourceId !== 0){
+            $selectBuilder .= " WHERE RequestID = $resourceId";
+        }
+        else {
+            $selectBuilder .= " WHERE Acknowledged = 0";
+        }
 
         try
         {
@@ -83,6 +90,7 @@ class PharmacyRequest
                 $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $id);
                 $viewOperation[$key]["patientInfo"] = $patient["_source"];
                 $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["RequestedBy"])["StaffFullName"];
+                $viewOperation[$key]["AcknowledgedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["AcknowledgedBy"])["StaffFullName"];
                 $viewOperation[$key]["Request"] = unserialize(base64_decode($value["Request"]));
             }
             DatabaseLog::log(
@@ -93,6 +101,9 @@ class PharmacyRequest
                 (string)$selectBuilder
             );
 
+            if ($resourceId !== 0 && isset($viewOperation[0])){
+                $viewOperation = $viewOperation[0];
+            }
             return $viewOperation;        
         } 
         catch (\PDOException $e) 
@@ -143,5 +154,12 @@ class PharmacyRequest
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function close(int $resourceId, array $data = []){
+        $status = $data["status"] ?? -1;
+        $staff = $data["staff"] ?? null;
+        $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
+        return DBConnectionFactory::getConnection()->exec($query);
     }
 }

@@ -46,39 +46,44 @@ class Patient
         $phoneNumber = $data['phoneNumber'] ?? null;
         $clinic = $data['clinic'] ?? null;
         $clinicalDiagnosis = $data['clinicalDiagnosis'] ?? null;
-        $investigationTypeRequired = $data['investigationTypeRequired'] ?? 'null';
-        $investigationRequired = $data['investigationRequired'] ?? null;
+        $investigations = $data["investigations"];
         $requestedBy = $data['requestedBy'] ?? null;
+        $request = $data['request'] ?? null;
         $dateRequested = $data['dateRequested'] ?? null;
-
         $name = $fname." ".$lname;
 
         try
         {
-            $result = DBQueryFactory::insert('Lab.Patients', [
-                'PatientID'=>$patientID,
-                'FullName'=>QB::wrapString((string)$name, "'"),
-                'DateOfBirth'=>QB::wrapString((string)$dateOfBirth, "'"),
-                'Gender'=>QB::wrapString((string)$gender, "'"),
-                'Address'=>QB::wrapString((string)$address, "'"),
-                'PhoneNumber'=>QB::wrapString((string)$phoneNumber, "'"),
-                'Clinic'=>QB::wrapString((string)$clinic, "'"),
-                'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
-                'InvestigationTypeRequired'=>$investigationTypeRequired,
-                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
-                'DateRequested'=>QB::wrapString((string)$dateRequested, "'"),
-                'RequestedBy'=>$requestedBy
-            ]);
+            foreach ($investigations as $inv){
+                $investigationTypeRequired = $inv['investigation'] ?? 'null';
+                $investigationRequired = $inv['note'] ?? null;
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Lab',
-                'Patients',
-                (string)(serialize($result))
-            );
+                $result = DBQueryFactory::insert('Lab.Patients', [
+                    'PatientID'=>$patientID,
+                    'FullName'=>QB::wrapString((string)$name, "'"),
+                    'DateOfBirth'=>QB::wrapString((string)$dateOfBirth, "'"),
+                    'Gender'=>QB::wrapString((string)$gender, "'"),
+                    'Address'=>QB::wrapString((string)$address, "'"),
+                    'PhoneNumber'=>QB::wrapString((string)$phoneNumber, "'"),
+                    'Clinic'=>QB::wrapString((string)$clinic, "'"),
+                    'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
+                    'InvestigationTypeRequired'=>$investigationTypeRequired,
+                    'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                    'DateRequested'=>QB::wrapString((string)$dateRequested, "'"),
+                    'RequestedBy'=>$requestedBy,
+                    'RequestID'=>$request
+                ]);
+
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_SELECT,
+                    'Lab',
+                    'Patients',
+                    (string)(serialize($result))
+                );
+            }
             
-            return $result;
+            return true;
         }
         catch (\PDOException $e)
         {
@@ -92,7 +97,7 @@ class Patient
     /**
      * view Wards data
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId, array $data=[])
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
@@ -102,8 +107,16 @@ class Patient
             ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID')
             ->where('a.Published = 0');
         if ($resourceId != 0){
-            $selectBuilder->andWhere('a.PatientLabNumber ='.$resourceId);
+            $selectBuilder->andWhere('a.RequestID ='.$resourceId);
         }
+        else {
+            $selectBuilder->andWhere('a.Unlocked = 1');
+        }
+
+        if (isset($data["patient"])){
+            $selectBuilder->andWhere('a.PatientID = '.$data["patient"]);
+        }
+
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);

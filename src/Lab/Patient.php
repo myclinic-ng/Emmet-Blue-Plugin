@@ -33,9 +33,9 @@ class Patient
 		return Patient\Patient::create($data);
 	}
 
-	public static function viewPatient(int $resourceId = 0)
+	public static function viewPatient(int $resourceId = 0, array $data=[])
 	{
-		return Patient\Patient::view($resourceId);
+		return Patient\Patient::view($resourceId, $data);
 	}
 	public static function editPatient(int $resourceId, array $data)
 	{

@@ -37,17 +37,13 @@ class LabResult
      */
     public static function create(array $data)
     {
-        $patientLabNumber = $data['patientLabNumber'] ?? null;
+        $patientId = $data['patientLabNumber'] ?? null;
         $investigationName = $data['investigationName'] ?? null;
         $report = $data['report'] ?? null;
         $reportedBy = $data['reportedBy'] ?? null;
-
-        $report = serialize($report);
-
+        $requests = $data["requests"] ?? [];
         try
         {
-            $query = "SELECT PatientID FROM Lab.Patients WHERE PatientLabNumber = $patientLabNumber";
-            $patientId = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientID"];
             $repoData = [
                 "patient"=>$patientId,
                 "name"=>$investigationName,
@@ -59,31 +55,37 @@ class LabResult
             $repoItemData = [
                 "repository"=>$repoId,
                 "name"=>"Investigation Conclusion",
-                "category"=>"json",
-                "json"=>unserialize($report),
+                "category"=>"file",
+                "file"=>serialize($report),
+                "file_ext"=>"img",
                 "creator"=>$reportedBy
             ];
 
             \EmmetBlue\Plugins\Patients\RepositoryItem\RepositoryItem::create($repoItemData);
 
-            $result = DBQueryFactory::insert('Lab.LabResults', [
-                'PatientLabNumber'=>QB::wrapString((string)$patientLabNumber, "'"),
-                'RepositoryID'=>$repoId,
-                'Report'=>QB::wrapString((string)$report, "'"),
-                'ReportedBy'=>QB::wrapString((string)$reportedBy, "'"),
-            ]);
+            if (!empty($requests)){
+                $reqs = [];
+                $reqs2 = [];
+                foreach ($requests as $key=>$value){
+                    $reqs[] = "($value, $repoId, '$reportedBy')";
+                    $reqs2[] = "UPDATE Lab.Patients SET Published = 1 WHERE PatientLabNumber = $value";
+                }
 
-            DBConnectionFactory::getConnection()->exec("UPDATE Lab.Patients SET Published = 1 WHERE PatientLabNumber = $patientLabNumber");
-            
-            $result["repoId"] = $repoId;
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Lab',
-                'LabResults',
-                (string)(serialize($result))
-            );
-            return $result;
+                $query = "INSERT INTO Lab.LabResults (PatientLabNumber, RepositoryID, ReportedBy) VALUES ".implode(", ", $reqs);
+                $result = DBConnectionFactory::getConnection()->exec($query);
+
+                DBConnectionFactory::getConnection()->exec(implode(";", $reqs2));
+
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_INSERT,
+                    'Lab',
+                    'LabResults',
+                    serialize($query)
+                );
+            }
+
+            return ["repoId"=>$repoId];
         }
         catch (\PDOException $e)
         {

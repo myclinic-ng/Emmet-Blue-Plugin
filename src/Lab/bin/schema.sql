@@ -44,16 +44,18 @@ CREATE TABLE Lab.Patients (
 	FullName VARCHAR(30),
 	DateOfBirth DateTime,
 	Gender VARCHAR(10),
-	Address VARCHAR(50),
+	Address VARCHAR(500),
 	PhoneNumber VARCHAR(13),
 	Clinic VARCHAR(50),
-	ClinicalDiagnosis VARCHAR(100),
+	ClinicalDiagnosis VARCHAR(MAX),
 	InvestigationTypeRequired INT,
-	InvestigationRequired VARCHAR(100),
+	InvestigationRequired VARCHAR(500),
 	RegistrationDate DateTime DEFAULT GETDATE(),
+	RequestID INT,
 	RequestedBy INT,
 	DateRequested DATETIME,
 	Published BIT DEFAULT 0,
+	Unlocked BIT DEFAULT 0,
 	FOREIGN KEY (InvestigationTypeRequired) REFERENCES Lab.InvestigationTypes (InvestigationTypeID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION
@@ -62,8 +64,8 @@ CREATE TABLE Lab.Patients (
 CREATE TABLE Lab.LabRequests (
 	RequestID INT PRIMARY KEY IDENTITY(1000, 1),
 	PatientID INT NOT NULL,
-	ClinicalDiagnosis VARCHAR(100),
-	InvestigationRequired VARCHAR(100),
+	ClinicalDiagnosis VARCHAR(MAX),
+	InvestigationRequired VARCHAR(500),
 	RequestedBy INT NOT NULL,
 	InvestigationType INT,
 	RequestNote VARCHAR(500),
@@ -71,7 +73,6 @@ CREATE TABLE Lab.LabRequests (
 	RequestAcknowledgedBy INT,
 	RequestDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (InvestigationType) REFERENCES Lab.InvestigationTypes (InvestigationTypeID) ON UPDATE CASCADE ON DELETE SET NULL,
 	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 

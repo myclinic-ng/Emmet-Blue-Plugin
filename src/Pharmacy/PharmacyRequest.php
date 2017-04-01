@@ -46,4 +46,9 @@ class PharmacyRequest
 	{
 		return PharmacyRequest\PharmacyRequest::delete($resourceId);
 	}
+
+	public static function close(int $resourceId, array $data=[])
+	{
+		return PharmacyRequest\PharmacyRequest::close($resourceId, $data);
+	}
 }

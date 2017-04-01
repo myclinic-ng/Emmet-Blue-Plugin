@@ -149,8 +149,8 @@ GO
 CREATE TABLE Patients.PatientRepository (
 	RepositoryID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,
-	RepositoryNumber VARCHAR(50) NOT NULL UNIQUE,
-	RepositoryName VARCHAR(100),
+	RepositoryNumber VARCHAR(500) NOT NULL UNIQUE,
+	RepositoryName VARCHAR(500),
 	RepositoryType VARCHAR(30),
 	RepositoryDescription VARCHAR(4000),
 	RepositoryCreator INT,
@@ -164,8 +164,8 @@ GO
 CREATE TABLE Patients.PatientRepositoryItems (
 	RepositoryItemID INT PRIMARY KEY IDENTITY NOT NULL,
 	RepositoryID INT,
-	RepositoryItemNumber VARCHAR(50) NOT NULL UNIQUE,
-	RepositoryItemName VARCHAR(100),
+	RepositoryItemNumber VARCHAR(500) NOT NULL UNIQUE,
+	RepositoryItemName VARCHAR(500),
 	RepositoryItemDescription VARCHAR(4000),
 	RepositoryItemCategory VARCHAR(20),
 	RepositoryItemCreator INT,

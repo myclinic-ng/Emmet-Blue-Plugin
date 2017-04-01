@@ -234,7 +234,7 @@ class StoreInventory
         }
     }
 
-    public static function viewByStore(int $resourceId, array $data = [])
+    public static function viewByStore(int $resourceId=0, array $data = [])
     {
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
 
@@ -252,6 +252,50 @@ class StoreInventory
             // if ($resourceId !== 0){
             //     $selectBuilder->where("StoreID = $resourceId");
             // }
+
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->query((string)$selectBuilder)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $key=>$storeItem)
+            {
+                $id = $storeItem["ItemID"];
+                $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
+
+                $queryResult = (
+                    DBConnectionFactory::getConnection()
+                    ->query($query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+                $result[$key]["Tags"] = $queryResult;
+            }
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function viewAvailableItemsByStore(int $resourceId=0, array $data = [])
+    {
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+
+        try
+        {
+            if (empty($data)){
+                $selectBuilder->columns("a.*, b.BillingTypeItemName");
+            }
+            else {
+                $selectBuilder->columns(implode(", ", $data));
+            }
+            
+            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId AND a.ItemQuantity > 0");
 
             $result = (
                 DBConnectionFactory::getConnection()

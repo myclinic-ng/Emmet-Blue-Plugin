@@ -109,10 +109,12 @@ CREATE TABLE Pharmacy.Dispensation(
 	EligibleDispensory INT,
 	DispenseeID VARCHAR(20),
 	Patient INT,
+	RequestID INT,
 	DispensationDate DATETIME NOT NULL DEFAULT GETDATE()
 	FOREIGN KEY (DispensingStore) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (EligibleDispensory) REFERENCES Pharmacy.EligibleDispensory(EligibleDispensoryID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (DispenseeID) REFERENCES Staffs.Staff(StaffUUID) on UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (RequestID) REFERENCES Pharmacy.PrescriptionRequests(RequestID),
 	FOREIGN KEY (Patient) REFERENCES [Patients].[Patient] (PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
 )
 GO
