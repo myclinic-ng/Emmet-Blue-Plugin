@@ -54,9 +54,9 @@ class Dispensation
             $updatesQ = [];
             foreach ($dispensedItems as $datum){
                 $dispensedItem[] = "($dispensationId, ".$datum['itemID'].",".$datum['quantity'].")";
-                $q = DBConnectionFactory::getConnection()->query("SELECT ItemQuantity as Q FROM Pharmacy.StoreInventory WHERE ItemID = ".$datum["itemID"])->fetchAll(\PDO::FETCH_ASSOC)[0]["Q"];
+                $q = DBConnectionFactory::getConnection()->query("SELECT ItemQuantity as Q FROM Pharmacy.StoreInventoryItems WHERE Item = ".$datum["itemID"]." AND StoreID = ".$dispensingStore)->fetchAll(\PDO::FETCH_ASSOC)[0]["Q"];
                 $newQ = (int) $q - (int) $datum["quantity"];
-                $updatesQ[] = "UPDATE Pharmacy.StoreInventory SET ItemQuantity = $newQ WHERE ItemID = ".$datum["itemID"]; 
+                $updatesQ[] = "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $newQ WHERE Item = ".$datum["itemID"]." AND StoreID = ".$dispensingStore; 
             }
 
             $query = "INSERT INTO Pharmacy.DispensedItems (DispensationID, ItemID, DispensedQuantity) VALUES ".implode(", ", $dispensedItem);

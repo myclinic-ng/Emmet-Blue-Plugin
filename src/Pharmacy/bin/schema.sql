@@ -1,6 +1,20 @@
 CREATE SCHEMA Pharmacy;
 GO
 
+CREATE TABLE Pharmacy.PrescriptionRequests (
+	RequestID INT PRIMARY KEY IDENTITY(1000, 1),
+	PatientID INT NOT NULL,
+	Request VARCHAR(MAX),
+	RequestedBy INT,
+	RequestDate DATETIME DEFAULT GETDATE(),
+	Acknowledged INT,
+	AcknowledgedBy INT,
+	Status VARCHAR(10),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION
+)
+GO
+
 CREATE TABLE Pharmacy.Store (
 	StoreID INT PRIMARY KEY IDENTITY NOT NULL,
 	StoreName VARCHAR(50) NOT NULL UNIQUE,
@@ -18,14 +32,11 @@ GO
 
 CREATE TABLE Pharmacy.StoreInventory(
 	ItemID INT PRIMARY KEY IDENTITY NOT NULL,
-	StoreID INT,
 	Item INT,
 	ItemBrand VARCHAR(50),
 	ItemManufacturer VARCHAR(50),
-	ItemQuantity INT,
 	FOREIGN KEY (Item) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(Item, StoreID, ItemBrand)
+	UNIQUE(Item, ItemBrand)
 )
 GO
 
@@ -35,6 +46,17 @@ CREATE TABLE Pharmacy.StoreInventoryTags(
 	TagTitle VARCHAR(50),
 	TagName VARCHAR(100),
 	FOREIGN KEY (ItemID) REFERENCES Pharmacy.StoreInventory(ItemID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Pharmacy.StoreInventoryItems(
+	ItemID INT PRIMARY KEY IDENTITY NOT NULL,
+	Item INT,
+	StoreID INT,
+	ItemQuantity INT NOT NULL DEFAULT 0,
+	FOREIGN KEY (Item) REFERENCES Pharmacy.StoreInventory (ItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (StoreID) REFERENCES Pharmacy.Store(StoreID) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(Item, StoreID)
 )
 GO
 
@@ -125,19 +147,5 @@ CREATE TABLE Pharmacy.DispensedItems(
 	ItemID INT,
 	DispensedQuantity INT,
 	FOREIGN KEY (DispensationID) REFERENCES Pharmacy.Dispensation(DispensationID) ON UPDATE CASCADE ON DELETE CASCADE
-)
-GO
-
-CREATE TABLE Pharmacy.PrescriptionRequests (
-	RequestID INT PRIMARY KEY IDENTITY(1000, 1),
-	PatientID INT NOT NULL,
-	Request VARCHAR(MAX),
-	RequestedBy INT,
-	RequestDate DATETIME DEFAULT GETDATE(),
-	Acknowledged INT,
-	AcknowledgedBy INT,
-	Status VARCHAR(10),
-	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (RequestedBy) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 GO

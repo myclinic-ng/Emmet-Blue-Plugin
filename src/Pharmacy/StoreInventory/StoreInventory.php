@@ -38,22 +38,14 @@ class StoreInventory
     public static function create(array $data)
     {
         $storeInventoryTags = $data['tags'] ?? null;
-        $storeId = $data['store'] ?? null;
         $itemName = $data['item'] ?? null;
         $itemBrand = $data['brand'] ?? null;
         $itemManufacturer = $data['manufacturer'] ?? null;
-        $itemQuantity = $data['quantity'] ?? 0;
-
-        if ($itemQuantity == ""){
-            $itemQuantity = 0;
-        }
         
         try
         {
             $result = DBQueryFactory::insert('Pharmacy.StoreInventory', [
-                'StoreID'=>$storeId,
                 'Item'=>$itemName,
-                'ItemQuantity'=>is_null($itemQuantity) ? "NULL" : $itemQuantity,
                 'ItemBrand'=>is_null($itemBrand) ? "NULL": QB::wrapString($itemBrand, "'"),
                 'itemManufacturer'=>is_null($itemManufacturer) ? "NULL": QB::wrapString($itemManufacturer, "'")
             ]);
@@ -98,6 +90,35 @@ class StoreInventory
         }
 
         return false;
+    }
+
+    public static function addStoreItems(array $data)
+    {
+        $items = $data['items'] ?? null;
+        $store = $data['store'] ?? null;
+
+        $queryV = [];
+        foreach ($items as $key => $value) {
+            $queryV[] = "($value, $store)";
+        }
+
+        $query = "INSERT INTO Pharmacy.StoreInventoryItems (Item, StoreID) VALUES ".implode(", ", $queryV);
+
+        // die($query);
+        
+        try
+        {
+            $result = DBConnectionFactory::getConnection()->exec($query);
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
     }
 
     /**
@@ -241,17 +262,13 @@ class StoreInventory
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("a.*, b.BillingTypeItemName");
+                $selectBuilder->columns("a.*, c.*, b.BillingTypeItemName");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID")->where("StoreID = $resourceId");
-
-            // if ($resourceId !== 0){
-            //     $selectBuilder->where("StoreID = $resourceId");
-            // }
+            $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId");
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -289,13 +306,13 @@ class StoreInventory
         try
         {
             if (empty($data)){
-                $selectBuilder->columns("a.*, b.BillingTypeItemName");
+                $selectBuilder->columns("a.*, c.*, b.BillingTypeItemName");
             }
             else {
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId AND a.ItemQuantity > 0");
+            $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId AND a.ItemQuantity > 0");
 
             $result = (
                 DBConnectionFactory::getConnection()

@@ -57,10 +57,10 @@ class StoreRestockHistory
                 $totalQty += (int) $quantityAdded;
                 $sumQty = $quantityAdded + $quantityBefore;
 
-                $updateQuery .= "UPDATE Pharmacy.StoreInventory SET ItemQuantity = $sumQty WHERE ItemID = $itemId;";
+                $updateQuery .= "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $sumQty WHERE Item = $itemId AND StoreID = $store";
                 $values[] = "($itemId, $quantityBefore, $quantityAdded, '$comment', $staffId)";
             }
-
+            
             $query = "INSERT INTO Pharmacy.StoreRestockHistory (ItemID, QuantityBefore, QuantityAdded, Comment, StaffID) VALUES ".implode(",", $values);
             $query .= $updateQuery;
 

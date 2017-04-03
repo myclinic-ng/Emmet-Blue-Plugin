@@ -31,7 +31,7 @@ class Store
 {
     public static function totalItemCount(int $resourceId)
     {
-        $query = "SELECT SUM(ItemQuantity) as Count FROM Pharmacy.StoreInventory WHERE StoreID = $resourceId";
+        $query = "SELECT SUM(ItemQuantity) as Count FROM Pharmacy.StoreInventoryItems WHERE StoreID = $resourceId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         if (isset($result[0])){

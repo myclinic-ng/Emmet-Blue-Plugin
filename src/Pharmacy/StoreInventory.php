@@ -33,6 +33,11 @@ class StoreInventory
 		return StoreInventory\StoreInventory::create($data);
 	}
 
+	public static function addStoreItems(array $data)
+	{
+		return StoreInventory\StoreInventory::addStoreItems($data);
+	}
+
 	public static function newStoreInventoryTags(array $data)
 	{
 		return StoreInventory\StoreInventory::createInventoryTags($data);

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -24,7 +24,7 @@ use EmmetBlue\Core\Constant;
  *
  * store inventory and inventory tags Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 24/08/2016 12:17
  */
 class StoreTransfer
@@ -38,10 +38,15 @@ class StoreTransfer
     public static function create(array $data)
     {
         $items = $data["items"];
-        $comment = $data['comment'] ?? null;
         $staffId = $data['staffId'] ?? null;
-        $globalRestock = $data['globalRestock'] ?? false;
         $store = $data["storeId"] ?? null;
+        $recipient = $data["receivingStore"] ?? null;
+
+        if ($store == $recipient){
+            throw new \Exception("Invalid Transfer Request");
+        }
+
+        $query = "";
 
         $values = [];
         $updateQuery = "";
@@ -51,22 +56,27 @@ class StoreTransfer
         {
             foreach ($items as $item){
                 $itemId = $item['item'] ?? null;
-                $quantityBefore = $item['quantityBefore'] ?? null;
+                $quantityBefore = $q = (int) DBConnectionFactory::getConnection()->query("SELECT ItemQuantity FROM Pharmacy.StoreInventoryItems WHERE Item = $itemId AND StoreID = $recipient")->fetchall(\PDO::FETCH_ASSOC)[0]["ItemQuantity"];
                 $quantityAdded = $item['quantityAdded'] ?? null;
 
                 $totalQty += (int) $quantityAdded;
                 $sumQty = $quantityAdded + $quantityBefore;
 
-                $updateQuery .= "UPDATE Pharmacy.StoreInventory SET ItemQuantity = $sumQty WHERE ItemID = $itemId;";
-                $values[] = "($itemId, $quantityBefore, $quantityAdded, '$comment', $staffId)";
+                $q = (int) DBConnectionFactory::getConnection()->query("SELECT ItemQuantity FROM Pharmacy.StoreInventoryItems WHERE Item = $itemId AND StoreID = $store")->fetchall(\PDO::FETCH_ASSOC)[0]["ItemQuantity"];
+
+
+                $diffQty = $q - $quantityAdded;
+
+                if ($diffQty >= 0){
+                    $updateQuery .= "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $diffQty WHERE Item = $itemId AND StoreID = $store";
+                    $updateQuery .= "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $sumQty WHERE Item = $itemId AND StoreID = $recipient;";
+                }
+                else { 
+                    throw new \Exception("Invalid Transfer Request");
+                }
             }
 
-            $query = "INSERT INTO Pharmacy.StoreTransfer (ItemID, QuantityBefore, QuantityAdded, Comment, StaffID) VALUES ".implode(",", $values);
             $query .= $updateQuery;
-
-            if ($globalRestock){
-                $query .= "; INSERT INTO Pharmacy.GlobalRestockLog (ItemQuantity, Comment, StaffID, StoreID) VALUES ($totalQty, '$comment', $staffId, $store)";
-            }
             
             $result = DBConnectionFactory::getConnection()->exec($query);
 
