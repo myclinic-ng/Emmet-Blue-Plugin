@@ -241,7 +241,7 @@ class StaffProfile
     }
 
     public static function viewStaffFullName(int $id){
-        $query = "SELECT StaffID, StaffFullName FROM Staffs.StaffProfile WHERE StaffID = $id";
+        $query = "SELECT StaffID, StaffFullName, StaffPicture FROM Staffs.StaffProfile WHERE StaffID = $id";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -253,7 +253,7 @@ class StaffProfile
     }
 
     public static function viewStaffFullNameFromUUID(array $data){
-        $query = "SELECT b.StaffID, b.StaffFullName FROM Staffs.Staff a INNER JOIN Staffs.StaffProfile b ON a.StaffID = b.StaffID WHERE a.StaffUUID = '".$data["uuid"]."'";
+        $query = "SELECT b.StaffID, b.StaffFullName, b.StaffPicture FROM Staffs.Staff a INNER JOIN Staffs.StaffProfile b ON a.StaffID = b.StaffID WHERE a.StaffUUID = '".$data["uuid"]."'";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 

@@ -93,6 +93,19 @@ CREATE TABLE Accounts.BillingTransaction (
 )
 GO
 
+CREATE TABLE Accounts.PaymentReceipts (
+	ReceiptID INT PRIMARY KEY IDENTITY,
+	PatientID INT NOT NULL,
+	AssociatedTransaction INT,
+	RepositoryID INT NOT NULL,
+	PrintedBy INT,
+	DatePrinted DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE CASCADE,
+	FOREIGN KEY (RepositoryID) REFERENCES Patients.PatientRepository (RepositoryID),
+	FOREIGN KEY (AssociatedTransaction) REFERENCES Accounts.BillingTransaction(BillingTransactionID),
+	FOREIGN KEY (PrintedBy) REFERENCES Staffs.Staff (StaffID) ON UPDATE CASCADE
+)
+
 CREATE TABLE Accounts.PaymentRequest (
 	PaymentRequestID INT PRIMARY KEY IDENTITY,
 	PaymentRequestUUID VARCHAR(20) UNIQUE,

@@ -19,9 +19,11 @@ INSERT INTO Patients.PatientRecordsFieldTitle (FieldTitleName, FieldTitleType) V
 ('Tribe', 'Name'),
 ('Email Address', 'Text'),
 ('Next Of Kin', 'Name'),
-('Patient', 'Number')
+('Patient', 'Number'),
+('HMO Number', 'Name')
 INSERT INTO Patients.PatientRepositoryTypes VALUES
 ('prescription'),
 ('lab_result'),
 ('observation'),
-('doctor_note')
+('doctor_note'),
+('payment_receipt')

@@ -149,12 +149,12 @@ class Transaction
                 $selectBuilder->columns(implode(", ", $data));
             }
             
-            $selectBuilder->from("Accounts.BillingTransaction a")->innerJoin("Patients.Patient b", "a.PatientID = b.PatientID");
+            $selectBuilder->from("Accounts.BillingTransaction a");
 
             if ($resourceId !== 0){
-                $selectBuilder->where("BillingTransactionID = $resourceId");
+                $selectBuilder->where("a.BillingTransactionID = $resourceId");
             }
-
+            
             $result = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)

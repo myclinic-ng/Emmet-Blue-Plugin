@@ -143,6 +143,9 @@ class Patient
         if ($logSales){
             $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
             $result = DBConnectionFactory::getConnection()->exec($query);
+
+            $query = "INSERT INTO Patients.PatientProfileUnlockLog (PatientID, Staff) VALUES ($patient, $staff)";
+            DBConnectionFactory::getConnection()->exec($query);
         }
         else {
             throw new \Exception("Unable to log this action");
@@ -190,10 +193,16 @@ class Patient
 
                     $values = [];
                     foreach ($data as $key=>$value){
+                        if ($key == "Date Of Birth"){
+                            $value = (new \DateTime($value))->format('Y-m-d\TH:i:s');
+                        }
+
                         $values[] = "($id, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
                     }
 
                     $values[] = "($id, 'Patient', '$id')";
+
+                    // return $values;
 
                     $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
 
@@ -559,7 +568,9 @@ class Patient
             try {
                 $body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile ".$patient)->fetchAll(\PDO::FETCH_ASSOC)[0];
 
-                $body["Date Of Birth"] = (new \DateTime($body["Date Of Birth"]))->format('Y-m-d\TH:i:s');
+                if (isset($body["Date Of Birth"])){
+                    $body["Date Of Birth"] = (new \DateTime($body["Date Of Birth"]))->format('Y-m-d\TH:i:s');
+                }
 
                 $esClient = ESClientFactory::getClient();
 

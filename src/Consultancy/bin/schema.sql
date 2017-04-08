@@ -127,3 +127,36 @@ CREATE TABLE Consultancy.PatientReferralInfo (
 	FOREIGN KEY (ReferralID) REFERENCES Consultancy.PatientReferrals (ReferralID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO
+
+CREATE TABLE Consultancy.PrescriptionTemplates (
+	TemplateID INT PRIMARY KEY IDENTITY,
+	TemplateName VARCHAR(255) NOT NULL UNIQUE,
+	TemplateDescription VARCHAR(500),
+	CreatedBy INT,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (CreatedBy) REFERENCES Staffs.Staff (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
+
+CREATE TABLE Consultancy.PrescriptionTemplateItems (
+	ItemID INT PRIMARY KEY IDENTITY,
+	TemplateID INT,
+	Item VARCHAR(50) NOT NULL,
+	Note VARCHAR(255),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+
+	FOREIGN KEY (TemplateID) REFERENCES Consultancy.PrescriptionTemplates (TemplateID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
+CREATE TABLE Consultancy.PatientDiagnosisLog (
+	LogID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	StaffID INT,
+	DiagnosisID INT,
+	DateLogged DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE,
+	FOREIGN KEY (DiagnosisID) REFERENCES Patients.PatientDiagnosis(DiagnosisID),
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO

@@ -43,6 +43,7 @@ class PatientDiagnosis
         $diagnosisTitle = $data["diagnosisTitle"] ?? null;
         $diagnosis = $data["diagnosis"] ?? null;
         $diagnosisBy = $data["diagnosisBy"] ?? null;
+        $staffId = $data["staff"] ?? null;
 
         $diagnosis = serialize($diagnosis);
 
@@ -55,6 +56,12 @@ class PatientDiagnosis
                 'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'"),
                 'DiagnosisTitle'=>(is_null($diagnosisTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
                 'DiagnosisBy'=>(is_null($diagnosisBy)) ? 'NULL' : QB::wrapString($diagnosisBy, "'")
+            ]);
+
+            \EmmetBlue\Plugins\Consultancy\DiagnosisLog::newDiagnosisLog([
+                "patient"=>$patient,
+                "staff"=>$staffId,
+                "diagnosis"=>$result["lastInsertId"]
             ]);
 
             DatabaseLog::log(
@@ -128,6 +135,7 @@ class PatientDiagnosis
             );
 
             foreach ($result as $key => $value) {
+                $result[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$value["DiagnosisBy"]])["StaffFullName"];
                 $result[$key]["Diagnosis"] = unserialize($value["Diagnosis"]);
             }
 

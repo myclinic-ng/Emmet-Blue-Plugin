@@ -14,3 +14,13 @@ CREATE TABLE FinancialAuditing.SalesLog (
 	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff (StaffID),
 	FOREIGN KEY (PaymentRequestNumber) REFERENCES Accounts.PaymentRequest(PaymentRequestUUID)
 )
+
+CREATE TABLE FinancialAuditing.UnlockLogStatus (
+	StatusID INT PRIMARY KEY IDENTITY,
+	LogID INT UNIQUE,
+	Status INT NOT NULL,
+	StatusNote VARCHAR(200),
+	StaffID INT,
+	FOREIGN KEY (LogID) REFERENCES Patients.PatientProfileUnlockLog (LogID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (StaffID) REFERENCES Staffs.Staff (StaffID),
+)

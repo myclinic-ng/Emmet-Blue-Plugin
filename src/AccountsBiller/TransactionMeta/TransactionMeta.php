@@ -170,6 +170,13 @@ class TransactionMeta
                         $add = " WHERE b.StaffID = ".$data["query"];
                         break;
                     }
+                    case "patient-date":{
+                        $add = " WHERE a.PatientID = '".$data["query"]."'";
+                        $sDate = QB::wrapString($data["startdate"], "'");
+                        $eDate = QB::wrapString($data["enddate"], "'");
+                        $add .= " AND ((CONVERT(date, a.DateCreated) BETWEEN $sDate AND $eDate) OR (CONVERT(date, b.BillingTransactionDate) BETWEEN $sDate AND $eDate))";
+                        break;
+                    }
                 }
 
                 $query .= $add;
