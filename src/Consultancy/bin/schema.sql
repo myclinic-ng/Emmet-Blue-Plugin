@@ -149,6 +149,27 @@ CREATE TABLE Consultancy.PrescriptionTemplateItems (
 )
 GO
 
+CREATE TABLE Consultancy.ComplaintTemplates (
+	TemplateID INT PRIMARY KEY IDENTITY,
+	TemplateName VARCHAR(255) NOT NULL UNIQUE,
+	TemplateDescription VARCHAR(500),
+	CreatedBy INT,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (CreatedBy) REFERENCES Staffs.Staff (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
+
+CREATE TABLE Consultancy.ComplaintTemplateItems (
+	ItemID INT PRIMARY KEY IDENTITY,
+	TemplateID INT,
+	Item VARCHAR(255) NOT NULL,
+	Note VARCHAR(255),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+
+	FOREIGN KEY (TemplateID) REFERENCES Consultancy.ComplaintTemplates (TemplateID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
+
 CREATE TABLE Consultancy.PatientDiagnosisLog (
 	LogID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,
