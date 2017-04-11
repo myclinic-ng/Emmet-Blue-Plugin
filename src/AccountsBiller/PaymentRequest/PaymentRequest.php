@@ -211,11 +211,11 @@ class PaymentRequest
         return $result;
     }
 
-    /*loading all request for Account Department*/
     public static function loadAllRequests($data){
         $query = 
                 "
                     SELECT 
+                        ROW_NUMBER() OVER (ORDER BY a.RequestDate) AS RowNum,
                         a.*, 
                         b.Name, 
                         b.GroupID, 
@@ -322,6 +322,16 @@ class PaymentRequest
             }
         }
 
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR c.PatientType LIKE '%$keyword%' OR b.Name LIKE '%$keyword%')";
+            }
+
+            $_query = $query;
+            $size = $data["size"] + $data["from"];
+            $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
         // die($query);
         try
         {
@@ -354,6 +364,16 @@ class PaymentRequest
             $_result = [];
             foreach ($result as $value){
                 $_result[] = $value;
+            }
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $_result = [
+                    "data"=>$_result,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
             }
 
             return $_result;  

@@ -209,22 +209,25 @@ class StoreInventory
      */
     public static function view(int $resourceId = 0, array $data = [])
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("a.*, b.BillingTypeItemName");
+            if (isset($data["paginate"])){
+                $size = $data["size"];
+                $from = $data["from"];
+                $selectBuilder = "SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY a.Item ) AS RowNum, a.*, b.BillingTypeItemName FROM Pharmacy.StoreInventory a INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID ) AS RowConstrainedResult WHERE RowNum >= $from AND RowNum < $size ORDER BY RowNum";
             }
             else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID");
+                $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+                $selectBuilder->columns("a.*, b.BillingTypeItemName");
+                
+                $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID");
 
-            if ($resourceId !== 0){
-                $selectBuilder->where("ItemID = $resourceId");
+                if ($resourceId !== 0){
+                    $selectBuilder->where("ItemID = $resourceId");
+                }
             }
+
+            // die($selectBuilder);
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -242,6 +245,18 @@ class StoreInventory
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
                 $result[$key]["Tags"] = $queryResult;
+            }
+
+            if (isset($data["paginate"])){
+                $total = DBConnectionFactory::getConnection()->query(
+                    "SELECT count(*) as count FROM Pharmacy.StoreInventory a INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID"
+                )->fetchAll(\PDO::FETCH_ASSOC)[0]["count"];
+
+                $result = [
+                    "data"=>$result,
+                    "filtered"=>count($result),
+                    "total"=>$total
+                ];
             }
 
             return $result;
@@ -305,14 +320,19 @@ class StoreInventory
 
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("a.*, c.*, b.BillingTypeItemName");
-            }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
+            $selectBuilder->columns("ROW_NUMBER() OVER (ORDER BY b.BillingTypeItemID) AS RowNum, a.StoreID, a.ItemQuantity, c.*, b.BillingTypeItemName");
             
             $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId AND a.ItemQuantity > 0");
+
+            if (isset($data["paginate"])){
+                if (isset($data["keywordsearch"])){
+                    $keyword = $data["keywordsearch"];
+                    $selectBuilder .= " AND (c.ItemBrand LIKE '%$keyword%' OR c.ItemManufacturer LIKE '%$keyword%' OR b.BillingTypeItemName LIKE '%$keyword%')";
+                }
+                $size = $data["from"] + $data["size"];
+                $_query = (string) $selectBuilder;
+                $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+            }
 
             $result = (
                 DBConnectionFactory::getConnection()
@@ -330,6 +350,16 @@ class StoreInventory
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
                 $result[$key]["Tags"] = $queryResult;
+            }
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $result = [
+                    "data"=>$result,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
             }
 
             return $result;

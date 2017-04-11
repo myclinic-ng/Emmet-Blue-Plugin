@@ -70,16 +70,30 @@ class PharmacyRequest
         }
     }
 
-    public static function view(int $resourceId)
+    public static function view(int $resourceId, array $data=[])
     {
-        $selectBuilder = "SELECT * FROM Pharmacy.PrescriptionRequests";
+        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY a.RequestDate) AS RowNum, a.*
+                         FROM Pharmacy.PrescriptionRequests a
+                         INNER JOIN Patients.Patient d ON a.PatientID = d.PatientID INNER JOIN Patients.PatientType c ON d.PatientType = c.PatientTypeID";
 
         if ($resourceId !== 0){
-            $selectBuilder .= " WHERE RequestID = $resourceId";
+            $selectBuilder .= " WHERE a.RequestID = $resourceId";
         }
         else {
-            $selectBuilder .= " WHERE Acknowledged = 0";
+            $selectBuilder .= " WHERE a.Acknowledged = 0";
         }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (d.PatientFullName LIKE '%$keyword%' OR d.PatientUUID LIKE '%$keyword%' OR c.PatientTypeName LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
+        // die($selectBuilder);
 
         try
         {
@@ -103,6 +117,16 @@ class PharmacyRequest
 
             if ($resourceId !== 0 && isset($viewOperation[0])){
                 $viewOperation = $viewOperation[0];
+            }
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $viewOperation = [
+                    "data"=>$viewOperation,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
             }
             return $viewOperation;        
         } 

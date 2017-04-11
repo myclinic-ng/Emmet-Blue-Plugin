@@ -153,7 +153,8 @@ class Dispensation
         $filters = $data["filters"] ?? [];
         try
         {
-            $selectBuilder = "SELECT a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, d.PatientFullName  
+            $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY DispensationDate) AS RowNum, 
+                                a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, d.PatientFullName  
                                 FROM Pharmacy.Dispensation a 
                                 JOIN Pharmacy.Store b ON a.DispensingStore = b.StoreID 
                                 JOIN Pharmacy.EligibleDispensory c ON a.EligibleDispensory = c.EligibleDispensoryID 
@@ -171,6 +172,16 @@ class Dispensation
                 $selectBuilder .= " AND a.DispensationID = $resourceId";
             }
 
+            if (isset($data["paginate"])){
+                if (isset($data["keywordsearch"])){
+                    $keyword = $data["keywordsearch"];
+                    $selectBuilder .= " AND (d.PatientFullName LIKE '%$keyword%' OR d.PatientUUID LIKE '%$keyword%')";
+                }
+                $size = $data["from"] + $data["size"];
+                $_query = $selectBuilder;
+                $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+            }
+
             $dispensationResult = (
                 DBConnectionFactory::getConnection()
                 ->query((string)$selectBuilder)
@@ -181,6 +192,16 @@ class Dispensation
                 $items = DBConnectionFactory::getConnection()->query($itemQ)->fetchAll(\PDO::FETCH_ASSOC);
 
                 $dispensationResult[$key]["items"] = $items;
+            }
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $dispensationResult = [
+                    "data"=>$dispensationResult,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
             }
 
             return $dispensationResult;

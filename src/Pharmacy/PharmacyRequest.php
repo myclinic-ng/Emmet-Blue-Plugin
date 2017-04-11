@@ -33,9 +33,9 @@ class PharmacyRequest
 		return PharmacyRequest\PharmacyRequest::create($data);
 	}
 
-	public static function viewPharmacyRequest(int $resourceId = 0)
+	public static function viewPharmacyRequest(int $resourceId = 0, array $data=[])
 	{
-		return PharmacyRequest\PharmacyRequest::view($resourceId);
+		return PharmacyRequest\PharmacyRequest::view($resourceId, $data);
 	}
 	public static function editPharmacyRequest(int $resourceId, array $data)
 	{

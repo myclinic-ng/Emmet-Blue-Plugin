@@ -41,7 +41,7 @@ CREATE TABLE Lab.InvestigationTypeFieldDefaults (
 CREATE TABLE Lab.Patients (
 	PatientLabNumber INT PRIMARY KEY IDENTITY(1000, 1),
 	PatientID INT,
-	FullName VARCHAR(30),
+	FullName VARCHAR(200),
 	DateOfBirth DateTime,
 	Gender VARCHAR(10),
 	Address VARCHAR(500),
