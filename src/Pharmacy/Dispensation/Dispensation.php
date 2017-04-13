@@ -150,22 +150,58 @@ class Dispensation
 
     public static function view(int $resourceId = 0, array $data = [])
     {
-        $filters = $data["filters"] ?? [];
+        $filters = $data["filtertype"] ?? null;
         try
         {
             $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY DispensationDate) AS RowNum, 
-                                a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, d.PatientFullName  
+                                a.*, b.StoreName, c.EligibleDispensory as Dispensory, d.PatientUUID, 
+                                d.PatientFullName, d.PatientPicture, e.Acknowledged, e.AcknowledgedBy  
                                 FROM Pharmacy.Dispensation a 
                                 JOIN Pharmacy.Store b ON a.DispensingStore = b.StoreID 
                                 JOIN Pharmacy.EligibleDispensory c ON a.EligibleDispensory = c.EligibleDispensoryID 
                                 JOIN Patients.Patient d ON a.Patient = d.PatientID
+                                JOIN Patients.PatientType f ON d.PatientType = f.PatientTypeID
                                 LEFT OUTER JOIN Pharmacy.PrescriptionRequests e ON a.RequestID = e.RequestID";
 
-            if (empty($filters)){
+            if (is_null($filters)){
                 $selectBuilder .= " WHERE e.Acknowledged = -1";
             }
             else {
-                $selectBuilder .= " 1 = 1";
+                switch($data["filtertype"]){
+                    case "patient":{
+                        $selectBuilder .= " WHERE a.Patient = ".$data["query"];
+                        break;
+                    }
+                    case "date":{
+                        $sDate = QB::wrapString($data["startdate"], "'");
+                        $eDate = QB::wrapString($data["enddate"], "'");
+                        $selectBuilder .= " WHERE (CONVERT(date, a.DispensationDate) BETWEEN $sDate AND $eDate OR CONVERT(date, e.RequestDate) BETWEEN $sDate AND $eDate)";
+                        break;
+                    }
+                    case "status":{
+                        $selectBuilder .= " WHERE e.Acknowledged = ".$data["query"];
+                        break;
+                    }
+                    case "staff":{
+                        $selectBuilder .= " WHERE e.AcknowledgedBy = ".$data["query"];
+                        break;
+                    }
+                    case "patienttype":{
+                        $selectBuilder .= " WHERE f.CategoryName = '".$data["query"]."'";
+                        break;
+                    }
+                    case "requestedby":{
+                        $selectBuilder .= " WHERE e.RequestedBy = ".$data["query"];
+                        break;
+                    }
+                }
+
+                unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
+
+                if (isset($data["constantstatus"]) && $data["constantstatus"] != ""){
+                   $selectBuilder .= " AND e.Acknowledged = ".$data["constantstatus"];
+                   unset($data["constantstatus"]);
+                }
             }
 
             if ($resourceId !== 0){
