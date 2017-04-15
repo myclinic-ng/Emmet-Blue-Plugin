@@ -405,7 +405,7 @@ class Patient
             $esClient = ESClientFactory::getClient();
             if ($resourceId == 0)
             {
-                return self::search(["query"=>"", "size"=>100, "from"=>0]);
+                return self::search(["query"=>"", "size"=>10, "from"=>0]);
             }
 
             $params = [

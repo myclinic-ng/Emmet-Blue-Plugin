@@ -41,16 +41,14 @@ BEGIN
 				) p'
 
 	--EXEC sp_executesql @query;
-
-	SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N')  b ON a.PatientID = b.Patient WHERE a.ProfileDeleted = 0) b ON a.PatientTypeID = b.PatientType'
-
 	IF (@PatientID IS NOT NULL)
 	BEGIN
-		SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N')  b ON a.PatientID = b.Patient WHERE a.ProfileDeleted = 0 AND a.PatientID = @PatientID) b ON a.PatientTypeID = b.PatientType'
+		SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N' WHERE PatientID = @PatientID)  b ON a.PatientID = b.Patient WHERE a.ProfileDeleted = 0 AND a.PatientID = @PatientID) b ON a.PatientTypeID = b.PatientType'
 		EXEC sp_executesql @queryFinal, N'@PatientID INT', @PatientID = @PatientID
 	END
 	ELSE
 	BEGIN
+		SET @queryFinal = N'SELECT * FROM Patients.PatientType a INNER JOIN (SELECT * FROM Patients.Patient a INNER JOIN ('+ @query+ N')  b ON a.PatientID = b.Patient WHERE a.ProfileDeleted = 0) b ON a.PatientTypeID = b.PatientType'
 		EXEC sp_executesql @queryFinal
 	END
 END

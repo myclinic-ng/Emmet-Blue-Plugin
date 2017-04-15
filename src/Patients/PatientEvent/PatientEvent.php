@@ -81,21 +81,15 @@ class PatientEvent
 
     public static function view(int $resourceId)
     {
-        $params = [
-            'index'=>'archives',
-            'type' =>'patient-events',
-            'body'=>array(
-                "query"=>array(
-                    "match"=>array(
-                        "patientid"=>$resourceId
-                    )
-                )
-            )
-        ];
+        $columnArray = ["EventID", "PatientID", "EventDate", "EventTime", "EventActor", "EventLinkID", "EventLink", "EventText", "EventIcon"];
+        $columns = implode(", ", array_map(function($col){
+            return "$col AS ".strtolower($col);
+        }, $columnArray));
 
-        $esClient = ESClientFactory::getClient();
+        $query = "SELECT $columns FROM Patients.PatientEvents WHERE PatientID = $resourceId ORDER BY EventDate DESC";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
 
-        return $esClient->search($params);
+        return $result;
     }
 
     public static function delete(int $resourceId)

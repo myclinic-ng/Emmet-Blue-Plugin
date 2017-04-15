@@ -261,6 +261,6 @@ class StaffProfile
             return $result[0];
         }
 
-        return ["StaffID"=>$id, "StaffFullName"=>null];
+        return ["StaffID"=>$data["uuid"], "StaffFullName"=>null];
     }
 }
