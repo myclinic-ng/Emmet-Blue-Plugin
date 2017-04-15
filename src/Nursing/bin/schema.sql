@@ -44,6 +44,20 @@ CREATE TABLE Nursing.ObservationTypeFieldDirtyValues (
 )
 GO
 
+CREATE TABLE Nursing.PatientProcessLog (
+	LogID INT PRIMARY KEY IDENTITY,
+	PatientID INT,
+	Nurse INT,
+	ObservationSummary VARCHAR(500),
+	Consultant INT,
+	Department INT,
+	DateLogged DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (Nurse) REFERENCES Staffs.Staff(StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (Department) REFERENCES Staffs.Department (DepartmentID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
+
 CREATE TABLE Nursing.Observations (
 	ObservationID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,

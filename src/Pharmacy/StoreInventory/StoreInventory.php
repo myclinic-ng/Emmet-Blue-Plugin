@@ -320,7 +320,7 @@ class StoreInventory
 
         try
         {
-            $selectBuilder->columns("ROW_NUMBER() OVER (ORDER BY b.BillingTypeItemID) AS RowNum, a.StoreID, a.ItemQuantity, c.*, b.BillingTypeItemName");
+            $selectBuilder->columns("ROW_NUMBER() OVER (ORDER BY b.BillingTypeItemID) AS RowNum, a.StoreID, a.ItemQuantity, c.ItemID, c.Item, c.ItemBrand, c.ItemManufacturer, b.BillingTypeItemName");
             
             $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId AND a.ItemQuantity > 0");
 

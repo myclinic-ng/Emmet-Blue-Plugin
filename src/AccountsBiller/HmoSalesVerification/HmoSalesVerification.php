@@ -119,7 +119,7 @@ class HmoSalesVerification
     }
 
     public static function loadUnprocessedRequests(int $patientType){
-        $query = "SELECT a.SalesID, a.DepartmentID, a.StaffID, a.RequestDate, b.PatientFullName, b.PatientUUID, c.Name as DepartmentName FROM Accounts.HmoSalesVerification a INNER JOIN Patients.Patient b On a.PatientID = b.PatientID INNER JOIN Staffs.Department c ON a.DepartmentID = c.DepartmentID WHERE b.PatientType=$patientType AND a.ProceedStatus IS NULL";
+        $query = "SELECT a.SalesID, a.DepartmentID, a.StaffID, a.RequestDate, b.PatientID, b.PatientFullName, c.Name as DepartmentName FROM Accounts.HmoSalesVerification a INNER JOIN Patients.Patient b On a.PatientID = b.PatientID INNER JOIN Staffs.Department c ON a.DepartmentID = c.DepartmentID WHERE b.PatientType=$patientType AND a.ProceedStatus IS NULL";
 
         $result = (
             DBConnectionFactory::getConnection()
@@ -127,7 +127,8 @@ class HmoSalesVerification
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach($result as $key=>$data){
-            $result[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["StaffID"])["StaffFullName"];
+            $result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $data["PatientID"])["_source"];
+            $result[$key]["StaffDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["StaffID"]);
         }
 
         return $result;
