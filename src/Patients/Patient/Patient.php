@@ -127,29 +127,24 @@ class Patient
         $department = $data['department'] ?? null;
         $requestNumber = $data['paymentRequest'] ?? null;
 
-        $salesData = [
-            "patient"=>$patient,
-            "staff"=>$staff,
-            "department"=>$department,
-            "salesAction"=>"Unlocked Profile"
-        ];
+        // $salesData = [
+        //     "patient"=>$patient,
+        //     "staff"=>$staff,
+        //     "department"=>$department,
+        //     "salesAction"=>"Unlocked Profile"
+        // ];
 
-        if (!is_null($requestNumber)){
-            $salesData["paymentRequest"] = $requestNumber;
-        }
+        // if (!is_null($requestNumber)){
+        //     $salesData["paymentRequest"] = $requestNumber;
+        // }
 
-        $logSales = \EmmetBlue\Plugins\Audit\SalesLog\SalesLog::create($salesData);
+        // $logSales = \EmmetBlue\Plugins\Audit\SalesLog\SalesLog::create($salesData);
+        
+        $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
+        $result = DBConnectionFactory::getConnection()->exec($query);
 
-        if ($logSales){
-            $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
-            $result = DBConnectionFactory::getConnection()->exec($query);
-
-            $query = "INSERT INTO Patients.PatientProfileUnlockLog (PatientID, Staff) VALUES ($patient, $staff)";
-            DBConnectionFactory::getConnection()->exec($query);
-        }
-        else {
-            throw new \Exception("Unable to log this action");
-        }
+        $query = "INSERT INTO Patients.PatientProfileUnlockLog (PatientID, Staff) VALUES ($patient, $staff)";
+        DBConnectionFactory::getConnection()->exec($query);
 
         return $result;
     }
@@ -542,6 +537,17 @@ class Patient
         }
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key=>$value){
+            $visitPdo = DBConnectionFactory::getConnection()->query("SELECT TOP 1 * FROM Consultancy.PatientDiagnosisLog a INNER JOIN Staffs.StaffProfile b ON a.StaffID = b.StaffID WHERE a.PatientID = ".$value['PatientID']." ORDER BY a.DateLogged DESC")->fetchall(\PDO::FETCH_ASSOC);
+
+            if (isset($visitPdo[0])){
+                $result[$key]["LastVisitDetails"] = $visitPdo[0];
+            }
+            else {
+                $result[$key]["LastVisitDetails"] = [];
+            }
+        }
 
         return $result;
     }
