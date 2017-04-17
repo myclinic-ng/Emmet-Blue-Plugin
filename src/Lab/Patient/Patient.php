@@ -101,7 +101,7 @@ class Patient
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('a.*, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
+            ->columns('ROW_NUMBER() OVER (ORDER BY a.RegistrationDate) AS RowNum, a.PatientLabNumber, a.PatientID, a.FullName, a.InvestigationRequired, a.RegistrationDate, a.RequestID, a.RequestedBy, a.DateRequested, a.Published, a.Unlocked, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
             ->from('Lab.Patients a')
             ->innerJoin('Lab.InvestigationTypes b', 'a.InvestigationTypeRequired = b.InvestigationTypeID')
             ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID')
@@ -117,12 +117,23 @@ class Patient
             $selectBuilder->andWhere('a.PatientID = '.$data["patient"]);
         }
 
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (a.PatientLabNumber LIKE '%$keyword%' OR a.FullName LIKE '%$keyword%' OR b.InvestigationTypeName LIKE '%$keyword%' OR c.LabName LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = (string) $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($viewOperation as $key=>$result){
-                $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
+                $viewOperation[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"];
+                $viewOperation[$key]["RequestedByDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"]);
             }
 
             DatabaseLog::log(
@@ -132,6 +143,16 @@ class Patient
                 'Patients',
                 (string)$selectBuilder
             );
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $viewOperation = [
+                    "data"=>$viewOperation,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
+            }
 
             return $viewOperation;        
         } 

@@ -68,7 +68,7 @@ class Login
         	 {
         	 	$passwordHash = $result[0]["PasswordHash"];
 
-        	 	if (password_verify($password, $passwordHash))
+        	 	if (!is_null($passwordHash) && password_verify($password, $passwordHash))
         	 	{
         	 		return true;
         	 	}

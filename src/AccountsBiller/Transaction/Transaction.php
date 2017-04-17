@@ -171,6 +171,38 @@ class Transaction
         }
     }
 
+    public static function viewByInvoice(int $resourceId = 0)
+    {
+        $query = "SELECT TOP 1 a.*, b.BillingTransactionNumber FROM Accounts.BillingTransaction a INNER JOIN Accounts.BillingTransactionMeta b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID WHERE a.BillingTransactionMetaID = (SELECT AttachedInvoice FROM Accounts.PaymentRequest WHERE PaymentRequestID = $resourceId)";
+
+        // die($query);
+
+        try
+        {            
+            $result = (
+                DBConnectionFactory::getConnection()
+                ->query($query)
+            )->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $key => $value) {
+                $result[$key]["invoiceData"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::viewByNumber((int) $value["BillingTransactionNumber"])[0];
+            }
+
+            if (isset($result[0])){
+                $result = $result[0];
+            }
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to retrieve requested data, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();

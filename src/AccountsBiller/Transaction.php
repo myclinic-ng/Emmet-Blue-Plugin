@@ -38,6 +38,11 @@ class Transaction
 		return Transaction\Transaction::view($resourceId, $data);
 	}
 
+	public static function viewByInvoice(int $resourceId=0)
+	{
+		return Transaction\Transaction::viewByInvoice($resourceId);
+	}
+
 	public static function deleteTransaction(int $resourceId)
 	{
 		return Transaction\Transaction::delete($resourceId);
