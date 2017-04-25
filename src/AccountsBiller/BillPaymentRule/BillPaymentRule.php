@@ -78,14 +78,15 @@ class BillPaymentRule
 
     public static function createAppendItem(array $data){
         $items = $data["items"] ?? null;
+        $category = $data["patientCategory"];
 
         $queryV = [];
 
         foreach ($items as $key => $value) {
-            $queryV[] = "($value)";
+            $queryV[] = "($value, $category)";
         }
 
-        $query = "INSERT INTO Accounts.AppendedBillingTypePaymentRules(BillingTypeItem) VALUES ".implode(", ", $queryV);
+        $query = "INSERT INTO Accounts.AppendedBillingTypePaymentRules(BillingTypeItem, CategoryID) VALUES ".implode(", ", $queryV);
 
         $result = DBConnectionFactory::getConnection()->exec($query);
 
@@ -145,8 +146,8 @@ class BillPaymentRule
         return $result;
     }
 
-    public static function viewAppendItems(){
-        $query = "SELECT * FROM Accounts.AppendedBillingTypePaymentRules a INNER JOIN Accounts.BillingTypeItems b ON a.BillingTypeItem = b.BillingTypeItemID";
+    public static function viewAppendItems(int $resourceId){
+        $query = "SELECT * FROM Accounts.AppendedBillingTypePaymentRules a INNER JOIN Accounts.BillingTypeItems b ON a.BillingTypeItem = b.BillingTypeItemID WHERE a.CategoryID = $resourceId";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 

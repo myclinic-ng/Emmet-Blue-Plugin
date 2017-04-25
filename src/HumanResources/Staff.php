@@ -40,6 +40,13 @@ class Staff
         return $result;
     }
 
+    public static function updatePassword(array $data)
+    {
+        $result = Staff\Staff::updatePassword($data);
+
+        return $result;
+    }
+
     public static function newStaffWithDepartmentAndRole(array $data)
     {
         $result = Staff\Staff::createWithDepartmentAndRole($data);

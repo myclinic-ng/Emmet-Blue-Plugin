@@ -64,7 +64,7 @@ class BillPaymentRule
 		return BillPaymentRule\BillPaymentRule::viewTotal($resourceId, $data);
 	}
 
-	public static function viewAppendItems(){
-		return BillPaymentRule\BillPaymentRule::viewAppendItems();
+	public static function viewAppendItems(int $resourceId = 0){
+		return BillPaymentRule\BillPaymentRule::viewAppendItems($resourceId);
 	}
 }

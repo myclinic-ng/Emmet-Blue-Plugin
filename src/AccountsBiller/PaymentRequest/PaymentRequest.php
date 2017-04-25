@@ -51,6 +51,19 @@ class PaymentRequest
             )->fetchAll(\PDO::FETCH_ASSOC);
         $requestDepartment = $result[0]["DepartmentID"];
 
+        $patientCategory = DBConnectionFactory::getConnection()->query(
+            "SELECT c.CategoryID FROM Patients.Patient a INNER JOIN Patients.PatientType b ON a.PatientType = b.PatientTypeID 
+            INNER JOIN Patients.PatientTypeCategories c ON b.CategoryName = c.CategoryName
+            WHERE a.PatientID=$patient"
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($patientCategory[0])){
+            $patientCategory = $patientCategory[0]["CategoryID"];
+        }
+        else {
+            $patientCategory = 0;
+        }
+
         try
         {
             $result = DBQueryFactory::insert('Accounts.PaymentRequest', [
@@ -67,7 +80,7 @@ class PaymentRequest
                 $itemNames[] = "($id, ".$datum['item'].", ".$datum['quantity'].")";
             }
 
-            $appends = \EmmetBlue\Plugins\AccountsBiller\BillPaymentRule::viewAppendItems();
+            $appends = \EmmetBlue\Plugins\AccountsBiller\BillPaymentRule::viewAppendItems((int) $patientCategory);
 
             foreach ($appends as $value){
                 $itemNames[] = "($id, ".$value['BillingTypeItem'].", 1)";
@@ -259,7 +272,7 @@ class PaymentRequest
                 break;
             }
             case "patienttype":{
-                $query .= " WHERE e.PatientTypeID = ".$data["query"];
+                $query .= " WHERE e.CategoryName = '".$data["query"]."'";
                 break;
             }
             case "invoice":{
@@ -274,8 +287,6 @@ class PaymentRequest
            $query .= " AND a.RequestFulfillmentStatus = ".$data["constantstatus"];
            unset($data["constantstatus"]);
         }
-
-        // die($query);
 
         if (!empty($data)){
             $_filters = ["status"=>[], "department"=>[], "date"=>[]];

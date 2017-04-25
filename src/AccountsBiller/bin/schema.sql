@@ -276,5 +276,7 @@ CREATE TABLE Accounts.PatientTypeTotalPaymentRules (
 CREATE TABLE Accounts.AppendedBillingTypePaymentRules (
 	RuleID INT PRIMARY KEY IDENTITY,
 	BillingTypeItem INT UNIQUE NOT NULL,
-	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE
+	CategoryID INT,
+	FOREIGN KEY (BillingTypeItem) REFERENCES [Accounts].[BillingTypeItems] (BillingTypeItemID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (CategoryID) REFERENCES Patients.PatientTypeCategories (CategoryID) ON UPDATE CASCADE ON DELETE CASCADE,
 )

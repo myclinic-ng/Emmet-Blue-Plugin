@@ -49,6 +49,13 @@ class PatientAdmission
         return $result;
     }
 
+    public static function clearForDischarge(int $resourceId)
+    {
+        $result = PatientAdmission\PatientAdmission::clearForDischarge($resourceId);
+
+        return $result;
+    }
+
     public static function viewDischargedPatients(int $resourceId=0, array $data = [])
     {
         $result = PatientAdmission\PatientAdmission::viewDischargedPatients($resourceId, $data);

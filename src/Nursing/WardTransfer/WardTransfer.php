@@ -45,7 +45,6 @@ class WardTransfer
 
         try
         {
-
             DBConnectionFactory::getConnection()->exec(
                 "UPDATE Consultancy.PatientAdmission SET Ward = $wardTo, Section = $sectionTo WHERE PatientAdmissionID = $admissionId"
             );
@@ -58,7 +57,7 @@ class WardTransfer
                 'PatientAdmissionID'=>$admissionId,
                 'WardFrom'=>$wardFrom,
                 'WardTo'=>$wardTo,
-                'TransferNote'=>QB::wrapString($transferNote, "'"),
+                'TransferNote'=>QB::wrapString((string) $transferNote, "'"),
                 'TransferredBy'=>$transferBy
             ]);
 

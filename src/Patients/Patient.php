@@ -142,6 +142,13 @@ class Patient
         return $result;
     }
 
+    public static function retrieveLockStatus(int $resourceId)
+    {
+        $result = Patient\Patient::retrieveLockStatus($resourceId);
+
+        return $result;
+    }
+
 
     public static function changeType(array $data){
         return Patient\Patient::changeType($data);

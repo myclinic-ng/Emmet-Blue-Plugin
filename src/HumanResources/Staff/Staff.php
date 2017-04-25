@@ -69,7 +69,28 @@ class Staff
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (new department group creation request), %s",
+                "Unable to process request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function updatePassword(array $data)
+    {
+        $id = $data['staff'];
+        $password = password_hash($data["password"], PASSWORD_DEFAULT);
+
+        try
+        {
+            $query = "UPDATE Staffs.StaffPassword SET PasswordHash = '$password', ModifiedDate = GETDATE() WHERE StaffID = $id";
+            
+            $result = DBConnectionFactory::getConnection()->exec($query);
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process request, %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
@@ -125,8 +146,7 @@ class Staff
     public static function viewStaffRole(int $id)
     {
         try
-        {            
-    
+        {
             $query = "SELECT b.Name FROM Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID WHERE a.StaffID = $id";
 
             $result = (

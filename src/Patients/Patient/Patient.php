@@ -105,6 +105,12 @@ class Patient
                 "repo" => self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'repositories'
             ];
 
+            if (!is_dir(self::$patientFolders["patient"])){
+                mkdir(self::$patientFolders["patient"]);
+                mkdir(self::$patientFolders["profile"]);
+                mkdir(self::$patientFolders["repo"]);
+            }
+
             return self::uploadPhotoAndDocuments($data['photo']);
         }
 
@@ -331,16 +337,20 @@ class Patient
                 $data['FieldValue'] = QB::wrapString((string)$data['FieldValue'], "'");
             }
 
-            $updateBuilder->table("Patients.PatientRecordsFieldValue");
-            $updateBuilder->set($data);
-            $updateBuilder->where("FieldValueID = $resourceId");
+            if ($resourceId !== ""){
+                $updateBuilder->table("Patients.PatientRecordsFieldValue");
+                $updateBuilder->set($data);
+                $updateBuilder->where("FieldValueID = $resourceId");
+            }
+            else {
+                $updateBuilder = "INSERT INTO Patients.PatientRecordsFieldValue (PatientID, FieldTitle, FieldValue) VALUES ($patient, ".$data['FieldTitle'].", ".$data['FieldValue'].")";
+            }
 
             $queries[] = (string) $updateBuilder;
         }
 
         try
         {
-
             $result = (
                     DBConnectionFactory::getConnection()
                     ->exec(implode("; ", $queries))
@@ -414,6 +424,9 @@ class Patient
             foreach ($result["_source"] as $key=>$value){
             	unset($result["_source"][$key]);
             	$result["_source"][strtolower($key)] = $value;
+                if (strtolower($key) == "patientprofilelockstatus"){
+                    $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
+                }
             }
 
             return $result;
@@ -475,6 +488,10 @@ class Patient
         	foreach($result["hits"]["hits"][$key]["_source"] as $k=>$v){
         		unset($result["hits"]["hits"][$key]["_source"][$k]);
         		$result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
+                if (strtolower($k) == "patientprofilelockstatus"){
+                    $id = $hit["_source"]["PatientID"] ?? $hit["_source"]["patientid"];
+                    $result["hits"]["hits"][$key]["_source"][strtolower($k)] = (int) self::retrieveLockStatus((int) $id)["status"];
+                }
         	}
         }
         
@@ -598,8 +615,25 @@ class Patient
         return false;
     }
 
+    public static function retrieveLockStatus(int $resourceId){
+        $query = "SELECT PatientProfileLockStatus AS status FROM Patients.Patient WHERE PatientID = $resourceId";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
+
+        if (isset($result[0])){
+            $result = $result[0];
+        }
+
+        return $result;
+    }
+
     public static function viewRecordFields(int $resourceId){
-        $query = "SELECT * FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId";
+        $query = "
+                    SELECT FieldValueID, FieldTitle, FieldValue FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId
+                    UNION 
+                    SELECT NULL AS FieldValueID, FieldTitleName AS FieldTitle, NULL AS FieldValue FROM Patients.PatientRecordsFieldTitle
+                    WHERE FieldTitleName NOT IN (SELECT FieldTitle FROM Patients.PatientRecordsFieldValue WHERE PatientID = $resourceId)
+                ";
 
         return DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
     }

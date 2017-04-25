@@ -96,6 +96,9 @@ class PatientAdmission
             $makeBillersHappy = \EmmetBlue\Plugins\AccountsBiller\PaymentRequest\PaymentRequest::create($paymentRequest);
         }
 
+        $bed = DBConnectionFactory::getConnection()->query("SELECT Bed FROM Nursing.WardAdmission WHERE PatientAdmissionID = $admissionId")->fetchAll(\PDO::FETCH_ASSOC)[0]["Bed"];
+        DBConnectionFactory::getConnection()->exec("UPDATE Nursing.SectionBed SET BedStatus = 0 WHERE SectionBedID = $bed");
+
         $result = DBQueryFactory::insert('Consultancy.PatientDischargeInformation', [
             'PatientAdmissionID'=>$admissionId,
             'DischargedBy'=>$dischargedBy,
@@ -113,6 +116,11 @@ class PatientAdmission
         // DBConnectionFactory::getConnection()->exec("UPDATE Consultancy.PatientAdmission SET DischargeStatus = -1 WHERE PatientAdmissionID = $admissionId");
 
         return $result;
+    }
+
+    public static function clearForDischarge(int $resourceId){
+        $query = "UPDATE Consultancy.PatientAdmission SET DischargeStatus = 1 WHERE PatientAdmissionID = $resourceId";
+        return DBConnectionFactory::getConnection()->exec($query);
     }
 
     /**
@@ -144,6 +152,8 @@ class PatientAdmission
             foreach ($result as $key=>$value){
                 $admissionId = $value["PatientAdmissionID"];
 
+                $result[$key]["ConsultantDetail"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["Consultant"]);
+                $result[$key]["ConsultantDetail"]["Role"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $value["Consultant"])["Name"];
                 $wardDetailsString = "SELECT * FROM Nursing.WardAdmission WHERE PatientAdmissionID = $admissionId";
                 $WardDetails = DBConnectionFactory::getConnection()->query($wardDetailsString)->fetchAll(\PDO::FETCH_ASSOC);
                 if (isset($WardDetails[0])){
@@ -191,7 +201,7 @@ class PatientAdmission
             ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
             ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID')
             ->innerJoin('Consultancy.PatientDischargeInformation e', 'a.PatientAdmissionID = e.PatientAdmissionID')
-            ->where('a.DischargeStatus = -1');
+            ->where('a.DischargeStatus IN (1, -1)');
 
         if ($resourceId != 0){
             $selectBuilder->andWhere('a.Ward ='.$resourceId);

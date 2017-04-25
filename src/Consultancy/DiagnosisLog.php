@@ -32,6 +32,8 @@ class DiagnosisLog
         
         $query = "INSERT INTO Consultancy.PatientDiagnosisLog (PatientID, StaffID, DiagnosisID) VALUES ($patient, $consultant, $diagnosis)";
 
+        \EmmetBlue\Plugins\Patients\Patient\Patient::LockProfile(["patient"=>$patient]);
+
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;
