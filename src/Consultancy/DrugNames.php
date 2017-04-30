@@ -28,67 +28,49 @@ use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
 class DrugNames
 {
    public static function search(array $data){
-      $dirts = [
-         "(", ")", "-"
-     ];
-     foreach ($dirts as $dirt){
-         $data["phrase"] = str_replace($dirt, " ", $data["phrase"]);
-     }
-     $phrase = $data["phrase"];
-     $size = $data['size'] ?? 500;
-     $from = $data['from'] ?? 0;
+        $dirts = [
+             "(", ")", "-", ".", "'"
+        ];
+        foreach ($dirts as $dirt){
+            $data["phrase"] = str_replace($dirt, " ", $data["phrase"]);
+        }
+        $phrase = $data["phrase"];
+        $size = $data['size'] ?? 500;
+        $from = $data['from'] ?? 0;
 
-    //  $query = explode(" ", $phrase);
-    //  $builtQuery = [];
-    //  foreach ($query as $element){
-    //      $builtQuery[] = "%".$element."%";
-    //  }
+        $builtQuery = "%$phrase%";
 
-    // $builtQuery = implode(" OR b.BillingTypeItemName LIKE ", $builtQuery);
+        $uuid=$data['staff'];
 
-    $builtQuery = "%$phrase%";
+        $query = "SELECT TOP 10 a.BillingTypeName, b.* FROM Accounts.BillingType a JOIN (
+                    SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
+                        SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
+                            SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
+                        ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$uuid'
+                    ) b ON a.BillingType = b.BillingTypeID
+                ) b ON a.BillingTypeID = b.BillingType WHERE b.BillingTypeItemName LIKE '$builtQuery'";
+                
+        $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$query)
+                )->fetchAll(\PDO::FETCH_ASSOC);
 
-    $uuid=$data['staff'];
+        $billingTypes = [];
 
-    $query = "SELECT a.BillingTypeName, b.* FROM Accounts.BillingType a JOIN (
-                SELECT a.* FROM Accounts.BillingTypeItems a JOIN (
-                    SELECT a.* FROM Accounts.DepartmentBillingLink a JOIN (
-                        SELECT a.DepartmentID, b.StaffUUID FROM Staffs.StaffDepartment a JOIN Staffs.Staff b ON a.StaffID = b.StaffID
-                    ) b ON a.DepartmentID = b.DepartmentID WHERE b.StaffUUID = '$uuid'
-                ) b ON a.BillingType = b.BillingTypeID
-            ) b ON a.BillingTypeID = b.BillingType WHERE b.BillingTypeItemName LIKE '$builtQuery'";
+        foreach ($result as $item){
+            $query = "SELECT SUM(a.ItemQuantity) as TotalQuantity, COUNT(a.StoreID) as StoreCount FROM Pharmacy.StoreInventoryItems a INNER JOIN Pharmacy.StoreInventory b ON a.Item = b.ItemID WHERE b.Item = ".$item["BillingTypeItemID"]. "AND a.StoreID IN (SELECT DISTINCT Store FROM Pharmacy.DispensoryStoreLink)";
+            $qResult = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
 
-    // die($query);
-            
-    $result = (
-                DBConnectionFactory::getConnection()
-                ->query((string)$query)
-            )->fetchAll(\PDO::FETCH_ASSOC);
+            if ($qResult["StoreCount"] > 0){
+                $item["_meta"] = $qResult;
 
-    $billingTypes = [];
+                $billingTypes[] = $item; //["BillingTypeItemName"];    
+            }
+            else {
+                continue;
+            }
+        }
 
-    foreach ($result as $item){
-        $billingTypes[] = $item["BillingTypeItemName"];
+        return $billingTypes;
     }
-
-    return $billingTypes;
-     
-     // $params = [
-     //     'index'=>'rxnorm',
-     //     'type'=>'drugnames',
-     //     'size'=>$size,
-     //     'from'=>$from,
-     //     'body'=>array(
-     //         "query"=>array(
-     //             "query_string"=>array(
-     //                 "query"=>$builtQuery
-     //             )
-     //         )
-     //     )
-     // ];
-
-     // $esClient = ESClientFactory::getClient();
-
-     // return $esClient->search($params);
-   }
 }

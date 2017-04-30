@@ -85,7 +85,9 @@ class ConsultationSheet
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder. " ORDER BY DateTaken DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
-                $result[$i]["ConsultantFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Consultant"])["StaffFullName"];
+                $consultantDetail = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Consultant"]);
+                $result[$i]["ConsultantFullName"] = $consultantDetail["StaffFullName"];
+                $result[$i]["ConsultantPicture"] = $consultantDetail["StaffPicture"];
             }
 
             DatabaseLog::log(
