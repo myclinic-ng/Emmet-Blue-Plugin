@@ -53,6 +53,11 @@ class StoreInventory
 		return StoreInventory\StoreInventory::viewByStore($resourceId, $data);
 	}
 
+	public static function viewAbsentItems(int $resourceId=0)
+	{
+		return StoreInventory\StoreInventory::viewAbsentItems($resourceId);
+	}
+
 	public static function viewAvailableItemsByStore(int $resourceId=0, array $data = [])
 	{
 		return StoreInventory\StoreInventory::viewAvailableItemsByStore($resourceId, $data);

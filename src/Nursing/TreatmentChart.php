@@ -49,17 +49,10 @@ class TreatmentChart
         return $result;
     }
 
-    // public static function editTreatmentChart(int $resourceId=0, array $data)
-    // {
-    //     $result = TreatmentChart\TreatmentChart::editTreatmentChart($resourceId, $data);
+    public static function deleteTreatmentChart(int $resourceId)
+    {
+        $result = TreatmentChart\TreatmentChart::deleteTreatmentChart($resourceId);
 
-    //     return $result;
-    // }
-
-    // public static function deleteTreatmentChart(int $resourceId)
-    // {
-    //     $result = TreatmentChart\TreatmentChart::delete($resourceId);
-
-    //     return $result;
-    // }
+        return $result;
+    }
 }

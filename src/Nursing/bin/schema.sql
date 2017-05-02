@@ -131,6 +131,8 @@ CREATE TABLE Nursing.AdmissionTreatmentChart (
 	Note VARCHAR(500),
 	Nurse INT,
 	Date DATETIME NOT NULL DEFAULT GETDATE(),
+	DateLogged DATETIME NOT NULL DEFAULT GETDATE(),
+	Deleted SMALLINT DEFAULT 0,
 	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
 	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
 )

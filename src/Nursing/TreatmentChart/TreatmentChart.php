@@ -34,25 +34,29 @@ class TreatmentChart
      */
     public static function create(array $data)
     {
-        $admissionId = $data['admissionId'] ?? 'NULL';
-        $drug = $data['drug'] ?? null;
-        $nurse = $data["nurse"] ?? 'NULL';
-        $dose = $data["dose"] ?? null;
-        $route = $data["route"] ?? null;
-        $note = $data["note"] ?? null;
-        $time = date("H:i:s");
+        $sData = $data;
+        $items = $data["items"];
+        $time = $sData["associatedTime"];
+        $admissionId = $sData['admissionId'] ?? 'NULL';
+        $nurse = $sData["nurse"] ?? 'NULL';
+        $date = $sData["time"] ?? 'NULL';
+        
+        $_query = [];
+
+        foreach ($items as $key => $data) {
+            $drug = $data['drug'] ?? null;
+            $dose = $data["dose"] ?? null;
+            $route = $data["route"] ?? null;
+            $note = $data["note"] ?? null;
+
+            $_query[] = "($admissionId, '$drug', $nurse, '$dose', '$route', '$note', '$time', '$date')";
+        }
+
+        $query = "INSERT INTO Nursing.AdmissionTreatmentChart (PatientAdmissionID, Drug, Nurse, Dose, Route, Note, Time, Date) VALUES ".implode(", ", $_query);
 
         try
         {
-            $result = DBQueryFactory::insert('Nursing.AdmissionTreatmentChart', [
-                'PatientAdmissionID'=>$admissionId,
-                'Drug'=>QB::wrapString($drug, "'"),
-                'Nurse'=>$nurse,
-                'Dose'=>QB::wrapString($dose, "'"),
-                'Route'=>QB::wrapString($route, "'"),
-                'Note'=>QB::wrapString((string)$note, "'"),
-                'Time'=>QB::wrapString($time, "'")
-            ]);
+            $result = DBConnectionFactory::getConnection()->exec($query);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -89,7 +93,7 @@ class TreatmentChart
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
-                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"])["StaffFullName"];
+                $result[$i]["NurseDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"]);
             }
 
             DatabaseLog::log(
@@ -156,8 +160,11 @@ class TreatmentChart
     }
 
     
-    public static function editTreatmentChart(int $resourceId, array $data)
+    public static function deleteTreatmentChart(int $resourceId)
     {
+        $query="UPDATE Nursing.AdmissionTreatmentChart SET Deleted = 1 WHERE TreatmentChartID = $resourceId";
+        $result = DBConnectionFactory::getConnection()->exec($query);
 
+        return $result;
     }    
 }

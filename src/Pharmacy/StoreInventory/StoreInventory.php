@@ -221,7 +221,7 @@ class StoreInventory
                 $query = " SELECT ROW_NUMBER() OVER ( ORDER BY a.Item ) AS RowNum, a.*, b.BillingTypeItemName FROM Pharmacy.StoreInventory a INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID ";
                 if (isset($data["keywordsearch"])){
                     $keyword = $data["keywordsearch"];
-                    $query .= " WHERE (b.BillingTypeItemName LIKE '%$keyword%' OR a.ItemBrand LIKE '%$keyword%' OR a.ItemManufacturer LIKE '%$keyword%')";
+                    $query .= " WHERE (b.BillingTypeItemName LIKE '%$keyword%' OR a.ItemBrand LIKE '%$keyword%' OR a.ItemManufacturer LIKE '%$keyword%' OR a.Item LIKE '$keyword')";
                 }
                 $_query = $query;
                 $selectBuilder = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= $from AND RowNum < $size ORDER BY RowNum";
@@ -287,40 +287,108 @@ class StoreInventory
         }
     }
 
+    public static function viewAbsentItems(int $resourceId=0){
+        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+        $selectBuilder->columns("a.*, b.BillingTypeItemName");
+        
+        $selectBuilder->from("Pharmacy.StoreInventory a")->innerJoin("Accounts.BillingTypeItems b", "a.Item = b.BillingTypeItemID");
+
+        if ($resourceId !== 0){
+            $selectBuilder .= " WHERE a.ItemID NOT IN (SELECT Item FROM Pharmacy.StoreInventoryItems WHERE StoreID=$resourceId)";
+        }
+
+        $result = (
+            DBConnectionFactory::getConnection()
+            ->query((string)$selectBuilder)
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
     public static function viewByStore(int $resourceId=0, array $data = [])
     {
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
-
         try
         {
-            if (empty($data)){
-                $selectBuilder->columns("a.*, c.*, b.BillingTypeItemName");
-            }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId");
+            if (isset($data["paginate"])){
+                $size = $data["size"];
+                $from = $data["from"];
 
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->query((string)$selectBuilder)
-            )->fetchAll(\PDO::FETCH_ASSOC);
+                $size = $size + $from;
 
-            foreach ($result as $key=>$storeItem)
-            {
-                $id = $storeItem["ItemID"];
-                $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
+                $selectBuilder->columns("ROW_NUMBER() OVER ( ORDER BY a.Item ) AS RowNum, a.ItemQuantity, c.*, b.BillingTypeItemName");
 
-                $queryResult = (
+                $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId");
+
+                if (isset($data["keywordsearch"])){
+                    $keyword = $data["keywordsearch"];
+                    $selectBuilder .= " AND (b.BillingTypeItemName LIKE '%$keyword%' OR c.ItemBrand LIKE '%$keyword%' OR c.ItemManufacturer LIKE '%$keyword%' OR c.Item LIKE '$keyword' OR a.ItemQuantity LIKE '$keyword%')";
+                }
+
+                $_query = $selectBuilder;
+                $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= $from AND RowNum < $size ORDER BY RowNum";
+
+                $result = (
                     DBConnectionFactory::getConnection()
-                    ->query($query)
+                    ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-                $result[$key]["Tags"] = $queryResult;
-            }
+                foreach ($result as $key=>$storeItem)
+                {
+                    $id = $storeItem["ItemID"];
+                    $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
 
-            return $result;
+                    $queryResult = (
+                        DBConnectionFactory::getConnection()
+                        ->query($query)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+
+                    $result[$key]["Tags"] = $queryResult;
+                }
+
+                $total = DBConnectionFactory::getConnection()->query(
+                    "SELECT COUNT(*) AS count FROM ($_query) q"
+                )->fetchAll(\PDO::FETCH_ASSOC)[0]["count"];
+
+                $result = [
+                    "data"=>$result,
+                    "filtered"=>$total,
+                    "total"=>$total
+                ];
+
+                return $result;
+            }
+            else {
+                $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+                if (empty($data)){
+                    $selectBuilder->columns("a.*, c.*, b.BillingTypeItemName");
+                }
+                else {
+                    $selectBuilder->columns(implode(", ", $data));
+                }
+                
+                $selectBuilder->from("Pharmacy.StoreInventoryItems a")->innerJoin("Pharmacy.StoreInventory c", "a.Item = c.ItemID")->innerJoin("Accounts.BillingTypeItems b", "c.Item = b.BillingTypeItemID")->where("a.StoreID = $resourceId");
+
+                $result = (
+                    DBConnectionFactory::getConnection()
+                    ->query((string)$selectBuilder)
+                )->fetchAll(\PDO::FETCH_ASSOC);
+
+                foreach ($result as $key=>$storeItem)
+                {
+                    $id = $storeItem["ItemID"];
+                    $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
+
+                    $queryResult = (
+                        DBConnectionFactory::getConnection()
+                        ->query($query)
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+
+                    $result[$key]["Tags"] = $queryResult;
+                }
+
+                return $result;   
+            }
         }
         catch (\PDOException $e)
         {

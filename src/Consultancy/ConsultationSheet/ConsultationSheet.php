@@ -88,6 +88,7 @@ class ConsultationSheet
                 $consultantDetail = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Consultant"]);
                 $result[$i]["ConsultantFullName"] = $consultantDetail["StaffFullName"];
                 $result[$i]["ConsultantPicture"] = $consultantDetail["StaffPicture"];
+                $result[$i]["ConsultantRole"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $j["Consultant"])["Name"];
             }
 
             DatabaseLog::log(
