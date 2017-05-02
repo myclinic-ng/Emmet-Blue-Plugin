@@ -52,4 +52,10 @@ class Dispensation
 
         return $result;
     }
+
+    public static function retrieveDispensedItemsReport(int $resourceId = 0, array $data = []){
+		$result = Dispensation\Reports::retrieveDispensedItems($resourceId, $data);
+
+        return $result;
+    }
 }
