@@ -134,8 +134,11 @@ class PatientAdmission
             ->from('Consultancy.PatientAdmission a')
             ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
             ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
-            ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID')
-            ->where('a.DischargeStatus = 0');
+            ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID');
+
+        if (!(isset($data["ignore"]) && $data["ignore"] == true)){
+            $selectBuilder->where('a.DischargeStatus = 0');
+        }
 
         if ($resourceId != 0){
             $selectBuilder->andWhere('a.Ward ='.$resourceId);
@@ -195,11 +198,12 @@ class PatientAdmission
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('a.*, b.*, c.WardSectionName, d.WardName, e.DischargedBy, e.DischargeNote, e.DischargeDate')
+            ->columns('a.*, b.*, c.WardSectionName, d.WardName, e.DischargedBy, e.DischargeNote, e.DischargeDate, f.WardAdmissionID')
             ->from('Consultancy.PatientAdmission a')
             ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
             ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
             ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID')
+            ->innerJoin('Nursing.WardAdmission f', 'a.PatientAdmissionID = f.PatientAdmissionID')
             ->innerJoin('Consultancy.PatientDischargeInformation e', 'a.PatientAdmissionID = e.PatientAdmissionID')
             ->where('a.DischargeStatus IN (1, -1)');
 

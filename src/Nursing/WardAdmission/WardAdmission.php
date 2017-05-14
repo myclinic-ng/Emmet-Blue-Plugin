@@ -94,7 +94,7 @@ class WardAdmission
 
             foreach($result as $key=>$value){
                 $id = $value["PatientAdmissionID"];
-                $data = \EmmetBlue\Plugins\Consultancy\PatientAdmission\PatientAdmission::viewAdmittedPatients(0, ['admissionId'=>(int)$id]);
+                $data = \EmmetBlue\Plugins\Consultancy\PatientAdmission\PatientAdmission::viewAdmittedPatients(0, ['admissionId'=>(int)$id, "ignore"=>true]);
                 if (isset($data[0])){
                     $result[$key]["AdmissionInfo"] = $data[0];
                 }
@@ -156,5 +156,24 @@ class WardAdmission
         //         $e->getMessage()
         //     ), Constant::UNDEFINED);
         // }
-    }    
+    }  
+
+    public static function getAdmissionDetails(int $resourceId){
+        $query = "
+                    SELECT a.*, b.WardAdmissionID, b.Bed, b.AdmissionProcessedBy FROM Consultancy.PatientAdmission a
+                    INNER JOIN Nursing.WardAdmission b ON a.PatientAdmissionID = b.PatientAdmissionID
+                    WHERE a.Patient = $resourceId AND a.DischargeStatus = 0
+                ";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($result[0])){
+            $result = $result[0];
+        }
+        else {
+            $result = false;
+        }
+
+        return $result;
+    }  
 }

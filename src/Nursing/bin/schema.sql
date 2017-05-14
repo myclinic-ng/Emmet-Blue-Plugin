@@ -127,7 +127,7 @@ CREATE TABLE Nursing.AdmissionTreatmentChart (
 	Drug VARCHAR(100),
 	Dose VARCHAR(50),
 	Route VARCHAR(50),
-	Time VARCHAR(10),
+	Time VARCHAR(20),
 	Note VARCHAR(500),
 	Nurse INT,
 	Date DATETIME NOT NULL DEFAULT GETDATE(),

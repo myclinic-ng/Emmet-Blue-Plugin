@@ -72,16 +72,17 @@ class PharmacyRequest
 
     public static function view(int $resourceId, array $data=[])
     {
-        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY a.RequestDate) AS RowNum, a.*
+        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY a.RequestDate DESC) AS RowNum, a.*
                          FROM Pharmacy.PrescriptionRequests a
-                         INNER JOIN Patients.Patient d ON a.PatientID = d.PatientID INNER JOIN Patients.PatientType c ON d.PatientType = c.PatientTypeID";
+                         INNER JOIN Patients.Patient d ON a.PatientID = d.PatientID 
+                         INNER JOIN Patients.PatientType c ON d.PatientType = c.PatientTypeID";
 
         if ($resourceId !== 0){
             $selectBuilder .= " WHERE a.RequestID = $resourceId";
         }
         else {
             $selectBuilder .= " WHERE a.Acknowledged = 0";
-        }
+        }  
 
         if (isset($data["paginate"])){
             if (isset($data["keywordsearch"])){
@@ -106,6 +107,15 @@ class PharmacyRequest
                 $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["RequestedBy"])["StaffFullName"];
                 $viewOperation[$key]["AcknowledgedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["AcknowledgedBy"])["StaffFullName"];
                 $viewOperation[$key]["Request"] = unserialize(base64_decode($value["Request"]));
+
+                $admissionDetails = \EmmetBlue\Plugins\Nursing\WardAdmission\WardAdmission::getAdmissionDetails((int) $id);
+                if ($admissionDetails){
+                    $viewOperation[$key]["isAdmitted"] = true;
+                    $viewOperation[$key]["admissionDetails"] = $admissionDetails;
+                }
+                else {
+                    $viewOperation[$key]["isAdmitted"] = false;
+                }
             }
             DatabaseLog::log(
                 Session::get('USER_ID'),
