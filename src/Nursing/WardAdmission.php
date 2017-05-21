@@ -55,4 +55,11 @@ class WardAdmission
 
         return $result;
     }
+
+    public static function cancelAdmission(int $resourceId)
+    {
+        $result = WardAdmission\WardAdmission::cancelAdmission($resourceId);
+
+        return $result;
+    }
 }

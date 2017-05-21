@@ -34,6 +34,11 @@ class Dispensation
 		return Dispensation\Dispensation::view($resourceId, $data);
 	}
 
+	public static function retract(int $resourceId, array $data = [])
+	{
+		return Dispensation\Dispensation::retract($resourceId, $data);
+	}
+
 	public static function deleteDispensation(int $resourceId)
 	{
 		return Dispensation\storeInventory::delete($resourceId);

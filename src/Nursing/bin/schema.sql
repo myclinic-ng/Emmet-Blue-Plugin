@@ -58,6 +58,13 @@ CREATE TABLE Nursing.PatientProcessLog (
 )
 GO
 
+CREATE TABLE Nursing.NursingStationLoggingDepartments (
+	LogID INT PRIMARY KEY IDENTITY,
+	Department INT UNIQUE NOT NULL,
+	FOREIGN KEY (Department) REFERENCES Staffs.Department (DepartmentID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
+
 CREATE TABLE Nursing.Observations (
 	ObservationID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientID INT,

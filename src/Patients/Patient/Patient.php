@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -622,6 +622,9 @@ class Patient
 
         if (isset($result[0])){
             $result = $result[0];
+        }
+        else {
+            $result["status"] = -1;
         }
 
         return $result;

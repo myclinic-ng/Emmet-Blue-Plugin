@@ -39,7 +39,8 @@ class Reports
                                 a.*, b.ItemID, b.DispensedQuantity, c.BillingTypeItemName, c.BillingType, d.BillingTypeName, e.StaffID, g.PatientTypeName, g.CategoryName, h.StoreName, i.EligibleDispensory AS DispensoryName
                                 FROM Pharmacy.Dispensation a 
                                 INNER JOIN Pharmacy.DispensedItems b ON a.DispensationID = b.DispensationID
-                                INNER JOIN Accounts.BillingTypeItems c ON b.ItemID = c.BillingTypeItemID
+                                INNER JOIN Pharmacy.StoreInventory z ON z.ItemID = b.ItemID
+                                INNER JOIN Accounts.BillingTypeItems c ON z.Item = c.BillingTypeItemID
                                 INNER JOIN Accounts.BillingType d ON c.BillingType = d.BillingTypeID
                                 INNER JOIN Staffs.Staff e ON a.DispenseeID = e.StaffUUID
                                 INNER JOIN Patients.Patient f ON a.Patient = f.PatientID

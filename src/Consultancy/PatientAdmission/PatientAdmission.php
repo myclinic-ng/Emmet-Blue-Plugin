@@ -132,20 +132,24 @@ class PatientAdmission
         $selectBuilder
             ->columns('a.*, b.*, c.WardSectionName, d.WardName')
             ->from('Consultancy.PatientAdmission a')
-            ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
-            ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
-            ->innerJoin('Nursing.Ward d', 'a.Ward = d.WardID');
+            ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID');
+        $selectBuilder .= " LEFT OUTER JOIN Nursing.WardSection c ON a.Section = c.WardSectionID";
+        $selectBuilder .= " LEFT OUTER JOIN Nursing.Ward d ON a.Ward = d.WardID";
 
         if (!(isset($data["ignore"]) && $data["ignore"] == true)){
-            $selectBuilder->where('a.DischargeStatus = 0');
+            $selectBuilder .= " WHERE a.DischargeStatus = 0";
         }
 
         if ($resourceId != 0){
-            $selectBuilder->andWhere('a.Ward ='.$resourceId);
+            $selectBuilder .= " WHERE a.Ward = $resourceId";
         }
 
         if (isset($data["admissionId"])){
-            $selectBuilder->andWhere('a.PatientAdmissionID = '.$data["admissionId"]);
+            $selectBuilder .= " WHERE a.PatientAdmissionID = ".$data["admissionId"];
+        }
+
+        if (isset($data["patientId"])){
+            $selectBuilder .= " WHERE a.Patient = ".$data["patientId"];
         }
         
         try

@@ -54,6 +54,14 @@ class StoreRestockHistory
                 $quantityBefore = $item['quantityBefore'] ?? null;
                 $quantityAdded = $item['quantityAdded'] ?? null;
 
+                if (is_null($quantityBefore)){
+                    $q = "SELECT ItemQuantity FROM Pharmacy.StoreInventoryItems WHERE Item = $itemId AND StoreID = $store";
+                    $r = DBConnectionFactory::getConnection()->query($q)->fetchAll(\PDO::FETCH_ASSOC);
+                    if (isset($r[0])){
+                        $quantityBefore = (int) $r[0]["ItemQuantity"];
+                    }
+                }
+
                 $totalQty += (int) $quantityAdded;
                 $sumQty = $quantityAdded + $quantityBefore;
 
@@ -61,16 +69,18 @@ class StoreRestockHistory
                 $values[] = "($itemId, $quantityBefore, $quantityAdded, '$comment', $staffId)";
             }
             
-            $query = "INSERT INTO Pharmacy.StoreRestockHistory (ItemID, QuantityBefore, QuantityAdded, Comment, StaffID) VALUES ".implode(",", $values);
-            $query .= $updateQuery;
+            if (!empty($values)){
+                $query = "INSERT INTO Pharmacy.StoreRestockHistory (ItemID, QuantityBefore, QuantityAdded, Comment, StaffID) VALUES ".implode(",", $values);
+                $query .= $updateQuery;
 
-            if ($globalRestock){
-                $query .= "; INSERT INTO Pharmacy.GlobalRestockLog (ItemQuantity, Comment, StaffID, StoreID) VALUES ($totalQty, '$comment', $staffId, $store)";
+                if ($globalRestock){
+                    $query .= "; INSERT INTO Pharmacy.GlobalRestockLog (ItemQuantity, Comment, StaffID, StoreID) VALUES ($totalQty, '$comment', $staffId, $store)";
+                }
+                
+                $result = DBConnectionFactory::getConnection()->exec($query);
+
+                return $result;  
             }
-            
-            $result = DBConnectionFactory::getConnection()->exec($query);
-
-            return $result;
         }
         catch (\PDOException $e)
         {

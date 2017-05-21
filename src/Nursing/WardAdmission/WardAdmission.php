@@ -176,4 +176,10 @@ class WardAdmission
 
         return $result;
     }  
+
+    public static function cancelAdmission(int $admissionId){
+        $query = "UPDATE Consultancy.PatientAdmission SET DischargeStatus = 1 WHERE PatientAdmissionID = $admissionId";
+
+        return DBConnectionFactory::getConnection()->exec($query);
+    }
 }

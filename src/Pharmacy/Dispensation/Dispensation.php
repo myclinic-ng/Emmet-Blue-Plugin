@@ -251,6 +251,48 @@ class Dispensation
         }
     }
 
+    public static function retract(int $resourceId, array $data){
+        $staff = $data["staff"];
+        $comment = $data["comment"] ?? "N/A";
+        $dispensation = DBConnectionFactory::getConnection()->query(
+            "SELECT * FROM Pharmacy.Dispensation a JOIN Pharmacy.PrescriptionRequests b ON a.RequestID = b.RequestID WHERE a.RequestID = $resourceId AND b.Acknowledged = -1"
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($dispensation[0])){
+            $dispensation = $dispensation[0];
+
+            $query = "SELECT DispensedItemsID, ItemID, DispensedQuantity FROM Pharmacy.DispensedItems WHERE DispensationID = ".$dispensation["DispensationID"];
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            $items = [];
+            $note = "Item Retraction. ID: ".$dispensation["DispensationID"]." Comment: ".$comment;
+
+            foreach ($result as $key => $value) {
+                $qA = $value["DispensedQuantity"];
+                $items[] = [
+                    "item"=>$value["ItemID"],
+                    "quantityAdded"=>$qA
+                ];
+            }
+
+            $restockData = [
+                "items"=>$items,
+                "comment"=>$note,
+                "staffId"=>$staff,
+                "storeId"=>$dispensation["DispensingStore"]
+            ];
+
+            if (\EmmetBlue\Plugins\Pharmacy\StoreRestockHistory\StoreRestockHistory::create($restockData)){
+                $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = 2, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
+
+                return DBConnectionFactory::getConnection()->exec($query);
+            }
+        }
+        else {
+            throw new \Exception("Invalid Retraction Request, Please try again with valid data");
+        }
+    }
+
     /**
      * deletes dispensedItems resource
      */
