@@ -424,6 +424,7 @@ class Patient
             foreach ($result["_source"] as $key=>$value){
             	unset($result["_source"][$key]);
             	$result["_source"][strtolower($key)] = $value;
+                $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId); 
                 if (strtolower($key) == "patientprofilelockstatus"){
                     $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
                 }
@@ -488,6 +489,7 @@ class Patient
         	foreach($result["hits"]["hits"][$key]["_source"] as $k=>$v){
         		unset($result["hits"]["hits"][$key]["_source"][$k]);
         		$result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
+                // $result["hits"]["hits"][$key]["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $hit["_source"]["patientid"] ?? $hit["_source"]["patientid"]); 
                 if (strtolower($k) == "patientprofilelockstatus"){
                     $id = $hit["_source"]["PatientID"] ?? $hit["_source"]["patientid"];
                     $result["hits"]["hits"][$key]["_source"][strtolower($k)] = (int) self::retrieveLockStatus((int) $id)["status"];
@@ -543,7 +545,7 @@ class Patient
     }
 
     public static function getUnlockedProfiles(array $data){
-        $query = "SELECT * FROM Patients.Patient a INNER JOIN Patients.PatientType b ON a.PatientType = b.PatientTypeID WHERE PatientProfileLockStatus = 0";
+        $query = "SELECT * FROM Patients.Patient a INNER JOIN Patients.PatientType b ON a.PatientType = b.PatientTypeID INNER JOIN Patients.PatientProfileUnlockLog c ON a.PatientID = c.PatientID WHERE a.PatientProfileLockStatus = 0 AND CONVERT(date, c.DateLogged) = CONVERT(date, GETDATE())";
 
         if (isset($data["patienttype"]) && $data["patienttype"] != ""){
             $types = explode(",", $data["patienttype"]);
@@ -639,5 +641,56 @@ class Patient
                 ";
 
         return DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
+    }
+
+    public static function viewPatientsByRegistration(array $data){
+        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY LastModified) AS RowNum, PatientID, LastModified FROM Patients.Patient";
+        if (isset($data['startdate'])){
+            $selectBuilder .= " WHERE CONVERT(date, LastModified) BETWEEN '".$data["startdate"]."' AND '".$data["enddate"]."'"; 
+        }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (PatientFullName LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = (string) $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($viewOperation as $key=>$result){
+                $src = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"];
+                if (!empty($src)){
+                    $viewOperation[$key]["PatientInfo"] = $src;
+                }
+            }
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $viewOperation = [
+                    "data"=>$viewOperation,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
+            }
+
+            return $viewOperation;        
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
     }
 }

@@ -200,4 +200,83 @@ class LabResult
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function getResults(array $data){
+        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        $selectBuilder
+            ->columns('ROW_NUMBER() OVER (ORDER BY a.RegistrationDate) AS RowNum, a.PatientLabNumber, a.PatientID, a.FullName, a.InvestigationRequired, a.RegistrationDate, a.RequestID, a.RequestedBy, a.DateRequested, a.Published, a.Unlocked, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
+            ->from('Lab.Patients a')
+            ->innerJoin('Lab.InvestigationTypes b', 'a.InvestigationTypeRequired = b.InvestigationTypeID')
+            ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID')
+            ->where('a.Published = 0');
+
+        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY b.DateReported DESC) AS RowNum, a.RequestID, a.InvestigationTypeRequired, 
+                            a.RegistrationDate, a.PatientID, b.*, c.InvestigationTypeLab, c.InvestigationTypeName, d.LabName
+                            FROM Lab.Patients a INNER JOIN Lab.LabResults b ON a.PatientLabNumber = b.PatientLabNumber
+                            INNER JOIN Lab.InvestigationTypes c ON a.InvestigationTypeRequired = c.InvestigationTypeID
+                            INNER JOIN Lab.Labs d ON c.InvestigationTypeLab = d.LabID
+                            LEFT OUTER JOIN Patients.Patient e ON a.PatientID = e.PatientID
+                            INNER JOIN Staffs.StaffProfile f ON b.ReportedBy = f.StaffID WHERE 1=1
+                        ";
+        if (isset($data['startdate'])){
+            $selectBuilder .= " AND CONVERT(date, b.DateReported) BETWEEN '".$data["startdate"]."' AND '".$data["enddate"]."'"; 
+        }
+        if (isset($data["patient"])){
+            $selectBuilder .= " AND e.PatientUUID = '".$data["patient"]."'";
+        }
+
+        if (isset($data["investigation"])){
+            $selectBuilder .= " AND a.InvestigationRequired = ".$data["investigation"];
+        }
+
+        if (isset($data["lab"])){
+            $selectBuilder .= " AND d.LabID = ".$data["lab"];
+        }
+
+        if (isset($data["staff"])){
+            $selectBuilder .= " AND b.ReportedBy = ".$data["staff"];
+        }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (e.PatientFullName LIKE '%$keyword%' OR f.StaffFullName LIKE '%$keyword%' OR c.InvestigationTypeName LIKE '%$keyword%' OR d.LabName LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = (string) $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
+        try
+        {
+            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($viewOperation as $key=>$result){
+                $viewOperation[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"];
+                $viewOperation[$key]["ReportedByDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["ReportedBy"]);
+            }
+
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $viewOperation = [
+                    "data"=>$viewOperation,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
+            }
+
+            return $viewOperation;        
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
 }

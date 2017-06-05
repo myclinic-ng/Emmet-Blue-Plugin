@@ -75,6 +75,38 @@ class Reports
                         $selectBuilder .= " AND a.DispensingStore = ".$data["query"];
                         break;
                     }
+                    case "filtercombo":{
+                        $query = $data["query"];
+                        foreach ($query as $key=>$value){
+                            switch(strtolower($value["type"])){
+                                case "patient":{
+                                    $selectBuilder .= " AND a.Patient = ".$value["value"];
+                                    break;
+                                }
+                                case "staff":{
+                                    $selectBuilder .= " AND e.StaffID = ".$value["value"];
+                                    break;
+                                }
+                                case "patienttype":{
+                                    $selectBuilder .= " AND g.CategoryName = '".$value["value"]."'";
+                                    break;
+                                }
+                                case "billingtype":{
+                                    $selectBuilder .= " AND c.BillingType = ".$value["value"];
+                                    break;
+                                }
+                                case "itemcode":{
+                                    $selectBuilder .= " AND z.ItemID = ".$value["value"];
+                                    break;
+                                }
+                                case "store":{
+                                    $selectBuilder .= " AND a.DispensingStore = ".$value["value"];
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
                     default:{
 
                     }
@@ -100,6 +132,8 @@ class Reports
                 $_query = $selectBuilder;
                 $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
             }
+
+            // die($selectBuilder);
 
             $dispensationResult = (
                 DBConnectionFactory::getConnection()

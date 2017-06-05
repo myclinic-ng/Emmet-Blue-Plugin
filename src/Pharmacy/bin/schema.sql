@@ -146,6 +146,7 @@ CREATE TABLE Pharmacy.DispensedItems(
 	DispensationID INT NOT NULL,
 	ItemID INT,
 	DispensedQuantity INT,
+	DispensationStatus BIT NOT NULL DEFAULT 1,
 	FOREIGN KEY (DispensationID) REFERENCES Pharmacy.Dispensation(DispensationID) ON UPDATE CASCADE ON DELETE CASCADE
 )
 GO

@@ -37,6 +37,12 @@ class LabResult
 	{
 		return LabResult\LabResult::view($resourceId);
 	}
+
+	public static function getResults(array $data)
+	{
+		return LabResult\LabResult::getResults($data);
+	}
+
 	public static function editLabResult(int $resourceId, array $data)
 	{
 		return LabResult\LabResult::edit($resourceId, $data);

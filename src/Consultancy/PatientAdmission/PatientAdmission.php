@@ -136,20 +136,23 @@ class PatientAdmission
         $selectBuilder .= " LEFT OUTER JOIN Nursing.WardSection c ON a.Section = c.WardSectionID";
         $selectBuilder .= " LEFT OUTER JOIN Nursing.Ward d ON a.Ward = d.WardID";
 
+        $keyword = " WHERE";
         if (!(isset($data["ignore"]) && $data["ignore"] == true)){
+            $keyword = " AND";
             $selectBuilder .= " WHERE a.DischargeStatus = 0";
         }
 
         if ($resourceId != 0){
-            $selectBuilder .= " WHERE a.Ward = $resourceId";
+
+            $selectBuilder .= "$keyword a.Ward = $resourceId";
         }
 
         if (isset($data["admissionId"])){
-            $selectBuilder .= " WHERE a.PatientAdmissionID = ".$data["admissionId"];
+            $selectBuilder .= "$keyword a.PatientAdmissionID = ".$data["admissionId"];
         }
 
         if (isset($data["patientId"])){
-            $selectBuilder .= " WHERE a.Patient = ".$data["patientId"];
+            $selectBuilder .= "$keyword a.Patient = ".$data["patientId"];
         }
         
         try

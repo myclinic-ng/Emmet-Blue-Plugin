@@ -157,4 +157,8 @@ class Patient
     public static function viewRecordFields(int $data){
         return Patient\Patient::viewRecordFields($data);
     }
+
+    public static function viewByRegistration(array $data){
+        return Patient\Patient::viewPatientsByRegistration($data);
+    }
 }

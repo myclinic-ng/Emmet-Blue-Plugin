@@ -20,4 +20,8 @@ class AccountRegister {
 	public static function getRunningBalance(int $resourceId, array $data = []){
 		return AccountRegister\AccountRegister::getRunningBalance($resourceId, $data);
 	}
+
+	public static function getAccountEntries(int $resourceId, array $data){
+		return AccountRegister\AccountRegister::getAccountEntries($resourceId, $data);
+	}
 }

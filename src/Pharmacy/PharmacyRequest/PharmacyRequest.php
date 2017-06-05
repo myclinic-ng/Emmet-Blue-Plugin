@@ -193,7 +193,23 @@ class PharmacyRequest
     public static function close(int $resourceId, array $data = []){
         $status = $data["status"] ?? -1;
         $staff = $data["staff"] ?? null;
+        $itemStatus = $data["itemStatus"] ?? [];
+
+        $conn = DBConnectionFactory::getConnection();
+        $query = "SELECT DispensationID FROM Pharmacy.Dispensation WHERE RequestID = $resourceId";
+        $result = $conn->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        if (isset($result[0])){
+            $id = $result[0]["DispensationID"];
+            $query = "UPDATE Pharmacy.DispensedItems SET DispensationStatus = 1 WHERE DispensationID = $id";
+            $result = $conn->exec($query);
+        }
+        
+        if (!empty($itemStatus)){
+            $_query = "UPDATE Pharmacy.DispensedItems SET DispensationStatus = 0 WHERE DispensedItemsID = ".implode(" OR DispensedItemsID = ", $itemStatus);
+            $result = $conn->exec($_query);
+        }
+
         $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
-        return DBConnectionFactory::getConnection()->exec($query);
+        return $conn->exec($query);
     }
 }

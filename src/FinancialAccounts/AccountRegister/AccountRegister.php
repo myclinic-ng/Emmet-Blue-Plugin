@@ -74,4 +74,25 @@ class AccountRegister {
         }
         return ["value"=>$begBal, "period"=>$periodInfo];
     }
+
+    public static function getAccountEntries(int $account, array $data){
+        $startdate = $data["startdate"];
+        $enddate = $data["enddate"];
+
+        $result = ["total"=>[]];
+
+        $query = "SELECT a.*, b.GeneralJournalDate, b.GeneralJournalDescription, b.StaffID FROM FinancialAccounts.GeneralJournalEntries a
+                    INNER JOIN FinancialAccounts.GeneralJournal b ON a.GeneralJournalID = b.GeneralJournalID
+                    WHERE a.AccountID = $account AND CONVERT(date, b.GeneralJournalDate) BETWEEN '$startdate' AND '$enddate'";
+
+        $result["data"] = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result["data"] as $value){
+            $result["total"][trim($value["EntryType"])] += $value["EntryValue"];
+        }
+
+        $result["total"]["imprest"] = $result["total"]["credit"] - $result["total"]["debit"];
+        
+        return $result;
+    }
 }
