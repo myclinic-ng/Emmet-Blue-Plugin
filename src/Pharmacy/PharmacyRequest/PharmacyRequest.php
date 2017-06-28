@@ -212,4 +212,87 @@ class PharmacyRequest
         $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
         return $conn->exec($query);
     }
+
+    public static function smartify(array $data){
+        /**
+         * [item category][:][item full name][no. of times=>{bd, tds, qds, od}][duration]
+         */
+        $result = ["valid"=>false, "reason"=>"UNVALIDATED"];
+        $prescriptionParts = ["item"=>[], "times"=>0, "duration"=>0];
+        $timesCodes = ["bd", "tds", "qds", "od", "dly"];
+        $codeTimes = [
+            "bd"=>2, "tds"=>3, "qds"=>4, "od"=>1, "dly"=> 1
+        ];
+
+        $string = $data["prescription"];
+
+        $foundNumOfTimes = [];
+
+        foreach ($timesCodes as $code){
+            if (strpos(strtolower($string), " $code ") !== false){
+                $foundNumOfTimes[] = $code;
+            }
+        }
+        
+        if (count($foundNumOfTimes) !== 1){
+            $result["reason"] = "prescription number of times must be unique and must be either one of ".implode(", ", $timesCodes);
+        }
+        else {
+            $stringParts = explode(" ".$foundNumOfTimes[0]." ", $string);
+            if (count($stringParts) !== 2){
+                $result["reason"] = "prescription not formatted according to SMART contract";
+            }
+            else {
+                $item = $stringParts[0];
+                $duration = $stringParts[1];
+
+                $itemParts = explode("::", $item);
+                if (count($itemParts) !== 2){
+                    $result["reason"]= "prescription not formatted according to SMART contract";                    
+                }
+                else {
+                    $prescriptionParts["item"]["category"] = rtrim(trim($itemParts[0]));
+                    $prescriptionParts["item"]["name"] = rtrim(trim($itemParts[1]));
+
+                    $prescriptionParts["duration"] = preg_replace("/[^0-9\/]/", "", $duration);
+
+                    $prescriptionParts["times"] = $codeTimes[$foundNumOfTimes[0]];
+
+                    $result = ["valid"=>true, "reason"=>"properly formatted"];
+                }
+            }
+        }
+
+        $result["parts"] = $prescriptionParts;
+
+        if ($result["valid"]){
+            $category = $result["parts"]["item"]["category"];
+            $name = $result["parts"]["item"]["name"];
+
+            $query = "SELECT * FROM Accounts.BillingType WHERE BillingTypeName = '$category'";
+            $_result  = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            if (!isset($_result[0])){
+                $result["valid"] = false;
+                $result["reason"] = "Item doesn't exist";
+            }
+            else {
+                $id = $_result[0]["BillingTypeID"];
+                $query = "SELECT * FROM Accounts.BillingTypeItems WHERE BillingType = $id AND BillingTypeItemName = '$name'";
+                if (!isset($_result[0])){
+                    $result["valid"] = false;
+                    $result["reason"] = "Item doesn't exist";
+                }
+            }
+
+            $duration = explode("/", $result["parts"]["duration"]);
+            $duration[1] = $duration[1] ?? 1;
+            $duration = $duration[0] / $duration[1];
+
+            $qty = $result["parts"]["times"] * $duration;
+
+            $result["parts"]["quantity"] = $qty;
+        }
+
+        return $result;
+    }
 }

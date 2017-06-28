@@ -132,19 +132,6 @@ class Patient
         $staff = $data['staff'] ?? null;
         $department = $data['department'] ?? null;
         $requestNumber = $data['paymentRequest'] ?? null;
-
-        // $salesData = [
-        //     "patient"=>$patient,
-        //     "staff"=>$staff,
-        //     "department"=>$department,
-        //     "salesAction"=>"Unlocked Profile"
-        // ];
-
-        // if (!is_null($requestNumber)){
-        //     $salesData["paymentRequest"] = $requestNumber;
-        // }
-
-        // $logSales = \EmmetBlue\Plugins\Audit\SalesLog\SalesLog::create($salesData);
         
         $query = "UPDATE Patients.Patient SET PatientProfileLockStatus = 0 WHERE PatientID = $patient";
         $result = DBConnectionFactory::getConnection()->exec($query);
@@ -424,7 +411,8 @@ class Patient
             foreach ($result["_source"] as $key=>$value){
             	unset($result["_source"][$key]);
             	$result["_source"][strtolower($key)] = $value;
-                $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId); 
+                $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
+                $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
                 if (strtolower($key) == "patientprofilelockstatus"){
                     $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
                 }
@@ -489,12 +477,14 @@ class Patient
         	foreach($result["hits"]["hits"][$key]["_source"] as $k=>$v){
         		unset($result["hits"]["hits"][$key]["_source"][$k]);
         		$result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
-                // $result["hits"]["hits"][$key]["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $hit["_source"]["patientid"] ?? $hit["_source"]["patientid"]); 
                 if (strtolower($k) == "patientprofilelockstatus"){
                     $id = $hit["_source"]["PatientID"] ?? $hit["_source"]["patientid"];
                     $result["hits"]["hits"][$key]["_source"][strtolower($k)] = (int) self::retrieveLockStatus((int) $id)["status"];
                 }
         	}
+
+            $result["hits"]["hits"][$key]["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $result["hits"]["hits"][$key]["_source"]["patientid"] ?? $result["hits"]["hits"][$key]["_source"]["patientid"]); 
+            $result["hits"]["hits"][$key]["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $result["hits"]["hits"][$key]["_source"]["patientid"]); 
         }
         
         return $result;

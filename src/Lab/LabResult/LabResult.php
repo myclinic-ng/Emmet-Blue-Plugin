@@ -69,6 +69,11 @@ class LabResult
                 foreach ($requests as $key=>$value){
                     $reqs[] = "($value, $repoId, '$reportedBy')";
                     $reqs2[] = "UPDATE Lab.Patients SET Published = 1 WHERE PatientLabNumber = $value";
+
+                    \EmmetBlue\Plugins\EmmetblueCloud\Lab::sendPublishStatus([
+                        "patient"=>$patientId,
+                        "labNumber"=>$value
+                    ]);
                 }
 
                 $query = "INSERT INTO Lab.LabResults (PatientLabNumber, RepositoryID, ReportedBy) VALUES ".implode(", ", $reqs);

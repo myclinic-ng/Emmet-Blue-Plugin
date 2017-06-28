@@ -74,6 +74,13 @@ class Patient
                     'RequestID'=>$request
                 ]);
 
+                $id = $result["lastInsertId"];
+
+                \EmmetBlue\Plugins\EmmetblueCloud\Lab::addFollowUp([
+                    "patient"=>$patientID,
+                    "labNumber"=>$id
+                ]);
+
                 DatabaseLog::log(
                     Session::get('USER_ID'),
                     Constant::EVENT_SELECT,

@@ -86,4 +86,10 @@ class StoreInventory
 
         return $result;
     }
+    public static function getItemID(array $data)
+    {
+        $result = StoreInventory\StoreInventory::getItemID($data);
+
+        return $result;
+    }
 }

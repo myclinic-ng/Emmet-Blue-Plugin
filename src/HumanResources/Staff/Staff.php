@@ -21,9 +21,9 @@ use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
 /**
- * class NewStaff.
+ * class Staff.
  *
- * NewStaff Controller
+ * Staff Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 08/06/2016 14:20

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -24,17 +24,11 @@ use EmmetBlue\Core\Constant;
  *
  * store inventory and inventory tags Controller
  *
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 24/08/2016 12:17
  */
 class StoreInventory
 {
-    /**
-     * @method create
-     * creates ne store inventory and also creates store inventory tags
-     * 
-     */
-
     public static function create(array $data)
     {
         $storeInventoryTags = $data['tags'] ?? null;
@@ -512,5 +506,33 @@ class StoreInventory
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
+    }
+
+    public static function getItemID(array $data){
+        $item = $data["item"];
+        $category = $data["category"];
+        $store = $data["store"];
+
+        $query = "SELECT * FROM Accounts.BillingType WHERE BillingTypeName = '$category'";
+        $_result  = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        if (isset($_result[0])){
+            $id = $_result[0]["BillingTypeID"];
+            $query = "SELECT * FROM Accounts.BillingTypeItems WHERE BillingType = $id AND BillingTypeItemName = '$item'";
+            $_result  = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            if (isset($_result[0])){
+                $id = $_result[0]["BillingTypeItemID"];
+
+                $query = "SELECT b.Item as ItemID, a.Item, b.StoreID, b.ItemQuantity FROM Pharmacy.StoreInventory a INNER JOIN Pharmacy.StoreInventoryItems b ON a.ItemID =
+                        b.Item
+                        WHERE a.Item = $id AND b.StoreID = $store";
+                $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+                if (isset($result[0])){
+                    return $result[0];
+                }
+            }
+        }
+
+        return false;
     }
 }

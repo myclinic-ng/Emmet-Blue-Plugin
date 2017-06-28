@@ -51,4 +51,9 @@ class PharmacyRequest
 	{
 		return PharmacyRequest\PharmacyRequest::close($resourceId, $data);
 	}
+
+	public static function smartify(array $data)
+	{
+		return PharmacyRequest\PharmacyRequest::smartify($data);
+	}
 }

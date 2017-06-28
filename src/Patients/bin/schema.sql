@@ -240,3 +240,15 @@ CREATE TABLE Patients.PatientProfileUnlockLog (
 	FOREIGN KEY (Staff) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
 )
 GO
+
+CREATE TABLE Patients.PatientAppointments (
+	AppointmentID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT,
+	Staff INT,
+	AppointmentReason VARCHAR(MAX),
+	AppointmentDate DATETIME NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE,
+	FOREIGN KEY (Staff) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO
