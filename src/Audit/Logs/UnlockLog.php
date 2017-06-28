@@ -33,7 +33,13 @@ class UnlockLog {
 		$start = $data["startdate"];
 		$end = $data["enddate"];
 
-		$query = "SELECT a.*, b.Status, b.StatusNote, b.StaffID FROM Patients.PatientProfileUnlockLog a LEFT OUTER JOIN FinancialAuditing.UnlockLogStatus b ON a.LogID = b.LogID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
+		$query = "SELECT ROW_NUMBER() OVER (ORDER BY a.DateLogged) AS RowNum, a.*, b.Status, b.StatusNote, b.StaffID FROM Patients.PatientProfileUnlockLog a LEFT OUTER JOIN FinancialAuditing.UnlockLogStatus b ON a.LogID = b.LogID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
+
+		if (isset($data["paginate"])){
+	        $size = $data["from"] + $data["size"];
+	        $_query = "SELECT COUNT(*) as Count FROM Patients.PatientProfileUnlockLog a LEFT OUTER JOIN FinancialAuditing.UnlockLogStatus b ON a.LogID = b.LogID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
+	        $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";	
+		}
 
 		$result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
 
@@ -46,6 +52,16 @@ class UnlockLog {
 				$result[$key]["StatusStaffPicture"] = $staff["StaffPicture"];
 			}
 		}
+
+		if (isset($data["paginate"])){
+            $total = DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Count"];
+            // $filtered = count($_result) + 1;
+            $result = [
+                "data"=>$result,
+                "total"=>$total,
+                "filtered"=>$total
+            ];
+        }
 
 		return $result;
 	}
