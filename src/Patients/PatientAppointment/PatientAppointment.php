@@ -52,6 +52,10 @@ class PatientAppointment
                 'AppointmentReason'=>(is_null($reason)) ? 'NULL' : QB::wrapString((string)$reason, "'")
             ]);
 
+            $data["appointmentId"] = $result["lastInsertId"];
+
+            \EmmetBlue\Plugins\EmmetblueCloud\Appointment::publish($data);
+
             DatabaseLog::log(
                 Session::get('USER_ID'),
                 Constant::EVENT_INSERT,
@@ -114,6 +118,11 @@ class PatientAppointment
      */
     public static function delete(int $resourceId)
     {
+        $appointment = DBConnectionFactory::getConnection()->query(
+            "SELECT * FROM Patients.PatientAppointments WHERE AppointmentID = $resourceId"
+        )->fetchAll(\PDO::FETCH_ASSOC);
+        $appointment = $appointment[0] ?? [];
+
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
 
         try
@@ -126,6 +135,8 @@ class PatientAppointment
                     DBConnectionFactory::getConnection()
                     ->exec((string)$deleteBuilder)
                 );
+
+            \EmmetBlue\Plugins\EmmetblueCloud\Appointment\Appointment::cancelAppointment($resourceId, $appointment);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),

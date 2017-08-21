@@ -73,17 +73,14 @@ class LabRequest
         }
     }
 
-    /**
-     * view Wards data
-     */
     public static function view(int $resourceId)
     {
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, g.PatientTypeName, g.CategoryName, e.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a LEFT OUTER JOIN (SELECT * FROM Lab.InvestigationTypes b LEFT OUTER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE e.LabID = $resourceId AND e.RequestAcknowledged = 0";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a LEFT OUTER JOIN (SELECT * FROM Lab.InvestigationTypes b LEFT OUTER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID WHERE a.RequestID = $resourceId) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1)";
 
         try
         {
-            $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
-            
+            $viewOperation = (DBConnectionFactory::getConnection()->query($selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+                
             foreach ($viewOperation as $key=>$result){
                 $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
             }
@@ -96,7 +93,8 @@ class LabRequest
                 (string)$selectBuilder
             );
 
-            return $viewOperation;        
+            $viewOperation  = $viewOperation[0] ?? $viewOperation;
+            return $viewOperation;
         } 
         catch (\PDOException $e) 
         {

@@ -1,0 +1,57 @@
+<script src="assets/js/plugins/forms/selects/select2.min.js"></script>
+<script>$('select.select').select2();</script>
+
+<div ng-controller="pharmacyStoreTransferController">
+	<div class="row">
+		<div class="content-group col-md-6 col-md-offset-3">
+			<label class="control-label">Select A Receiving Store</label>
+			<select class="select" ng-model="receivingStore">
+				<option ng-repeat="store in _stores" value="{{store.StoreID}}">{{store.StoreName}}</option>
+			</select>
+		</div>
+		<div class="content-group col-md-9">
+			<label class="control-label">Select Item(s)</label>
+			<select class="select" multiple="" ng-model="stock.selectedItems" id="#selectedItems">
+				<option ng-repeat="item in inventoryItems" value="{{item.ItemID}}" ng-if="!itemBrandIsNull(item.ItemBrand)">{{item.BillingTypeItemName}} ({{item.ItemBrand}})</option>
+				<option ng-repeat="item in inventoryItems" value="{{item.ItemID}}" ng-if="itemBrandIsNull(item.ItemBrand)">{{item.BillingTypeItemName}}</option>
+			</select>
+		</div>
+		<div class="content-group col-md-3">
+			<label class="control-label">Specify Quantity</label>
+			<input type="number" class="form-control" ng-model="stock.quantity"/>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6 col-md-offset-4">
+			<button class="btn btn-success" ng-click="addStockToList()">Add selected items to the list below</button>
+		</div>
+	</div>
+	<div class="row mt-15">
+		<table class="table table-condensed table-responsive table-hover">
+			<thead class=" no-border-radius bg-indigo-400 border-top border-top-indigo-300">
+				<th>S/N</th>
+				<th>Item Name</th>
+				<th>Quantity Left In Stock</th>
+				<th colspan="2">Quantity Added</th>
+			</thead>
+			<tbody>
+				<tr ng-if="globalRestockItems.length < 1">
+					<td colspan="5"><p class="text-center"> <i class="fa fa-exclamation-triangle"></i> No item added to the restock list yet</p></td>
+				</tr>
+				<tr ng-repeat="item in globalRestockItems">
+					<td>{{$index + 1}}</td>
+					<td>{{item.itemName}}</td>
+					<td>{{item.quantityBefore}}</td>
+					<td>{{item.quantityAdded}}</td>
+					<td><a class="btn btn-link text-info" ng-click="removeFromList($index)"> <i class="fa fa-trash-o"></i> remove</a></td>
+				</tr>
+			</tbody>
+			<tfoot ng-if="globalRestockItems.length > 0">
+				<tr>
+					<td></td><td colspan="2"></td>
+					<td colspan="2"><a class="btn btn-warning pull-right no-border-radius" ng-click="storeTransfer()"> Complete Transfer </a></td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</div>

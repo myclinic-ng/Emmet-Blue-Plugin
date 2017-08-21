@@ -35,7 +35,7 @@ class RepositoryItem
 {
     CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
     protected static $allowedExtensions = [
-        "image"=>["jpg", "png"],
+        "image"=>["jpg", "png", "jpeg"],
         "text"=>["txt"],
         "pdf"=>["pdf"]
     ];

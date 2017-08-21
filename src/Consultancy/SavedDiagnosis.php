@@ -40,6 +40,19 @@ class SavedDiagnosis
         return $result;
    }
 
+   public static function viewAllSavedDiagnosis(int $patient){
+      $query = "SELECT Consultant, DateModified, Patient, SavedDiagnosisID FROM Consultancy.SavedDiagnosis WHERE Patient = ".$patient;
+
+      $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+      foreach ($result as $key => $value) {
+          $result[$key]["ConsultantDetail"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["Consultant"]);
+          $result[$key]["ConsultantDetail"]["Role"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $value["Consultant"])["Name"];
+      }
+
+      return $result;    
+   }
+
    public static function viewSavedDiagnosis(int $consultant, array $data){
         $query = "SELECT * FROM Consultancy.SavedDiagnosis WHERE Consultant = $consultant AND Patient = ".$data['patient'];
 

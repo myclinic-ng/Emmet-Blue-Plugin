@@ -114,7 +114,7 @@ class InvestigationType
             ->from('Lab.InvestigationTypes a')
             ->innerJoin('Lab.Labs b', 'a.InvestigationTypeLab = b.LabID');
         if ($resourceId != 0){
-            $selectBuilder->where('b.LabID ='.$resourceId);
+            $selectBuilder->where('b.LabID ='.$resourceId.' ORDER BY a.InvestigationTypeName ASC');
         }
         try
         {

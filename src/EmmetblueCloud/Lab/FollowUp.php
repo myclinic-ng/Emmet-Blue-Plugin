@@ -33,7 +33,7 @@ class FollowUp {
 	public static function register(array $data){
 		$patient = $data["patient"];
 		$labNo = $data["labNumber"];
-		$query = "SELECT a.ProfileID, b.PatientLabNumber, b.DateRequested, c.InvestigationTypeName, d.StaffFullName
+		$query = "SELECT a.ProfileID, b.PatientLabNumber, b.DateRequested, c.InvestigationTypeName, d.StaffFullName, d.StaffID
 					FROM EmmetBlueCloud.LinkedProfiles a
 					INNER JOIN Lab.Patients b ON a.PatientID  = b.PatientID
 					INNER JOIN Lab.InvestigationTypes c ON c.InvestigationTypeID = b.InvestigationTypeRequired
@@ -43,11 +43,20 @@ class FollowUp {
 		$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 		if (isset($result[0])){
 			$result = $result[0];
+
+			try {
+				\EmmetBlue\Plugins\EmmetblueCloud\Provider::publishStaff((int) $result["StaffID"]);
+			}
+			catch(\Exception $e){
+
+			}
+
 			$data = [
 				"profile"=>$result["ProfileID"],
 				"labNumber"=>$result["PatientLabNumber"],
 				"investigation"=>$result["InvestigationTypeName"],
 				"requestedBy"=>$result["StaffFullName"],
+				"staffId"=>$result["StaffID"],
 				"dateRequested"=>$result["DateRequested"]
 			];
 
@@ -55,6 +64,12 @@ class FollowUp {
 
 			$url = HTTPRequest::$cloudUrl."/provider/lab-followup/register";
 			$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
+
+			\EmmetBlue\Plugins\EmmetblueCloud\MessagePacket::sendLabPacket([
+				"patient"=>$patient,
+				"investigation"=>$result["InvestigationTypeName"],
+				"type"=>0
+			]);
 
 			return $response;
 		}
@@ -65,6 +80,7 @@ class FollowUp {
 	public static function publish(array $data){
 		$patient = $data["patient"];
 		$labNo = $data["labNumber"];
+		$staff = $data["staff"] ?? null;
 		$query = "SELECT a.ProfileID FROM EmmetBlueCloud.LinkedProfiles a WHERE a.PatientID = $patient";
 
 		$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
@@ -79,6 +95,13 @@ class FollowUp {
 
 			$url = HTTPRequest::$cloudUrl."/provider/lab-followup/publish";
 			$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
+
+			\EmmetBlue\Plugins\EmmetblueCloud\MessagePacket::sendLabPacket([
+				"patient"=>$patient,
+				"investigation"=>"Registered",
+				"type"=>1,
+				"staff"=>$staff
+			]);
 
 			return $response;
 		}

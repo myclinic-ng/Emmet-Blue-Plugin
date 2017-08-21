@@ -72,7 +72,8 @@ class LabResult
 
                     \EmmetBlue\Plugins\EmmetblueCloud\Lab::sendPublishStatus([
                         "patient"=>$patientId,
-                        "labNumber"=>$value
+                        "labNumber"=>$value,
+                        "staff"=>$reportedBy
                     ]);
                 }
 

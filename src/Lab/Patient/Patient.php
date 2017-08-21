@@ -78,7 +78,8 @@ class Patient
 
                 \EmmetBlue\Plugins\EmmetblueCloud\Lab::addFollowUp([
                     "patient"=>$patientID,
-                    "labNumber"=>$id
+                    "labNumber"=>$id,
+                    "staff"=>$requestedBy
                 ]);
 
                 DatabaseLog::log(
@@ -108,7 +109,7 @@ class Patient
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('ROW_NUMBER() OVER (ORDER BY a.RegistrationDate) AS RowNum, a.PatientLabNumber, a.PatientID, a.FullName, a.InvestigationRequired, a.RegistrationDate, a.RequestID, a.RequestedBy, a.DateRequested, a.Published, a.Unlocked, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
+            ->columns('ROW_NUMBER() OVER (ORDER BY a.RegistrationDate DESC) AS RowNum, a.PatientLabNumber, a.PatientID, a.FullName, a.InvestigationRequired, a.RegistrationDate, a.RequestID, a.RequestedBy, a.DateRequested, a.Published, a.Unlocked, b.InvestigationTypeName, b.InvestigationTypeID, c.LabName, c.LabID')
             ->from('Lab.Patients a')
             ->innerJoin('Lab.InvestigationTypes b', 'a.InvestigationTypeRequired = b.InvestigationTypeID')
             ->innerJoin('Lab.Labs c', 'b.InvestigationTypeLab = c.LabID')

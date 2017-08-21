@@ -139,7 +139,7 @@ class Account {
         $accounts = self::view();
 
         foreach ($accounts as $key=>$account){
-            $accounts[$key]["Balance"] = \EmmetBlue\Plugins\FinancialAccounts\AccountRegister\AccountRegister::getRunningBalance((int) $account["AccountID"], ["period"=>$period]);
+            $accounts[$key]["Balance"] = \EmmetBlue\Plugins\FinancialAccounts\AccountRegister\AccountRegister::getRunningBalance((int) $account["AccountID"], ["period"=>1002]);
         }
 
         return $accounts;

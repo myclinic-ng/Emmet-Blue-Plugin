@@ -224,7 +224,7 @@ class PharmacyRequest
             "bd"=>2, "tds"=>3, "qds"=>4, "od"=>1, "dly"=> 1
         ];
 
-        $string = $data["prescription"];
+        $string = strtolower($data["prescription"]);
 
         $foundNumOfTimes = [];
 
@@ -233,7 +233,7 @@ class PharmacyRequest
                 $foundNumOfTimes[] = $code;
             }
         }
-        
+
         if (count($foundNumOfTimes) !== 1){
             $result["reason"] = "prescription number of times must be unique and must be either one of ".implode(", ", $timesCodes);
         }
@@ -243,22 +243,46 @@ class PharmacyRequest
                 $result["reason"] = "prescription not formatted according to SMART contract";
             }
             else {
-                $item = $stringParts[0];
-                $duration = $stringParts[1];
+                $notDays = false;
+                $items = explode(" ", $stringParts[0]);
+                $_litem = $items[count($items) - 1];
+                if (strpos(strtolower($_litem), "mls") !== false){
+                    $notDays = true;
+                    $_litem = str_replace("mls", "", $_litem);
+                    $_litem = rtrim(trim((string)$_litem));
+                }
 
-                $itemParts = explode("::", $item);
-                if (count($itemParts) !== 2){
-                    $result["reason"]= "prescription not formatted according to SMART contract";                    
+                if (!is_numeric($_litem)){
+                    $result["reason"] = "You must specify how many ".$foundNumOfTimes[0]." to use for this prescription";
                 }
                 else {
-                    $prescriptionParts["item"]["category"] = rtrim(trim($itemParts[0]));
-                    $prescriptionParts["item"]["name"] = rtrim(trim($itemParts[1]));
+                    unset($items[count($items) - 1]);
 
-                    $prescriptionParts["duration"] = preg_replace("/[^0-9\/]/", "", $duration);
+                    $items = [implode(" ", $items), $_litem];
 
-                    $prescriptionParts["times"] = $codeTimes[$foundNumOfTimes[0]];
+                    $item = $items[0];
+                    $q = $items[1] ?? "1";
+                    $q = rtrim(trim($q));
+                    $q = preg_replace("/[^0-9\/]/", "", $q);
 
-                    $result = ["valid"=>true, "reason"=>"properly formatted"];
+                    $duration = $stringParts[1];
+
+                    $itemParts = explode("::", $item);
+                    if (count($itemParts) !== 2){
+                        $result["reason"]= "prescription not formatted according to SMART contract";                    
+                    }
+                    else {
+                        $prescriptionParts["item"]["category"] = rtrim(trim($itemParts[0]));
+                        $prescriptionParts["item"]["name"] = rtrim(trim($itemParts[1]));
+
+                        $prescriptionParts["duration"] = preg_replace("/[^0-9\/]/", "", $duration);
+
+                        $prescriptionParts["times"] = $codeTimes[$foundNumOfTimes[0]] * $q;
+                        $prescriptionParts["qtyPerTime"] = $q;
+                        $prescriptionParts["qtyPerDay"] = $codeTimes[$foundNumOfTimes[0]];
+
+                        $result = ["valid"=>true, "reason"=>"properly formatted"];
+                    }
                 }
             }
         }
@@ -291,6 +315,11 @@ class PharmacyRequest
             $qty = $result["parts"]["times"] * $duration;
 
             $result["parts"]["quantity"] = $qty;
+            $result["parts"]["notDays"] = $notDays;
+            $mlsorNot = $notDays ? "mls" : "";
+            $daysOrBtl = $notDays ? "btl" : "days";
+            $result["parts"]["methodString"] = $result["parts"]["qtyPerTime"].$mlsorNot.", ".$result["parts"]["qtyPerDay"]." times dly x ".$duration." ".$daysOrBtl;
+            $result["parts"]["quantity"] = $notDays ? $duration : $result["parts"]["quantity"];
         }
 
         return $result;

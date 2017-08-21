@@ -19,6 +19,7 @@ use EmmetBlue\Core\Session\Session;
 use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
+use EmmetBlue\Plugins\EmmetblueCloud\XHttpRequest as HTTPRequest;
 
 /**
  * class Provider.
@@ -52,5 +53,32 @@ class Provider {
 		$query = "SELECT * FROM EmmetBlueCloud.Provider WHERE PKey = 1";
 
 		return DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
+	}
+
+	public static function publishStaff(int $staffId, array $data=[]){
+		$staff = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName($staffId);
+
+		if (isset($staff["StaffPicture"])){
+			$desc = $data["desc"] ?? \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole($staffId)["Name"];
+			$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
+			$url = HTTPRequest::$cloudUrl."/provider/member/new-member";
+
+			$path = $staff["StaffPicture"];
+			$type = pathinfo($path, PATHINFO_EXTENSION);
+			$data = file_get_contents($path);
+			$picture = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+			$result = HTTPRequest::httpPostRequest($url, [
+				"memberName"=>$staff["StaffFullName"],
+				"memberPhoto"=>$picture,
+				"memberDesc"=>$desc,
+				"providerId"=>$keyBunch["ProviderID"],
+				"memberId"=>$staff["StaffID"]
+			], $keyBunch);
+
+			return $result;	
+		}
+
+		return;
 	}
 }

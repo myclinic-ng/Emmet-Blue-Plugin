@@ -390,6 +390,41 @@ class Patient
     /**
      * view patients UUID
      */
+    public static function viewBasic(int $resourceId = 0)
+    {
+        try {
+            
+            $esClient = ESClientFactory::getClient();
+            if ($resourceId == 0)
+            {
+                return self::search(["query"=>"", "size"=>10, "from"=>0]);
+            }
+
+            $params = [
+                'index'=>'archives',
+                'type' =>'patient-info',
+                'id'=>$resourceId
+            ];
+
+            $result = $esClient->get($params);
+
+            foreach ($result["_source"] as $key=>$value){
+                unset($result["_source"][$key]);
+                $result["_source"][strtolower($key)] = $value;
+                // $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
+                // $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
+            }
+
+            return $result;
+        }
+        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId AND ProfileDeleted = 0";
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+    }
+
     public static function view(int $resourceId = 0)
     {
         try {
@@ -409,8 +444,8 @@ class Patient
             $result = $esClient->get($params);
 
             foreach ($result["_source"] as $key=>$value){
-            	unset($result["_source"][$key]);
-            	$result["_source"][strtolower($key)] = $value;
+                unset($result["_source"][$key]);
+                $result["_source"][strtolower($key)] = $value;
                 $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
                 $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
                 if (strtolower($key) == "patientprofilelockstatus"){

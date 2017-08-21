@@ -45,7 +45,7 @@ CREATE TABLE Lab.Patients (
 	DateOfBirth DateTime,
 	Gender VARCHAR(10),
 	Address VARCHAR(500),
-	PhoneNumber VARCHAR(13),
+	PhoneNumber VARCHAR(20),
 	Clinic VARCHAR(50),
 	ClinicalDiagnosis VARCHAR(MAX),
 	InvestigationTypeRequired INT,

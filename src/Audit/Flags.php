@@ -30,7 +30,7 @@ use EmmetBlue\Core\Constant;
  */
 class Flags {
 	public static function viewByPatient(int $resourceId){
-		$query = "SELECT a.StatusNote, b.LogID, a.StaffID FROM FinancialAuditing.UnlockLogStatus a 
+		$query = "SELECT a.StatusNote, b.LogID, a.StaffID, a.LastModified FROM FinancialAuditing.UnlockLogStatus a 
 					INNER JOIN Patients.PatientProfileUnlockLog b ON a.LogID = b.LogID
 					WHERE a.Status = -1 AND b.PatientID=$resourceId
 					ORDER BY PatientID DESC

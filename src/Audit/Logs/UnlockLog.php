@@ -33,9 +33,13 @@ class UnlockLog {
 		$start = $data["startdate"];
 		$end = $data["enddate"];
 
-		$query = "SELECT ROW_NUMBER() OVER (ORDER BY a.DateLogged) AS RowNum, a.*, b.Status, b.StatusNote, b.StaffID FROM Patients.PatientProfileUnlockLog a LEFT OUTER JOIN FinancialAuditing.UnlockLogStatus b ON a.LogID = b.LogID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
+		$query = "SELECT ROW_NUMBER() OVER (ORDER BY a.DateLogged) AS RowNum, a.*, b.Status, b.StatusNote, b.StaffID FROM Patients.PatientProfileUnlockLog a LEFT OUTER JOIN FinancialAuditing.UnlockLogStatus b ON a.LogID = b.LogID INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID INNER JOIN  Patients.PatientType d ON c.PatientType = d.PatientTypeID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
 
 		if (isset($data["paginate"])){
+			 if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR d.PatientTypeName LIKE '%$keyword%' OR d.CategoryName LIKE '%$keyword%')";
+            }
 	        $size = $data["from"] + $data["size"];
 	        $_query = "SELECT COUNT(*) as Count FROM Patients.PatientProfileUnlockLog a LEFT OUTER JOIN FinancialAuditing.UnlockLogStatus b ON a.LogID = b.LogID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
 	        $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";	
@@ -43,13 +47,20 @@ class UnlockLog {
 
 		$result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
 
+		$retrievedStaffs = [];
 		foreach ($result as $key=>$value){
-			$result[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["Staff"])["StaffFullName"];
-			$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["PatientID"])["_source"];
+			if (!isset($retrievedStaffs[$value["Staff"]])){
+				$retrievedStaffs[$value["Staff"]] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["Staff"]);
+			}
+			$result[$key]["StaffFullName"] = $retrievedStaffs[$value["Staff"]]["StaffFullName"];
+			$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["PatientID"])["_source"];
+
 			if (!is_null($value["StaffID"])){
-				$staff = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["StaffID"]);
-				$result[$key]["StatusStaffFullName"] = $staff["StaffFullName"];
-				$result[$key]["StatusStaffPicture"] = $staff["StaffPicture"];
+				if (!isset($retrievedStaffs[$value["StaffID"]])){
+					$retrievedStaffs[$value["StaffID"]] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["StaffID"]);
+				}
+				$result[$key]["StatusStaffFullName"] = $retrievedStaffs[$value["StaffID"]]["StaffFullName"];
+				$result[$key]["StatusStaffPicture"] = $retrievedStaffs[$value["StaffID"]]["StaffPicture"];
 			}
 		}
 

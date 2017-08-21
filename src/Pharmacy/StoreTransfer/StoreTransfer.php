@@ -61,18 +61,16 @@ class StoreTransfer
 
                 $totalQty += (int) $quantityAdded;
                 $sumQty = $quantityAdded + $quantityBefore;
-
                 $q = (int) DBConnectionFactory::getConnection()->query("SELECT ItemQuantity FROM Pharmacy.StoreInventoryItems WHERE Item = $itemId AND StoreID = $store")->fetchall(\PDO::FETCH_ASSOC)[0]["ItemQuantity"];
 
-
-                $diffQty = $q - $quantityAdded;
-
+                $diffQty = (int)$q - (int)$quantityAdded;
                 if ($diffQty >= 0){
-                    $updateQuery .= "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $diffQty WHERE Item = $itemId AND StoreID = $store";
+                    $updateQuery .= "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $diffQty WHERE Item = $itemId AND StoreID = $store;";
                     $updateQuery .= "UPDATE Pharmacy.StoreInventoryItems SET ItemQuantity = $sumQty WHERE Item = $itemId AND StoreID = $recipient;";
+                    $updateQuery .= "INSERT INTO Pharmacy.StoreTransferLog (TransferringStore, RecipientStore, ItemID, ItemQuantity, StaffID) VALUES ($store, $recipient, $itemId, $quantityAdded, $staffId);";
                 }
                 else { 
-                    throw new \Exception("Invalid Transfer Request");
+                    throw new \Exception("Invalid Transfer Request, the quantities of ".$item['itemName']." does not balance");
                 }
             }
 
@@ -98,39 +96,94 @@ class StoreTransfer
      */
     public static function view(int $resourceId = 0, array $data = [])
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+        $filters = $data["filtertype"] ?? null;
+        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY a.TransferDate) AS RowNum,
+                    a.*, b.ItemBrand, b.ItemManufacturer, c.BillingType, c.BillingTypeItemName,
+                    c.BillingTypeItemID, d.StoreName AS RecipientStoreName
+                FROM Pharmacy.StoreTransferLog a 
+                INNER JOIN Pharmacy.StoreInventory b ON a.ItemID = b.ItemID 
+                INNER JOIN Accounts.BillingTypeItems c ON b.Item = c.BillingTypeItemID
+                INNER JOIN Pharmacy.Store d ON a.RecipientStore = d.StoreID";
 
-        try
-        {
-            if (empty($data)){
-                $selectBuilder->columns("*");
+        if (!is_null($filters)){
+            $sDate = QB::wrapString($data["startdate"], "'");
+            $eDate = QB::wrapString($data["enddate"], "'");
+            $selectBuilder .= " WHERE (CONVERT(date, a.TransferDate)) BETWEEN $sDate AND $eDate";
+
+
+            switch($data["filtertype"]){
+                case "transferstore":{
+                    $selectBuilder .= " AND a.TransferringStore = ".$data["query"];
+                    break;
+                }
+                case "recipientstore":{
+                    $selectBuilder .= " AND a.RecipientStore = ".$data["query"];
+                    break;
+                }                
+                case "filtercombo":{
+                    $query = $data["query"];
+                    foreach ($query as $key=>$value){
+                        switch(strtolower($value["type"])){
+                           case "transferstore":{
+                                $selectBuilder .= " AND a.TransferringStore = ".$value["value"];
+                                break;
+                            }
+                            case "recipientstore":{
+                                $selectBuilder .= " AND a.RecipientStore = ".$value["value"];
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+                default:{
+
+                }
             }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Pharmacy.StoreTransfer a")->innerJoin("Pharmacy.StoreInventory b", "a.ItemID = b.ItemID");
-            $selectBuilder->innerJoin('Accounts.BillingTypeItems c', 'b.Item = c.BillingTypeItemID');
 
-            if ($resourceId !== 0){
-                $selectBuilder->where("a.ItemID = $resourceId");
+            unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
+
+            if (isset($data["constantstatus"]) && $data["constantstatus"] != ""){
+               unset($data["constantstatus"]);
             }
 
-            // die($selectBuilder);
-            
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->query((string)$selectBuilder)
-            )->fetchAll(\PDO::FETCH_ASSOC);
-
-            return $result;
+            unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
         }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to retrieve requested data, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+
+        if ($resourceId !== 0){
+            $selectBuilder .= " AND a.TransferringStore = $resourceId";
         }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (c.BillingTypeItemName LIKE '%$keyword%' OR d.StoreName LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
+        $result = (
+            DBConnectionFactory::getConnection()
+            ->query((string)$selectBuilder)
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key => $value) {
+            $result[$key]["staffInfo"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["StaffID"]);
+            $result[$key]["staffInfo"]["Role"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $value["StaffID"])["Name"];
+        }
+
+        if (isset($data["paginate"])){
+            $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+            // $filtered = count($_result) + 1;
+            $result = [
+                "data"=>$result,
+                "total"=>$total,
+                "filtered"=>$total
+            ];
+        }
+
+        return $result;
     }
 }
