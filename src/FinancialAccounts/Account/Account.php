@@ -28,14 +28,14 @@ use EmmetBlue\Core\Constant;
  */
 class Account {
 
-	public static function create(array $data)
-	{
-    	$name = $data["name"];
-		$description = $data['description'] ?? NULL;
+    public static function create(array $data)
+    {
+        $name = $data["name"];
+        $description = $data['description'] ?? NULL;
         $type = $data["type"] ?? 'NULL';
 
-		try {
-			 $result = DBQueryFactory::insert('FinancialAccounts.Accounts', [
+        try {
+             $result = DBQueryFactory::insert('FinancialAccounts.Accounts', [
                 'AccountName'=>QB::wrapString($name, "'"),
                 'AccountDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString($description, "'"),
                 'AccountTypeID'=>$type
@@ -50,18 +50,18 @@ class Account {
             );
 
             return $result;
-		}
-		catch (\PDOException $e)
+        }
+        catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
                 "Unable to process request (account not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
-	}
+    }
 
 
-	public static function view(int $resourceId=0)
+    public static function view(int $resourceId=0)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
@@ -138,8 +138,12 @@ class Account {
     {
         $accounts = self::view();
 
+        if ($period == 0){
+            $period = \EmmetBlue\Plugins\FinancialAccounts\AccountingPeriod\CurrentAccountingPeriod::view()["AccountingPeriodID"];
+        }
+        
         foreach ($accounts as $key=>$account){
-            $accounts[$key]["Balance"] = \EmmetBlue\Plugins\FinancialAccounts\AccountRegister\AccountRegister::getRunningBalance((int) $account["AccountID"], ["period"=>1002]);
+            $accounts[$key]["Balance"] = \EmmetBlue\Plugins\FinancialAccounts\AccountRegister\AccountRegister::getRunningBalance((int) $account["AccountID"], ["period"=>$period]);
         }
 
         return $accounts;

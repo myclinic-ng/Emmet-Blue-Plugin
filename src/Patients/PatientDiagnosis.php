@@ -56,6 +56,20 @@ class PatientDiagnosis
 
         return $result;
     }
+
+    public static function getDiagnosisDateGroup(int $resourceId=0)
+    {
+        $result = PatientDiagnosis\PatientDiagnosis::getDiagnosisDateGroup($resourceId);
+
+        return $result;
+    }
+
+    public static function viewDiagnosisInDateGroups(int $resourceId=0, array $data)
+    {
+        $result = PatientDiagnosis\PatientDiagnosis::viewDiagnosisInDateGroups($resourceId, $data);
+
+        return $result;
+    }
     /**
      * edits PatientDiagnosis
      */

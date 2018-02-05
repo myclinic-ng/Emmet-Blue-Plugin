@@ -1,0 +1,3 @@
+ALTER TABLE Pharmacy.InventoryLabels ADD 
+LabelPrintedDate DATETIME DEFAULT NULL,
+LabelCurrentStore INT FOREIGN KEY REFERENCES Pharmacy.Store (StoreID) ON UPDATE CASCADE ON DELETE SET NULL

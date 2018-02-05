@@ -1,0 +1,19 @@
+USE EmmetBlue;
+
+CREATE TABLE Pharmacy.ItemPurchaseLog(
+	LogID INT PRIMARY KEY IDENTITY NOT NULL,
+	ItemID INT,
+	InvoiceNumber VARCHAR(20),
+	ItemQuantity INT,
+	ItemCostPrice MONEY,
+	ItemVendor INT,
+	ItemPurchaseDate DATETIME,
+	ItemBuyee VARCHAR(50),
+	CreatedBy INT,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE()
+
+	FOREIGN KEY (CreatedBy) REFERENCES Staffs.Staff(StaffID) on UPDATE CASCADE ON DELETE SET NULL, 
+	FOREIGN KEY (ItemID) REFERENCES Pharmacy.StoreInventory(ItemID) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY (ItemVendor) REFERENCES FinancialAccounts.CorporateVendors(VendorID) ON UPDATE CASCADE ON DELETE SET NULL
+)
+GO

@@ -160,8 +160,10 @@ class WardAdmission
 
     public static function getAdmissionDetails(int $resourceId){
         $query = "
-                    SELECT a.*, b.WardAdmissionID, b.Bed, b.AdmissionProcessedBy FROM Consultancy.PatientAdmission a
+                    SELECT a.*, b.WardAdmissionID, b.Bed, b.AdmissionProcessedBy, c.WardName, d.WardSectionName FROM Consultancy.PatientAdmission a
                     INNER JOIN Nursing.WardAdmission b ON a.PatientAdmissionID = b.PatientAdmissionID
+                    INNER JOIN Nursing.Ward c ON a.Ward = c.WardID
+                    INNER JOIN Nursing.WardSection d ON a.Section = d.WardSectionID
                     WHERE a.Patient = $resourceId AND a.DischargeStatus = 0
                 ";
 

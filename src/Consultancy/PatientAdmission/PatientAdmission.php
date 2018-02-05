@@ -205,7 +205,7 @@ class PatientAdmission
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
-            ->columns('a.*, b.*, c.WardSectionName, d.WardName, e.DischargedBy, e.DischargeNote, e.DischargeDate, f.WardAdmissionID')
+            ->columns('ROW_NUMBER() OVER (ORDER BY e.DischargeDate DESC) AS RowNum, a.*, b.*, c.WardSectionName, d.WardName, e.DischargedBy, e.DischargeNote, e.DischargeDate, f.WardAdmissionID')
             ->from('Consultancy.PatientAdmission a')
             ->innerJoin('Patients.Patient b', 'a.Patient = b.PatientID')
             ->innerJoin('Nursing.WardSection c', 'a.Section = c.WardSectionID')
@@ -221,9 +221,20 @@ class PatientAdmission
         if (isset($data["admissionId"])){
             $selectBuilder->andWhere('a.PatientAdmissionID = '.$data["admissionId"]);
         }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (c.WardSectionName LIKE '%$keyword%' OR d.WardName LIKE '%$keyword%' OR b.PatientFullName LIKE '%$keyword%' OR b.PatientUUID LIKE '%$keyword%' OR CONVERT(date, e.DischargeDate) LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = (string) $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
         
         try
         {
+            // die($selectBuilder);
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             DatabaseLog::log(
@@ -234,7 +245,17 @@ class PatientAdmission
                 (string)$selectBuilder
             );
 
-            return $result;
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                // $filtered = count($_result) + 1;
+                $viewOperation = [
+                    "data"=>$result,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
+            }
+
+            return $viewOperation;
         } 
         catch (\PDOException $e) 
         {

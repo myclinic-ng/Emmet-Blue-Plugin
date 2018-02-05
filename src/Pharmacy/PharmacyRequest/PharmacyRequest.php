@@ -194,6 +194,7 @@ class PharmacyRequest
         $status = $data["status"] ?? -1;
         $staff = $data["staff"] ?? null;
         $itemStatus = $data["itemStatus"] ?? [];
+        $labels = $data["labels"] ?? [];
 
         $conn = DBConnectionFactory::getConnection();
         $query = "SELECT DispensationID FROM Pharmacy.Dispensation WHERE RequestID = $resourceId";
@@ -207,6 +208,22 @@ class PharmacyRequest
         if (!empty($itemStatus)){
             $_query = "UPDATE Pharmacy.DispensedItems SET DispensationStatus = 0 WHERE DispensedItemsID = ".implode(" OR DispensedItemsID = ", $itemStatus);
             $result = $conn->exec($_query);
+        }
+
+        if (!empty($labels)){
+            $data = [];
+            foreach ($labels as $key => $value) {
+                $data[] = [
+                    "labeluuid" => $value["LabelUUID"],
+                    "quantity" => $value["ItemDispensedUnit"],
+                    "dispensation" => $id
+                ];
+            };
+
+            $labelSave = \EmmetBlue\Plugins\Pharmacy\InventoryLabel\InventoryLabel::newDispensation([
+                "data" => $data,
+                "staff"=> $staff
+            ]);
         }
 
         $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";

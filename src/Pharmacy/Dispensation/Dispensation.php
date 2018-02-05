@@ -224,7 +224,7 @@ class Dispensation
             )->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($dispensationResult as $key => $value) {
-                $itemQ = "SELECT c.*, b.BillingTypeItemName, a.ItemBrand, a.ItemManufacturer FROM Pharmacy.DispensedItems c INNER JOIN Pharmacy.StoreInventory a ON c.ItemID = a.ItemID INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID WHERE c.DispensationID = ".$value["DispensationID"];
+                $itemQ = "SELECT c.*, b.BillingTypeItemName, a.ItemBrand, a.ItemManufacturer, a.Item FROM Pharmacy.DispensedItems c INNER JOIN Pharmacy.StoreInventory a ON c.ItemID = a.ItemID INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID WHERE c.DispensationID = ".$value["DispensationID"];
                 $items = DBConnectionFactory::getConnection()->query($itemQ)->fetchAll(\PDO::FETCH_ASSOC);
 
                 $dispensationResult[$key]["items"] = $items;

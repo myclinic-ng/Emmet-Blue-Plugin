@@ -153,6 +153,7 @@ class Patient
             $hospitalHistory = $data["hospitalHistory"] ?? [];
             $diagnosis = $data["diagnosis"] ?? [];
             $operation = $data["operation"] ?? [];
+            $creator = $data["createdBy"] ?? null;
             
             $patientUuid = strtoupper(uniqid());
 
@@ -163,7 +164,8 @@ class Patient
                 $data["diagnosis"],
                 $data["operation"],
                 $data["patientType"],
-                $data["patientName"]
+                $data["patientName"],
+                $data["createdBy"]
             );
             
             try
@@ -173,7 +175,8 @@ class Patient
                     'PatientPicture'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
                     'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
                     'PatientIdentificationDocument'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'"),
-                    'PatientUUID'=>QB::wrapString((string)$patientUuid, "'")
+                    'PatientUUID'=>QB::wrapString((string)$patientUuid, "'"),
+                    'CreatedBy'=>is_null($creator) ? 'NULL' : $creator
                 ]);
 
                 if ($result){
@@ -386,6 +389,21 @@ class Patient
         }
     }
 
+    public static function viewPatientCreator(int $resourceId){
+        $query = "SELECT a.CreatedBy FROM Patients.Patient a WHERE PatientID=$resourceId";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        $staff = [];
+
+        if (isset($result[0]) && $result[0]["CreatedBy"] !== "NULL"){
+            $staff = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffProfile((int) $result[0]["CreatedBy"]);
+
+            $staff = isset($staff[0]) ? $staff[0] : $staff;
+        }
+
+        return $staff;
+    }
+
 
     /**
      * view patients UUID
@@ -448,6 +466,8 @@ class Patient
                 $result["_source"][strtolower($key)] = $value;
                 $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
                 $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
+                $result["_source"]["admissionStatus"] = \EmmetBlue\Plugins\Nursing\WardAdmission\WardAdmission::getAdmissionDetails((int) $resourceId); 
+                $result["_source"]["createdByProfile"] = self::viewPatientCreator((int) $resourceId); 
                 if (strtolower($key) == "patientprofilelockstatus"){
                     $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
                 }
@@ -520,6 +540,8 @@ class Patient
 
             $result["hits"]["hits"][$key]["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $result["hits"]["hits"][$key]["_source"]["patientid"] ?? $result["hits"]["hits"][$key]["_source"]["patientid"]); 
             $result["hits"]["hits"][$key]["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $result["hits"]["hits"][$key]["_source"]["patientid"]); 
+
+            $result["hits"]["hits"][$key]["_source"]["createdByProfile"] = self::viewPatientCreator((int) $result["hits"]["hits"][$key]["_source"]["patientid"]);
         }
         
         return $result;
@@ -542,7 +564,7 @@ class Patient
 	                Constant::EVENT_DELETE,
 	                'Patients',
 	                'Patient',
-	                (string)$deleteBuilder
+	                (string)$query
 	            );
 
             	try {            

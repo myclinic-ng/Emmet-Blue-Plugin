@@ -113,9 +113,14 @@ class InvestigationType
             ->columns('*')
             ->from('Lab.InvestigationTypes a')
             ->innerJoin('Lab.Labs b', 'a.InvestigationTypeLab = b.LabID');
+
+        $selectBuilder = (string)$selectBuilder." LEFT JOIN (SELECT COUNT(InvestigationTypeRequired) MaxTotal, InvestigationTypeRequired FROM Lab.Patients GROUP BY InvestigationTypeRequired) c ON a.InvestigationTypeID = c.InvestigationTypeRequired";
         if ($resourceId != 0){
-            $selectBuilder->where('b.LabID ='.$resourceId.' ORDER BY a.InvestigationTypeName ASC');
+            $selectBuilder .= " WHERE b.LabID = $resourceId";
         }
+
+        $selectBuilder .= " ORDER BY c.MaxTotal DESC";
+        
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);

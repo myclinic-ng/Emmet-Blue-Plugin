@@ -192,6 +192,60 @@ class PatientDiagnosis
         }
     }
 
+    public static function getDiagnosisDateGroup(int $resourceId){
+        $query = "SELECT *, DateName( month , DateAdd( month , a.MonthDate , -1 ) ) as MonthName
+                FROM (SELECT MONTH(DiagnosisDate) as MonthDate, YEAR(DiagnosisDate) as YearDate 
+                FROM Patients.PatientDiagnosis a WHERE PatientID =$resourceId GROUP BY Month(DiagnosisDate), Year(DiagnosisDate)) a";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+
+        return $result;
+
+    }
+
+    public static function viewDiagnosisInDateGroups(int $resourceId, array $data){
+        $month = $data["month"];
+        $year = $data["year"];
+        $month2 = $month + 1;
+        $query = "SELECT * FROM Patients.PatientDiagnosis WHERE PatientID=$resourceId AND
+                DiagnosisDate >= CONVERT(DATE, '$year-$month-1') AND DiagnosisDate < CONVERT(DATE, '$year-$month2-1')";
+
+        // die($query);
+
+        try
+        {
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            DatabaseLog::log(
+                Session::get('USER_ID'),
+                Constant::EVENT_SELECT,
+                'Patients',
+                'PatientDiagnosis',
+                (string)serialize($query)
+            );
+
+            foreach ($result as $key => $value) {
+                $result[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$value["DiagnosisBy"]])["StaffFullName"];
+                $result[$key]["Diagnosis"] = unserialize($value["Diagnosis"]);
+            }
+
+            return $result;
+
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error processing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+
+    }
+
     public static function delete(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();

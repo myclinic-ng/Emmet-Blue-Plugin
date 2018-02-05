@@ -1,0 +1,3 @@
+USE EmmetBlue;
+
+ALTER TABLE Patients.Patient ADD CreatedBy INT DEFAULT NULL FOREIGN KEY REFERENCES Staffs.Staff(StaffID)
