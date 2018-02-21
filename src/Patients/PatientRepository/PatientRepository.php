@@ -30,13 +30,15 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class PatientRepository
 {
-    CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
+    public static function getPatientArchiveDir(){
+        return Constant::getGlobals()["patient-archive-dir"];
+    }
 
     protected static $folders = [];
 
     protected static function createRepoFolders(string $patientUuid, string $repoUuid)
     {
-        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
         if (!mkdir($repoDir)){
             return false;
@@ -111,7 +113,7 @@ class PatientRepository
             $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
             $query = "SELECT RepositoryNumber FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
             $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
-            $repoLoc = self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR;
+            $repoLoc = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR;
 
             $result["RepositoryUrl"] = $repoLoc;
             $result["items"] = $resultItems;
@@ -132,10 +134,10 @@ class PatientRepository
         if (isset($result[0])){
             $result = $result[0];
 
-            $result['ReposityDetails'] = self::view((int)$result['RepositoryID']);
+            $result['RepositoryDetails'] = self::view((int)$result['RepositoryID']);
 
-            if (file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber'])){
-                $result['RepositoryItemContent'] = unserialize(file_get_contents($result['ReposityDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
+            if (file_get_contents($result['RepositoryDetails']['RepositoryUrl'].$result['RepositoryItemNumber'])){
+                $result['RepositoryItemContent'] = unserialize(file_get_contents($result['RepositoryDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
             }
             else {
                 $result['RepositoryItemContent'] = NULL;
@@ -164,8 +166,8 @@ class PatientRepository
         $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        if (is_dir(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid)){
-            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid);
+        if (is_dir(Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid)){
+            unlink(Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid);
         }
 
         try

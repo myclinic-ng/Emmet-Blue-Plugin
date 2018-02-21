@@ -53,7 +53,10 @@ class UnlockLog {
 				$retrievedStaffs[$value["Staff"]] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["Staff"]);
 			}
 			$result[$key]["StaffFullName"] = $retrievedStaffs[$value["Staff"]]["StaffFullName"];
-			$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["PatientID"])["_source"];
+			$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["PatientID"]);
+			if (isset($result[$key]["PatientInfo"]["_source"])){
+				$result[$key]["PatientInfo"] = $result[$key]["PatientInfo"]["_source"];
+			}
 
 			if (!is_null($value["StaffID"])){
 				if (!isset($retrievedStaffs[$value["StaffID"]])){

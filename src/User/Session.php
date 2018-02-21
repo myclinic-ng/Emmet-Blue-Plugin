@@ -26,11 +26,9 @@ use EmmetBlue\Core\Constant;
  */
 class Session
 {
-	private static $sessionLocation = "bin/data/session";
-
 	public static function load()
 	{
-		$sessionString = file_get_contents(self::$sessionLocation);
+		$sessionString = file_get_contents(Constant::getGlobals()["session-location"]);
 		$decodedSessionString = base64_decode($sessionString);
 
 		return unserialize($decodedSessionString);
@@ -41,7 +39,7 @@ class Session
 		$serializedSession = serialize($session);
 		$encodedSessionString = base64_encode($serializedSession);
 
-		file_put_contents(self::$sessionLocation, $encodedSessionString);
+		file_put_contents(Constant::getGlobals()["session-location"], $encodedSessionString);
 	}
 
 	public static function activate(int $resourceId){

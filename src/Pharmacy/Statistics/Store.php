@@ -42,4 +42,26 @@ class Store
 
         return 0;
     }
+
+    public static function outOfStockItems(int $resourceId)
+    {
+        $query = "
+                    SELECT a.* FROM (
+                        SELECT a.ItemID, a.ItemBrand, a.ItemManufacturer, b.BillingTypeItemName FROM Pharmacy.StoreInventory a 
+                        INNER JOIN Accounts.BillingTypeItems b ON a.Item = b.BillingTypeItemID
+                    ) a 
+                    INNER JOIN (
+                        SELECT c.ItemID, COUNT(c.ItemID) AS TotalDisp FROM Pharmacy.DispensedItems a 
+                        INNER JOIN Pharmacy.StoreInventoryItems b ON a.ItemID = b.ItemID 
+                        INNER JOIN Pharmacy.StoreInventory c ON b.Item = c.ItemID
+                        WHERE b.ItemQuantity=0 AND b.StoreID=$resourceId
+                        GROUP BY c.ItemID
+                    ) b
+                    ON a.ItemID = b.ItemID  ORDER BY b.TotalDisp DESC
+            ";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
 }

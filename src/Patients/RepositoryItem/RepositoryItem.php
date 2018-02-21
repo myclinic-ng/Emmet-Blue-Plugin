@@ -33,7 +33,10 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class RepositoryItem
 {
-    CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
+    public static function getPatientArchiveDir(){
+        return Constant::getGlobals()["patient-archive-dir"];
+    }
+    
     protected static $allowedExtensions = [
         "image"=>["jpg", "png", "jpeg"],
         "text"=>["txt"],
@@ -42,7 +45,7 @@ class RepositoryItem
 
     public static function uploadRepoItems($patientUuid, $repoNumber, $files, $name)
     {
-        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
         $validator = new FileUpload\Validator\MimeTypeValidator(['image/png', 'image/jpg']);
@@ -64,7 +67,7 @@ class RepositoryItem
 
     public static function createRepoFile($patientUuid, $repoNumber, $file, $name)
     {
-        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
         file_put_contents($repoDir. DIRECTORY_SEPARATOR . $name, $file);
@@ -185,8 +188,8 @@ class RepositoryItem
         $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        if (is_file(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file)){
-            unlink(self::PATIENT_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file);
+        if (is_file(Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file)){
+            unlink(Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file);
         }
 
         try

@@ -1,0 +1,17 @@
+USE EmmetBlue;
+
+CREATE TABLE Staffs.StaffRoleColorTags (
+	ColorTagID INT PRIMARY KEY IDENTITY,
+	RoleID INT UNIQUE,
+	PrimaryColor VARCHAR(8) NOT NULL,
+	SecondaryColor VARCHAR(8),
+	FOREIGN KEY (RoleID) REFERENCES [Staffs].[Role] ON UPDATE CASCADE ON DELETE CASCADE,
+);
+
+CREATE TABLE Staffs.WorkSchedules (
+	WorkScheduleID INT PRIMARY KEY IDENTITY,
+	StaffID INT,
+	StartDate Datetime NOT NULL,
+	EndDate DateTime NOT NULL,
+	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
+);

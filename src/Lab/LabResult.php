@@ -52,4 +52,9 @@ class LabResult
 	{
 		return LabResult\LabResult::delete($resourceId);
 	}
+
+	public static function viewByRepositoryId(int $resourceId = 0)
+	{
+		return LabResult\LabResult::viewByRepositoryId($resourceId);
+	}
 }

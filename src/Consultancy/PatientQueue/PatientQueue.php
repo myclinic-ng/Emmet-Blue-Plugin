@@ -72,7 +72,7 @@ class PatientQueue
         $selectBuilder
             ->columns('*')
             ->from('Consultancy.PatientQueue')
-            ->where('Consultant ='.$resourceId);
+            ->where('Consultant ='.$resourceId. " ORDER BY QueueDate DESC");
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -86,8 +86,8 @@ class PatientQueue
             );
 
             foreach ($viewOperation as $key=>$value){
-                if (isset(\EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"])){
-                    $viewOperation[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"];
+                if (isset(\EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"])["_source"])){
+                    $viewOperation[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"])["_source"];
                 }
             }
 

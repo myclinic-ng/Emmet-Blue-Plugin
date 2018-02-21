@@ -32,7 +32,9 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class StaffProfile
 {
-    CONST STAFF_ARCHIVE_DIR = "bin\\data\\records\\archives\\staff\\";
+    public static function getStaffArchiveDir(){
+        return Constant::getGlobals()["staff-archive-dir"];
+    }
 
     protected static $staffFolders = [];
 
@@ -53,10 +55,10 @@ class StaffProfile
     {
         /**
          * Create 'profile' and 'repositories' folders inside a folder named
-         * '$staffUuid' which will also be created inside the STAFF_ARCHIVE_DIR
+         * '$staffUuid' which will also be created inside the getStaffArchiveDir()
          * directory.
          */
-        $staffDir = self::STAFF_ARCHIVE_DIR.$staffUuid;
+        $staffDir = Constant::getGlobals()["file-server"].self::getStaffArchiveDir().$staffUuid;
         $profileDir = $staffDir.DIRECTORY_SEPARATOR.'profile';
         if (!mkdir($staffDir)){
             return false;
@@ -114,8 +116,8 @@ class StaffProfile
                 $result = DBQueryFactory::insert('Staffs.StaffProfile', [
                     'StaffID'=>$staffId,
                     'StaffFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
-                    'StaffPicture'=> QB::wrapString(self::STAFF_ARCHIVE_DIR.$staffUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
-                    'StaffIdentificationDocument'=> QB::wrapString(self::STAFF_ARCHIVE_DIR.$staffUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'")
+                    'StaffPicture'=> QB::wrapString(self::getStaffArchiveDir().$staffUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
+                    'StaffIdentificationDocument'=> QB::wrapString(self::getStaffArchiveDir().$staffUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'")
                 ]);
 
                 if ($result){
@@ -189,8 +191,8 @@ class StaffProfile
         $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["StaffUUID"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        if (is_dir(self::STAFF_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid)){
-            unlink(self::STAFF_ARCHIVE_DIR.DIRECTORY_SEPARATOR.$uuid);
+        if (is_dir(Constant::getGlobals()["file-server"].self::getStaffArchiveDir().DIRECTORY_SEPARATOR.$uuid)){
+            unlink(Constant::getGlobals()["file-server"].self::getStaffArchiveDir().DIRECTORY_SEPARATOR.$uuid);
         }
 
         try

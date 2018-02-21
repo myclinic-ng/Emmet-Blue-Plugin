@@ -32,7 +32,9 @@ use EmmetBlue\Plugins\Permission\Permission as Permission;
  */
 class Patient
 {
-    CONST PATIENT_ARCHIVE_DIR = "bin\\data\\records\\archives\\patient\\";
+    public static function getPatientArchiveDir(){
+        return Constant::getGlobals()["patient-archive-dir"];
+    }
 
     protected static $patientFolders = [];
 
@@ -50,10 +52,10 @@ class Patient
     {
         /**
          * Create 'profile' and 'repositories' folders inside a folder named
-         * '$patientUuid' which will also be created inside the PATIENT_ARCHIVE_DIR
+         * '$patientUuid' which will also be created inside the getPatientArchiveDir()
          * directory.
          */
-        $patientDir = self::PATIENT_ARCHIVE_DIR.$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
         $profileDir = $patientDir.DIRECTORY_SEPARATOR.'profile';
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories';
         if (!mkdir($patientDir)){
@@ -100,9 +102,9 @@ class Patient
             $patientUuid = $patientUuid[0]["PatientUUID"];
 
             self::$patientFolders = [
-                "patient" => self::PATIENT_ARCHIVE_DIR.$patientUuid,
-                "profile" => self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile',
-                "repo" => self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'repositories'
+                "patient" => Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid,
+                "profile" => Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile',
+                "repo" => Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'repositories'
             ];
 
             if (!is_dir(self::$patientFolders["patient"])){
@@ -172,9 +174,9 @@ class Patient
             {
                 $result = DBQueryFactory::insert('Patients.Patient', [
                     'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
-                    'PatientPicture'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
+                    'PatientPicture'=> QB::wrapString(self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
                     'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
-                    'PatientIdentificationDocument'=> QB::wrapString(self::PATIENT_ARCHIVE_DIR.$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'"),
+                    'PatientIdentificationDocument'=> QB::wrapString(self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'"),
                     'PatientUUID'=>QB::wrapString((string)$patientUuid, "'"),
                     'CreatedBy'=>is_null($creator) ? 'NULL' : $creator
                 ]);

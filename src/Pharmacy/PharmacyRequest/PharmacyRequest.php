@@ -236,9 +236,9 @@ class PharmacyRequest
          */
         $result = ["valid"=>false, "reason"=>"UNVALIDATED"];
         $prescriptionParts = ["item"=>[], "times"=>0, "duration"=>0];
-        $timesCodes = ["bd", "tds", "qds", "od", "dly"];
+        $timesCodes = ["bd", "tds", "qds", "od", "dly", "nocte"];
         $codeTimes = [
-            "bd"=>2, "tds"=>3, "qds"=>4, "od"=>1, "dly"=> 1
+            "bd"=>2, "tds"=>3, "qds"=>4, "od"=>1, "dly"=> 1, "nocte"=>1
         ];
 
         $string = strtolower($data["prescription"]);

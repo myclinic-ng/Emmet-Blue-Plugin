@@ -42,6 +42,7 @@ class LabResult
         $report = $data['report'] ?? null;
         $reportedBy = $data['reportedBy'] ?? null;
         $requests = $data["requests"] ?? [];
+        $meta = $data["meta"] ?? [];
         try
         {
             $repoData = [
@@ -57,9 +58,14 @@ class LabResult
                 "name"=>"Investigation Conclusion",
                 "category"=>"file",
                 "file"=>serialize($report),
-                "file_ext"=>"img",
+                "file_ext"=>$meta["fileExt"] ?? "img",
                 "creator"=>$reportedBy
             ];
+
+            if (isset($meta["category"]) && $meta["category"] == "json"){
+                $repoItemData["json"] = $report;
+                $repoItemData["category"] = "json";
+            }
 
             \EmmetBlue\Plugins\Patients\RepositoryItem\RepositoryItem::create($repoItemData);
 
@@ -284,5 +290,20 @@ class LabResult
             );
             
         }
+    }
+
+    public static function viewByRepositoryId(int $repositoryId){
+        $query = "SELECT a.PatientLabNumber, a.ResultID, a.DateReported, a.ReportedBy, b.FullName, b.DateOfBirth, b.PatientID, b.Gender, b.RequestedBy, b.DateRequested FROM Lab.LabResults a INNER JOIN Lab.Patients b ON a.PatientLabNumber = b.PatientLabNumber WHERE a.RepositoryID=$repositoryId";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $result[0] ?? [];
+        if (!empty($result)){
+            $result["ReportedBy"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["ReportedBy"]);
+            $result["RequestedBy"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"]);
+            $result["PatientPicture"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"]["patientpicture"];
+
+        }
+
+        return $result;
     }
 }
