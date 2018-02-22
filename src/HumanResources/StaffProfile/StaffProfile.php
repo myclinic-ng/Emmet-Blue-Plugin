@@ -198,7 +198,7 @@ class StaffProfile
         try
         {
             $deleteBuilder
-                ->from("Staffs.Staff")
+                ->from("Staffs.StaffProfile")
                 ->where("StaffID = $resourceId");
             
             $result = (
@@ -210,7 +210,7 @@ class StaffProfile
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Staffs',
-                'Staff',
+                'StaffProfile',
                 (string)$deleteBuilder
             );
 
