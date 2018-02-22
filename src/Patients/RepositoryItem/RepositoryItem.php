@@ -45,7 +45,7 @@ class RepositoryItem
 
     public static function uploadRepoItems($patientUuid, $repoNumber, $files, $name)
     {
-        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
         $validator = new FileUpload\Validator\MimeTypeValidator(['image/png', 'image/jpg']);
@@ -67,7 +67,7 @@ class RepositoryItem
 
     public static function createRepoFile($patientUuid, $repoNumber, $file, $name)
     {
-        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
         file_put_contents($repoDir. DIRECTORY_SEPARATOR . $name, $file);
@@ -188,8 +188,8 @@ class RepositoryItem
         $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
 
-        if (is_file(Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file)){
-            unlink(Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file);
+        if (is_file(Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file)){
+            unlink(Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR.$file);
         }
 
         try

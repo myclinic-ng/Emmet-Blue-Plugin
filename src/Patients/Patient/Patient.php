@@ -43,7 +43,7 @@ class Patient
             $data = explode(',', $base64_string);
 
             file_put_contents($output_file, base64_decode($data[1]));
-       } 
+        } 
 
         return $output_file; 
     }
@@ -55,7 +55,7 @@ class Patient
          * '$patientUuid' which will also be created inside the getPatientArchiveDir()
          * directory.
          */
-        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $profileDir = $patientDir.DIRECTORY_SEPARATOR.'profile';
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories';
         if (!mkdir($patientDir)){
@@ -102,9 +102,9 @@ class Patient
             $patientUuid = $patientUuid[0]["PatientUUID"];
 
             self::$patientFolders = [
-                "patient" => Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid,
-                "profile" => Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile',
-                "repo" => Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'repositories'
+                "patient" => Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid,
+                "profile" => Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile',
+                "repo" => Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'repositories'
             ];
 
             if (!is_dir(self::$patientFolders["patient"])){

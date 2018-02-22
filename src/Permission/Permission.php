@@ -29,10 +29,11 @@ use Samshal\Acl\Acl;
 class Permission
 {
     private $acl;
-    private $aclLocation = "bin/data/acl";
+    private $aclLocation = "";
 
     public function __construct()
     {
+        $this->aclLocation = Constant::getGlobals()["acl-location"];
         $aclString = file_get_contents($this->aclLocation);
         $decodedAclString = base64_decode($aclString);
 

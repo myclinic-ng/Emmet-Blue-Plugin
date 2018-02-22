@@ -38,7 +38,7 @@ class PatientRepository
 
     protected static function createRepoFolders(string $patientUuid, string $repoUuid)
     {
-        $patientDir = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().$patientUuid;
+        $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
         if (!mkdir($repoDir)){
             return false;
@@ -113,7 +113,7 @@ class PatientRepository
             $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
             $query = "SELECT RepositoryNumber FROM Patients.PatientRepository WHERE RepositoryID = $resourceId";
             $ruuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["RepositoryNumber"];
-            $repoLoc = Constant::getGlobals()["file-server"].self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR;
+            $repoLoc = self::getPatientArchiveDir().DIRECTORY_SEPARATOR.$uuid.DIRECTORY_SEPARATOR."repositories".DIRECTORY_SEPARATOR.$ruuid.DIRECTORY_SEPARATOR;
 
             $result["RepositoryUrl"] = $repoLoc;
             $result["items"] = $resultItems;
