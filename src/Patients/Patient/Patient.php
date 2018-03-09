@@ -248,7 +248,7 @@ class Patient
 		            $esClient = ESClientFactory::getClient();
 
 		            $params = [
-		                'index'=>'archives',
+		                'index'=>Constant::getGlobals()["patient-es-archive-index"],
 		                'type' =>'patient-info',
 		                'id'=>$id,
 		                'body'=>$body
@@ -369,7 +369,7 @@ class Patient
                 $esClient = ESClientFactory::getClient();
 
                 $params = [
-                    'index'=>'archives',
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"],
                     'type' =>'patient-info',
                     'id'=>$patient,
                     'body'=>$body
@@ -421,7 +421,7 @@ class Patient
             }
 
             $params = [
-                'index'=>'archives',
+                'index'=>Constant::getGlobals()["patient-es-archive-index"],
                 'type' =>'patient-info',
                 'id'=>$resourceId
             ];
@@ -456,7 +456,7 @@ class Patient
             }
 
             $params = [
-                'index'=>'archives',
+                'index'=>Constant::getGlobals()["patient-es-archive-index"],
                 'type' =>'patient-info',
                 'id'=>$resourceId
             ];
@@ -513,7 +513,7 @@ class Patient
         $builtQuery = implode(" AND ", $builtQuery);
         
         $params = [
-            'index'=>'archives',
+            'index'=>Constant::getGlobals()["patient-es-archive-index"],
             'type'=>'patient-info',
             'size'=>$data['size'] ?? 1,
             'from'=>$data['from'] ?? 0,
@@ -573,7 +573,7 @@ class Patient
 		            $esClient = ESClientFactory::getClient();
 
 		            $params = [
-		                'index'=>'archives',
+		                'index'=>Constant::getGlobals()["patient-es-archive-index"],
 		                'type' =>'patient-info',
 		                'id'=>$resourceId
 		            ];
@@ -649,7 +649,7 @@ class Patient
                 $esClient = ESClientFactory::getClient();
 
                 $params = [
-                    'index'=>'archives',
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"],
                     'type' =>'patient-info',
                     'id'=>$patient,
                     'body'=>$body
