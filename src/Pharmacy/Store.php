@@ -55,4 +55,8 @@ class Store
 
         return $result;
     }
+
+    public static function getDefaultStoreAndDispensory(){
+    	return Store\Store::getDefaultStoreAndDispensory();
+    }
 }

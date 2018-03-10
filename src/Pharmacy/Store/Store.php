@@ -227,4 +227,10 @@ class Store
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function getDefaultStoreAndDispensory(){
+        $query = "SELECT TOP 1 a.*, b.EligibleDispensory, c.StoreName FROM Pharmacy.DispensoryStoreLink a INNER JOIN Pharmacy.EligibleDispensory b ON a.Dispensory = b.EligibleDispensoryID INNER JOIN Pharmacy.Store c ON a.Store = c.StoreID ORDER BY a.LinkID ASC";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        return $result[0] ?? $result;
+    }
 }

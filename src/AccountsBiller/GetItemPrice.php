@@ -35,12 +35,18 @@ class GetItemPrice
 	 * Intermediate Level: ITEM'S CATEGORY's PRICE. f.ex: Multishield patient gets the price for all public hmo incase it's own price structure is not explicitly registered
 	 * Lowest Level: ITEM ASSUMES THE GENERAL PRICE. 
 	 */
-	public static function calculate(int $patient, array $data){
+	public static function calculate(int $patient=0, array $data){
 		$item = $data["item"] ?? null;
 		$quantity = $data["quantity"] ?? null;
 
-		$query = "SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient";
-		$patientType = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC)[0]["PatientType"];
+		if ($patient != 0){
+			$query = "SELECT PatientType FROM Patients.Patient WHERE PatientID = $patient";
+			$patientType = (DBConnectionFactory::getConnection()->query($query))->fetchall(\PDO::FETCH_ASSOC)[0]["PatientType"];
+		}
+		else {
+			$patientType = 0;
+		}
+
 		if (is_null($patientType)){
 			throw new \Exception("Patient's Category has no associated price structure for the specified item");
 		}
