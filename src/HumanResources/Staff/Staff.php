@@ -147,7 +147,7 @@ class Staff
     {
         try
         {
-            $query = "SELECT b.Name FROM Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID WHERE a.StaffID = $id";
+            $query = "SELECT a.RoleID, b.Name FROM Staffs.StaffRole a INNER JOIN Staffs.Role b ON a.RoleID = b.RoleID WHERE a.StaffID = $id";
 
             $result = (
                     DBConnectionFactory::getConnection()
