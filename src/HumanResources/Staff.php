@@ -111,4 +111,10 @@ class Staff
 
         return $result;
     }
+
+    public static function activateProfile(int $id){
+        $result = Staff\Staff::activateProfile($id);
+
+        return $result;
+    }
 }

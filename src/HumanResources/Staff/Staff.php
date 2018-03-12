@@ -276,4 +276,22 @@ class Staff
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function activateProfile(int $resourceId)
+    {
+        try
+        {
+            $query = "UPDATE Staffs.Staff SET AccountActivated = 1 WHERE StaffID = $resourceId";
+            
+            $result = DBConnectionFactory::getConnection()->exec($query);
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
 }
