@@ -195,8 +195,6 @@ class Patient
 
                     $values[] = "($id, 'Patient', '$id')";
 
-                    // return $values;
-
                     $query = "INSERT INTO Patients.PatientRecordsFieldValue (PatientId, FieldTitle, FieldValue) VALUES ".implode(", ", $values);
 
                     $queryResult = (
@@ -243,21 +241,21 @@ class Patient
                 );
                 
                 try {
-                	$body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile $id")->fetchAll(\PDO::FETCH_ASSOC)[0];
+                    $body = DBConnectionFactory::getConnection()->query("Patients.GetPatientBasicProfile $id")->fetchAll(\PDO::FETCH_ASSOC)[0];
 
-		            $esClient = ESClientFactory::getClient();
+                    $esClient = ESClientFactory::getClient();
 
-		            $params = [
-		                'index'=>Constant::getGlobals()["patient-es-archive-index"],
-		                'type' =>'patient-info',
-		                'id'=>$id,
-		                'body'=>$body
-		            ];
+                    $params = [
+                        'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                        'type' =>'patient-info',
+                        'id'=>$id,
+                        'body'=>$body
+                    ];
 
-		            $esClient->index($params);
-		        }
-		        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
-		        }
+                    $esClient->index($params);
+                }
+                catch (\Exception $e){
+                }
                 
                 return $result;
             }
@@ -369,7 +367,7 @@ class Patient
                 $esClient = ESClientFactory::getClient();
 
                 $params = [
-                    'index'=>Constant::getGlobals()["patient-es-archive-index"],
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
                     'type' =>'patient-info',
                     'id'=>$patient,
                     'body'=>$body
@@ -377,7 +375,7 @@ class Patient
 
                 $esClient->index($params);
             }
-            catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            catch (\Exception $e){
             }
 
             return $result;
@@ -406,83 +404,65 @@ class Patient
         return $staff;
     }
 
+    private static function viewCommon(int $resourceId = 0){
+        try {
+            $esClient = ESClientFactory::getClient();
+            if ($resourceId == 0)
+            {
+                return self::search(["query"=>"", "size"=>10, "from"=>0]);
+            }
+
+            $params = [
+                'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                'type' =>'patient-info',
+                'id'=>$resourceId
+            ];
+
+            $result = $esClient->get($params);
+        }
+        catch (\Exception $e){
+            $query = "Patients.GetPatientBasicProfile ".$resourceId;
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            $result = ["_source"=>$result[0] ?? []];
+        }
+
+        return $result;
+    }
+
 
     /**
      * view patients UUID
      */
     public static function viewBasic(int $resourceId = 0)
     {
-        try {
-            
-            $esClient = ESClientFactory::getClient();
-            if ($resourceId == 0)
-            {
-                return self::search(["query"=>"", "size"=>10, "from"=>0]);
-            }
+        $result = self::viewCommon($resourceId);        
 
-            $params = [
-                'index'=>Constant::getGlobals()["patient-es-archive-index"],
-                'type' =>'patient-info',
-                'id'=>$resourceId
-            ];
-
-            $result = $esClient->get($params);
-
-            foreach ($result["_source"] as $key=>$value){
-                unset($result["_source"][$key]);
-                $result["_source"][strtolower($key)] = $value;
-                // $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
-                // $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
-            }
-
-            return $result;
+        foreach ($result["_source"] as $key=>$value){
+            unset($result["_source"][$key]);
+            $result["_source"][strtolower($key)] = $value;
         }
-        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
-            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId AND ProfileDeleted = 0";
-            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-            return $result;
-        }
+        return $result;
     }
 
     public static function view(int $resourceId = 0)
     {
-        try {
-            
-            $esClient = ESClientFactory::getClient();
-            if ($resourceId == 0)
-            {
-                return self::search(["query"=>"", "size"=>10, "from"=>0]);
+        $result = self::viewCommon($resourceId);
+        
+        foreach ($result["_source"] as $key=>$value){
+            unset($result["_source"][$key]);
+            $result["_source"][strtolower($key)] = $value;
+            $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
+            $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
+            $result["_source"]["admissionStatus"] = \EmmetBlue\Plugins\Nursing\WardAdmission\WardAdmission::getAdmissionDetails((int) $resourceId); 
+            $result["_source"]["createdByProfile"] = self::viewPatientCreator((int) $resourceId); 
+            if (strtolower($key) == "patientprofilelockstatus"){
+                $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
             }
-
-            $params = [
-                'index'=>Constant::getGlobals()["patient-es-archive-index"],
-                'type' =>'patient-info',
-                'id'=>$resourceId
-            ];
-
-            $result = $esClient->get($params);
-
-            foreach ($result["_source"] as $key=>$value){
-                unset($result["_source"][$key]);
-                $result["_source"][strtolower($key)] = $value;
-                $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
-                $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
-                $result["_source"]["admissionStatus"] = \EmmetBlue\Plugins\Nursing\WardAdmission\WardAdmission::getAdmissionDetails((int) $resourceId); 
-                $result["_source"]["createdByProfile"] = self::viewPatientCreator((int) $resourceId); 
-                if (strtolower($key) == "patientprofilelockstatus"){
-                    $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
-                }
-            }
-
-            return $result;
         }
-        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
-            $query = "SELECT * FROM Patients.Patient WHERE PatientID = $resourceId AND ProfileDeleted = 0";
-            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-            return $result;
-        }
+        return $result;
     }
 
     public static function viewByPatientType(int $resourceId){
@@ -500,50 +480,81 @@ class Patient
 
     public static function search(array $data)
     {
-        if ($data["query"] == ""){
-            $data["query"] = "*";
-        }
+        try {
+            if ($data["query"] == ""){
+                $data["query"] = "*";
+            }
+            $query = explode(" ", $data["query"]);
+            $builtQuery = [];
+            foreach ($query as $element){
+                $builtQuery[] = "(".$element."* ".$element."~)";
+            }
 
-        $query = explode(" ", $data["query"]);
-        $builtQuery = [];
-        foreach ($query as $element){
-            $builtQuery[] = "(".$element."* ".$element."~)";
-        }
-
-        $builtQuery = implode(" AND ", $builtQuery);
-        
-        $params = [
-            'index'=>Constant::getGlobals()["patient-es-archive-index"],
-            'type'=>'patient-info',
-            'size'=>$data['size'] ?? 1,
-            'from'=>$data['from'] ?? 0,
-            'body'=>array(
-                "query"=>array(
-                    "query_string"=>array(
-                        "query"=>$builtQuery
+            $builtQuery = implode(" AND ", $builtQuery);
+            
+            $params = [
+                'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                'type'=>'patient-info',
+                'size'=>$data['size'] ?? 1,
+                'from'=>$data['from'] ?? 0,
+                'body'=>array(
+                    "query"=>array(
+                        "query_string"=>array(
+                            "query"=>$builtQuery
+                        )
                     )
                 )
-            )
-        ];
+            ];
 
-        $esClient = ESClientFactory::getClient();
+            $esClient = ESClientFactory::getClient();
 
-        $result = $esClient->search($params);
+            $result = $esClient->search($params);
+        }
+        catch(\Exception $e){
+            $query = $data["query"];
+            $size = $data['size'];
+            $query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query')  AND ProfileDeleted = 0";
+            $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            $result = [
+                "hits"=>[
+                    "hits"=>[]
+                ]
+            ];
+            foreach ($results as $_result){
+                $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
+                $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+                $_result = ["_source"=>$_result[0] ?? []];
+                $result["hits"]["hits"][] = $_result;
+            }
+        }
 
         foreach ($result["hits"]["hits"] as $key=>$hit){
-        	foreach($result["hits"]["hits"][$key]["_source"] as $k=>$v){
-        		unset($result["hits"]["hits"][$key]["_source"][$k]);
-        		$result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
-                if (strtolower($k) == "patientprofilelockstatus"){
-                    $id = $hit["_source"]["PatientID"] ?? $hit["_source"]["patientid"];
-                    $result["hits"]["hits"][$key]["_source"][strtolower($k)] = (int) self::retrieveLockStatus((int) $id)["status"];
+            if (isset($hit["_source"]["patientid"]) || isset($hit["_source"]["PatientID"])){
+                foreach($result["hits"]["hits"][$key]["_source"] as $k=>$v){
+                    unset($result["hits"]["hits"][$key]["_source"][$k]);
+                    $result["hits"]["hits"][$key]["_source"][strtolower($k)] = $v;
+                    if (strtolower($k) == "patientprofilelockstatus"){
+                        $id = $hit["_source"]["PatientID"] ?? $hit["_source"]["patientid"];
+                        $result["hits"]["hits"][$key]["_source"][strtolower($k)] = (int) self::retrieveLockStatus((int) $id)["status"];
+                    }
                 }
-        	}
 
-            $result["hits"]["hits"][$key]["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $result["hits"]["hits"][$key]["_source"]["patientid"] ?? $result["hits"]["hits"][$key]["_source"]["patientid"]); 
-            $result["hits"]["hits"][$key]["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $result["hits"]["hits"][$key]["_source"]["patientid"]); 
+                $result["hits"]["hits"][$key]["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient(
+                    (int) $result["hits"]["hits"][$key]["_source"]["patientid"] ?? $result["hits"]["hits"][$key]["_source"]["patientid"]
+                ); 
+                $result["hits"]["hits"][$key]["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked(
+                    (int) $result["hits"]["hits"][$key]["_source"]["patientid"]
+                ); 
 
-            $result["hits"]["hits"][$key]["_source"]["createdByProfile"] = self::viewPatientCreator((int) $result["hits"]["hits"][$key]["_source"]["patientid"]);
+                $result["hits"]["hits"][$key]["_source"]["createdByProfile"] = self::viewPatientCreator(
+                    (int) $result["hits"]["hits"][$key]["_source"]["patientid"]
+                );   
+            }
+            else {
+                unset($result["hits"]["hits"][$key]);
+            }
         }
         
         return $result;
@@ -561,27 +572,27 @@ class Patient
             $result = DBConnectionFactory::getConnection()->exec($query);
 
             if ($result){
-	            DatabaseLog::log(
-	                Session::get('USER_ID'),
-	                Constant::EVENT_DELETE,
-	                'Patients',
-	                'Patient',
-	                (string)$query
-	            );
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_DELETE,
+                    'Patients',
+                    'Patient',
+                    (string)$query
+                );
 
-            	try {            
-		            $esClient = ESClientFactory::getClient();
+                try {            
+                    $esClient = ESClientFactory::getClient();
 
-		            $params = [
-		                'index'=>Constant::getGlobals()["patient-es-archive-index"],
-		                'type' =>'patient-info',
-		                'id'=>$resourceId
-		            ];
+                    $params = [
+                        'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                        'type' =>'patient-info',
+                        'id'=>$resourceId
+                    ];
 
-		            return $esClient->delete($params);
-		        }
-		        catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
-		        }
+                    return $esClient->delete($params);
+                }
+                catch (\Exception $e){
+                }
             }
         }
         catch (\PDOException $e)
@@ -649,7 +660,7 @@ class Patient
                 $esClient = ESClientFactory::getClient();
 
                 $params = [
-                    'index'=>Constant::getGlobals()["patient-es-archive-index"],
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
                     'type' =>'patient-info',
                     'id'=>$patient,
                     'body'=>$body
@@ -657,7 +668,7 @@ class Patient
 
                 $esClient->index($params);
             }
-            catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e){
+            catch (\Exception $e){
             }
 
             return true;
@@ -721,7 +732,6 @@ class Patient
 
             if (isset($data["paginate"])){
                 $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
-                // $filtered = count($_result) + 1;
                 $viewOperation = [
                     "data"=>$viewOperation,
                     "total"=>$total,
