@@ -88,13 +88,6 @@ class Patient
         return true;
     }
 
-    #DEPRECATED METHOD
-    public static function getImage(array $data){
-        $imageLocation = $data["image-dir"];
-
-        return file_get_contents($imageLocation);
-    }   
-
     public static function updatePhoto(array $data){
         $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = ".$data["patient"];
         $patientUuid = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
