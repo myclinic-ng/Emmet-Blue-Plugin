@@ -52,6 +52,21 @@ class Account
         return ["status"=>false];
     }
 
+    public static function loginWithFingerprint($data){
+        $staff = \EmmetBlue\Plugins\HumanResources\StaffProfile::identifyFingerprint($data);
+
+        if (isset($staff["StaffID"])){
+            $id = $staff["StaffID"];
+            $info = self::getAccountInfo((int) $id);
+
+            \EmmetBlue\Plugins\User\Session::activate((int) $id);
+
+            return ["status"=>true, "uuid"=>$info['StaffUUID'], "accountActivated"=>$info["AccountActivated"], "id"=>$id];
+        }
+
+        return ["status"=>false];
+    }
+
     public static function getSwitchData($data){
         $id = $data["staff"] ?? null;
         $department = $data["department"] ?? null;

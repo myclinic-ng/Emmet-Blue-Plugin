@@ -66,4 +66,16 @@ class StaffProfile
 
         return $result;
     }
+
+    public static function enrollFingerprint($data = []){
+        $result = StaffProfile\StaffProfile::enrollFingerprint($data);
+
+        return $result;
+    }
+
+    public static function identifyFingerprint($data = []){
+        $result = StaffProfile\StaffProfile::identifyFingerprint($data);
+
+        return $result;
+    }
 }

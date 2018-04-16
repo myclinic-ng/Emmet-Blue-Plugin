@@ -58,10 +58,11 @@ class Patient
         $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $profileDir = $patientDir.DIRECTORY_SEPARATOR.'profile';
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories';
+        $bioDir = $patientDir.DIRECTORY_SEPARATOR.'biometrics';
         if (!mkdir($patientDir)){
             return false;
         }
-        if (!mkdir($profileDir) || !mkdir($repoDir)){
+        if (!mkdir($profileDir) || !mkdir($repoDir) || !mkdir($bioDir)){
             unlink($patientDir);
             return false;
         }
@@ -69,13 +70,14 @@ class Patient
         self::$patientFolders = [
             "patient" => $patientDir,
             "profile" => $profileDir,
-            "repo" => $repoDir
+            "repo" => $repoDir,
+            "biometrics" => $bioDir
         ];
 
         return true;
     }
 
-    protected static function uploadPhotoAndDocuments($passport, $documents = null){
+    protected static function uploadPhotoAndDocuments($passport, $documents = null, $fingerprints = []){
         if (!isset(self::$patientFolders["profile"]) || is_null(self::$patientFolders["profile"])){
             return false;
         }
@@ -84,6 +86,12 @@ class Patient
         
         if (!is_null($documents)){
             self::base64ToJpeg($documents, self::$patientFolders["profile"].DIRECTORY_SEPARATOR."documents.jpg");
+        }
+
+        if (!empty($fingerprints)){
+            foreach($fingerprints as $name=>$fingerprint){
+                self::base64ToJpeg($fingerprint, self::$patientFolders["biometrics"].DIRECTORY_SEPARATOR."$name.jpg");
+            }
         }
         return true;
     }
@@ -144,6 +152,7 @@ class Patient
             $type = $data["patientType"] ?? null;
             $passport = $data["patientPassport"] ?? null;
             $documents = $data["documents"] ?? null;
+            $fingerprints = $data["fingerprints"] ?? [];
 
             $hospitalHistory = $data["hospitalHistory"] ?? [];
             $diagnosis = $data["diagnosis"] ?? [];
@@ -160,7 +169,8 @@ class Patient
                 $data["operation"],
                 $data["patientType"],
                 $data["patientName"],
-                $data["createdBy"]
+                $data["createdBy"],
+                $data["fingerprints"]
             );
             
             try
@@ -206,8 +216,19 @@ class Patient
                                 self::delete((int)$id);
                             }
                             else {
-                                if (!self::uploadPhotoAndDocuments($passport, $documents)){
+                                if (!self::uploadPhotoAndDocuments($passport, $documents, $fingerprints)){
                                     self::delete((int)$id);
+                                }
+                                else {
+                                    //enroll patient;
+                                    if (!empty($fingerprints)){
+                                        $files = [];
+                                        foreach ($fingerprints as $name => $value) {
+                                            $files[] = self::$patientFolders["biometrics"].DIRECTORY_SEPARATOR."$name.jpg";
+                                        }
+
+                                        $fingerEnrollResult = \EmmetBlue\Plugins\Biometrics\Fingerprint::enroll($id, "PATIENT", $files);
+                                    }
                                 }
                             }
                         }
@@ -506,7 +527,7 @@ class Patient
         catch(\Exception $e){
             $query = $data["query"];
             $size = $data['size'];
-            $query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query')  AND ProfileDeleted = 0";
+            $query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query' OR PatientUUID LIKE '%$query%')  AND ProfileDeleted = 0";
             $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
             $result = [

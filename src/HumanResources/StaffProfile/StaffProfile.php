@@ -39,14 +39,11 @@ class StaffProfile
     protected static $staffFolders = [];
 
     protected static function base64ToJpeg($base64_string, $output_file) {
-        $ifp = fopen($output_file, "wb"); 
-
-       if (is_string($base64_string)){
+        if (is_string($base64_string)){
             $data = explode(',', $base64_string);
 
-            fwrite($ifp, base64_decode($data[1])); 
-            fclose($ifp);
-       } 
+            file_put_contents($output_file, base64_decode($data[1]));
+        } 
 
         return $output_file; 
     }
@@ -264,5 +261,69 @@ class StaffProfile
         }
 
         return ["StaffID"=>$data["uuid"], "StaffFullName"=>null];
+    }
+
+    public static function identifyFingerprint($data){
+        $img_string = $data["fingerprint"];
+        $tmpfile = sys_get_temp_dir().DIRECTORY_SEPARATOR."fing".rand().".jpg";
+
+        if (is_string($img_string)){
+            $data = explode(',', $img_string);
+
+            file_put_contents($tmpfile, base64_decode($data[1]));
+        }
+
+        $category = "STAFF";
+
+        $result = \EmmetBlue\Plugins\Biometrics\Fingerprint::identify($category, $tmpfile);
+
+        // return $result;
+        if ($result["result"]){
+            $match = explode(".", $result["match"]);
+
+            $fingerOwner = $match[0];
+
+            $staffDet = self::viewStaffFullName((int) $fingerOwner);
+            $staffDet["match"] = $result;
+
+            return $staffDet;
+        }
+
+        unlink($tmpfile);
+
+        return false;
+    }
+
+    public static function enrollFingerprint($data){
+        $fingerprints = $data["fingerprints"] ?? [];
+        $staff = $data["staff"];
+
+        $query = "SELECT StaffUUID FROM Staffs.Staff WHERE StaffID = $staff";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        if (isset($result[0])){
+            $staffUuid = $result[0]["StaffUUID"];
+            $staffDir = Constant::getGlobals()["file-server-path"].self::getStaffArchiveDir().$staffUuid;
+            $fingDir = $staffDir.DIRECTORY_SEPARATOR.'fingerprints';
+
+            if (!is_dir($fingDir) && !mkdir($fingDir)){
+                return false;
+            }
+
+            if (!empty($fingerprints)){
+                $files = ["lthumb"=>[], "rthumb"=>[]];
+                foreach($fingerprints as $name=>$fingerprint){
+                    self::base64ToJpeg($fingerprint, $fingDir.DIRECTORY_SEPARATOR."$name.jpg");
+                    if ($name == "left1" || $name == "left2"){
+                        $files["lthumb"][] = $fingDir.DIRECTORY_SEPARATOR."$name.jpg";
+                    }
+
+                    if ($name == "right1" || $name == "right2"){
+                        $files["rthumb"][] = $fingDir.DIRECTORY_SEPARATOR."$name.jpg";
+                    }
+                }
+
+                $fingerEnrollResult = \EmmetBlue\Plugins\Biometrics\Fingerprint::enroll($staff, "STAFF", $files);
+            }   
+        }
     }
 }
