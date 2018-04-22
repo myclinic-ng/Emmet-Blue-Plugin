@@ -55,7 +55,7 @@ class StaffProfile
          * '$staffUuid' which will also be created inside the getStaffArchiveDir()
          * directory.
          */
-        $staffDir = Constant::getGlobals()["file-server"].self::getStaffArchiveDir().$staffUuid;
+        $staffDir = Constant::getGlobals()["file-server-path"].self::getStaffArchiveDir().$staffUuid;
         $profileDir = $staffDir.DIRECTORY_SEPARATOR.'profile';
         if (!mkdir($staffDir)){
             return false;
