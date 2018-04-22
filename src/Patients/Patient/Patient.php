@@ -543,7 +543,8 @@ class Patient
 
             $result = [
                 "hits"=>[
-                    "hits"=>[]
+                    "hits"=>[],
+                    "total"=>count($results)
                 ]
             ];
 
