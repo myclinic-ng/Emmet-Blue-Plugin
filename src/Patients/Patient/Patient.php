@@ -419,20 +419,22 @@ class Patient
     }
 
     private static function viewCommon(int $resourceId = 0){
+        $result = [];
         try {
             $esClient = ESClientFactory::getClient();
             if ($resourceId == 0)
             {
-                return self::search(["query"=>"", "size"=>10, "from"=>0]);
+                $result = self::search(["query"=>"", "size"=>10, "from"=>0]);
             }
+            else {
+                $params = [
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                    'type' =>'patient-info',
+                    'id'=>$resourceId
+                ];
 
-            $params = [
-                'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
-                'type' =>'patient-info',
-                'id'=>$resourceId
-            ];
-
-            $result = $esClient->get($params);
+                $result = $esClient->get($params);
+            }
         }
         catch (\Exception $e){
             $query = "Patients.GetPatientBasicProfile ".$resourceId;
@@ -452,9 +454,11 @@ class Patient
     {
         $result = self::viewCommon($resourceId);        
 
-        foreach ($result["_source"] as $key=>$value){
-            unset($result["_source"][$key]);
-            $result["_source"][strtolower($key)] = $value;
+        if (isset($result["_source"])){
+            foreach ($result["_source"] as $key=>$value){
+                unset($result["_source"][$key]);
+                $result["_source"][strtolower($key)] = $value;
+            }  
         }
 
         return $result;
@@ -464,16 +468,18 @@ class Patient
     {
         $result = self::viewCommon($resourceId);
         
-        foreach ($result["_source"] as $key=>$value){
-            unset($result["_source"][$key]);
-            $result["_source"][strtolower($key)] = $value;
-            $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
-            $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
-            $result["_source"]["admissionStatus"] = \EmmetBlue\Plugins\Nursing\WardAdmission\WardAdmission::getAdmissionDetails((int) $resourceId); 
-            $result["_source"]["createdByProfile"] = self::viewPatientCreator((int) $resourceId); 
-            if (strtolower($key) == "patientprofilelockstatus"){
-                $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
-            }
+        if (isset($result["_source"])){
+            foreach ($result["_source"] as $key=>$value){
+                unset($result["_source"][$key]);
+                $result["_source"][strtolower($key)] = $value;
+                $result["_source"]["auditflags"] = \EmmetBlue\Plugins\Audit\Flags::viewByPatient((int) $resourceId);
+                $result["_source"]["isLinkedToCloud"] = \EmmetBlue\Plugins\EmmetblueCloud\PatientProfile::isLinked((int) $resourceId); 
+                $result["_source"]["admissionStatus"] = \EmmetBlue\Plugins\Nursing\WardAdmission\WardAdmission::getAdmissionDetails((int) $resourceId); 
+                $result["_source"]["createdByProfile"] = self::viewPatientCreator((int) $resourceId); 
+                if (strtolower($key) == "patientprofilelockstatus"){
+                    $result["_source"][strtolower($key)] = self::retrieveLockStatus((int) $resourceId);
+                }
+            }   
         }
 
         return $result;
@@ -527,7 +533,12 @@ class Patient
         catch(\Exception $e){
             $query = $data["query"];
             $size = $data['size'];
+
+            if ($query == "*"){
+                $query = "";
+            }
             $query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query' OR PatientUUID LIKE '%$query%')  AND ProfileDeleted = 0";
+
             $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
             $result = [
@@ -535,6 +546,7 @@ class Patient
                     "hits"=>[]
                 ]
             ];
+
             foreach ($results as $_result){
                 $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
                 $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
@@ -570,7 +582,7 @@ class Patient
                 unset($result["hits"]["hits"][$key]);
             }
         }
-        
+
         return $result;
     }
 
