@@ -24,9 +24,28 @@ use EmmetBlue\Core\Constant;
  */
 class InitDefaultAccessDepartments
 {
+	public static $pharmacy = "Pharmacy";
+	public static $hospital = "Medical Doctor/Consultation";
+	public static $lab = "Combined Lab";
+
 	public static $primary = "IT/System Administration";
 
-	public static function run(){
+	public static function run($businessType = ""){
+		switch (strtolower($businessType)) {
+			case 'pharmacy':
+				self::$primary = self::$pharmacy;
+				break;
+			case 'hospital':
+				self::$primary = self::$hospital;
+				break;
+			case 'lab':
+				self::$primary = self::$lab;
+				break;
+			
+			default:
+				# code...
+				break;
+		}
 		$query = "SELECT StaffID FROM Staffs.Staff WHERE StaffID = 1";
 		$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 		if (isset($result[0])){

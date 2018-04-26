@@ -33,20 +33,20 @@ class Init
 				InitFinancials::run();
 				InitPharmacyStores::run();
 				InitPatientCategories::run();
-				InitDefaultAccessDepartments::run();
+				InitDefaultAccessDepartments::run("pharmacy");
 				break;
 			}
 			case "lab":{
 				InitDepartments::run($data);
 				InitFinancials::run();
 				InitPatientCategories::run();
-				InitDefaultAccessDepartments::run();
+				InitDefaultAccessDepartments::run("lab");
 				break;
 			}
 			case "hospital":{
 				InitDepartments::run($data);
 				InitFinancials::run();
-				InitDefaultAccessDepartments::run();
+				InitDefaultAccessDepartments::run("hospital");
 				break;
 			}
 			default:{
