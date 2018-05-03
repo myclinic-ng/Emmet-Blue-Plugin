@@ -37,7 +37,13 @@ class TransactionMeta
 
         $str = $date->format('Ymd');
         $query = "SELECT TOP 1 BillingTransactionMetaID as id FROM Accounts.BillingTransactionMeta ORDER BY BillingTransactionMetaID DESC";
-        $result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC)[0]["id"] + 1;
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchall(\PDO::FETCH_ASSOC);
+        if (isset($result[0])){
+            $result = $result[0]["id"] + 1;
+        }
+        else {
+            $result = 0;
+        }
 
         return $str.$result;  
     }
