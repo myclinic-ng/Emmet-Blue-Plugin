@@ -44,7 +44,7 @@ class InitPharmacyStores
 						if (isset($dispensaryId["lastInsertId"])){
 							$dispensaryId = $dispensaryId["lastInsertId"];
 
-							\EmmetBlue\Plugins\Pharmacy\DispensoryStoreLink\DispensoryStoreLink::create(["dispensary"=>$dispensaryId, "store"=>$storeId]);
+							\EmmetBlue\Plugins\Pharmacy\DispensoryStoreLink\DispensoryStoreLink::create(["dispensory"=>$dispensaryId, "store"=>$storeId]);
 						}
 					}
 				}
