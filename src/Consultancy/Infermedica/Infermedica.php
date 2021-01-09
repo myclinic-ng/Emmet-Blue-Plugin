@@ -18,6 +18,7 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 use EmmetBlue\Core\Factory\ElasticSearchClientFactory as ESClientFactory;
+use EmmetBlue\Core\Factory\HTTPRequestFactory as HTTPRequestFactory;
 
 /**
  * class Infermedica Controller
@@ -68,7 +69,21 @@ class Infermedica
     }
 
     public static function searchSymptoms(array $data){       
-        return self::searcher('symptoms', $data);
+        // return self::searcher('symptoms', $data);
+        $result = HTTPRequestFactory::get(self::$apiURL."search?phrase=".$data["phrase"]);
+        $result = json_decode($result->body, true);
+        $symptoms = [];
+        foreach ($result as $key => $value) {
+            $symptoms[] = ["_source"=>[
+                "name"=>$value["label"],
+                "parent_id"=>$value["id"]
+            ]];
+        }
+
+        $result = ["hits"=>["hits"=>$symptoms]];
+
+        return $result;
+
     }
 
     public static function searchLabTests(array $data){

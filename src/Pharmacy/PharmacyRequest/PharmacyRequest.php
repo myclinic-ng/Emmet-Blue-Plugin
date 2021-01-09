@@ -268,7 +268,7 @@ class PharmacyRequest
                     $_litem = str_replace("mls", "", $_litem);
                     $_litem = rtrim(trim((string)$_litem));
                 }
-
+                
                 if (!is_numeric($_litem)){
                     $result["reason"] = "You must specify how many ".$foundNumOfTimes[0]." to use for this prescription";
                 }

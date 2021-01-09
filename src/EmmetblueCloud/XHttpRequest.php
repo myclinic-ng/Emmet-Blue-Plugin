@@ -59,6 +59,5 @@ class XHttpRequest {
 		}
 
 		return $response->contentData;
-		
 	}
 }
