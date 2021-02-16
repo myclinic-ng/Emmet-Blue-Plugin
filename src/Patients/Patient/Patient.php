@@ -420,33 +420,33 @@ class Patient
 
     private static function viewCommon(int $resourceId = 0){
         $result = [];
-        // try {
-        //     $esClient = ESClientFactory::getClient();
-        //     if ($resourceId == 0)
-        //     {
-        //         $result = self::search(["query"=>"", "size"=>10, "from"=>0]);
-        //     }
-        //     else {
-        //         $params = [
-        //             'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
-        //             'type' =>'patient-info',
-        //             'id'=>$resourceId
-        //         ];
+        try {
+            $esClient = ESClientFactory::getClient();
+            if ($resourceId == 0)
+            {
+                $result = self::search(["query"=>"", "size"=>10, "from"=>0]);
+            }
+            else {
+                $params = [
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                    'type' =>'patient-info',
+                    'id'=>$resourceId
+                ];
 
-        //         $result = $esClient->get($params);
-        //     }
-        // }
-        // catch (\Exception $e){
-        //     $query = "Patients.GetPatientBasicProfile ".$resourceId;
-        //     $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+                $result = $esClient->get($params);
+            }
+        }
+        catch (\Exception $e){
+            $query = "Patients.GetPatientBasicProfile ".$resourceId;
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        //     $result = ["_source"=>$result[0] ?? []];
-        // }
+            $result = ["_source"=>$result[0] ?? []];
+        }
 
-        $query = "Patients.GetPatientBasicProfile ".$resourceId;
-        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        // $query = "Patients.GetPatientBasicProfile ".$resourceId;
+        // $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        $result = ["_source"=>$result[0] ?? []];
+        // $result = ["_source"=>$result[0] ?? []];
 
         return $result;
     }
@@ -505,93 +505,93 @@ class Patient
 
     public static function search(array $data)
     {
-        // try {
-        //     if ($data["query"] == ""){
-        //         $data["query"] = "*";
-        //     }
-        //     $query = explode(" ", $data["query"]);
-        //     $builtQuery = [];
-        //     foreach ($query as $element){
-        //         $builtQuery[] = "(".$element."* ".$element."~)";
-        //     }
+        try {
+            if ($data["query"] == ""){
+                $data["query"] = "*";
+            }
+            $query = explode(" ", $data["query"]);
+            $builtQuery = [];
+            foreach ($query as $element){
+                $builtQuery[] = "(".$element."* ".$element."~)";
+            }
 
-        //     $builtQuery = implode(" AND ", $builtQuery);
+            $builtQuery = implode(" AND ", $builtQuery);
             
-        //     $params = [
-        //         'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
-        //         'type'=>'patient-info',
-        //         'size'=>$data['size'] ?? 1,
-        //         'from'=>$data['from'] ?? 0,
-        //         'body'=>array(
-        //             "query"=>array(
-        //                 "query_string"=>array(
-        //                     "query"=>$builtQuery
-        //                 )
-        //             )
-        //         )
-        //     ];
+            $params = [
+                'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                'type'=>'patient-info',
+                'size'=>$data['size'] ?? 1,
+                'from'=>$data['from'] ?? 0,
+                'body'=>array(
+                    "query"=>array(
+                        "query_string"=>array(
+                            "query"=>$builtQuery
+                        )
+                    )
+                )
+            ];
 
-        //     $esClient = ESClientFactory::getClient();
+            $esClient = ESClientFactory::getClient();
 
-        //     $result = $esClient->search($params);
+            $result = $esClient->search($params);
+        }
+        catch(\Exception $e){
+            $query = $data["query"];
+            $size = $data['size'];
+
+            if ($query == "*"){
+                $query = "";
+            }
+            $query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query' OR PatientUUID LIKE '%$query%')  AND ProfileDeleted = 0";
+
+            $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            $result = [
+                "hits"=>[
+                    "hits"=>[],
+                    "total"=>count($results)
+                ]
+            ];
+
+            foreach ($results as $_result){
+                $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
+                $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+                $_result = ["_source"=>$_result[0] ?? []];
+                $result["hits"]["hits"][] = $_result;
+            }
+        }
+
+        // $query = $data["query"];
+        // $size = $data['size'];
+
+        // if ($query == "*"){
+        //     $query = "";
         // }
-        // catch(\Exception $e){
-        //     $query = $data["query"];
-        //     $size = $data['size'];
+        // $sql_query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query' OR PatientUUID LIKE '%$query%')  AND ProfileDeleted = 0";
 
-        //     if ($query == "*"){
-        //         $query = "";
-        //     }
-        //     $query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query' OR PatientUUID LIKE '%$query%')  AND ProfileDeleted = 0";
+        // $results = DBConnectionFactory::getConnection()->query($sql_query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        //     $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        // if (count($results) == 0){
+        //     $sql_query = "SELECT a.PatientID FROM Patients.Patient a INNER JOIN (SELECT DISTINCT TOP $size PatientID FROM Patients.PatientRecordsFieldValue WHERE FieldValue LIKE '%$query%') b ON a.PatientID = b.PatientID WHERE a.ProfileDeleted = 0;";
 
-        //     $result = [
-        //         "hits"=>[
-        //             "hits"=>[],
-        //             "total"=>count($results)
-        //         ]
-        //     ];
-
-        //     foreach ($results as $_result){
-        //         $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
-        //         $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
-
-        //         $_result = ["_source"=>$_result[0] ?? []];
-        //         $result["hits"]["hits"][] = $_result;
-        //     }
+        //     $results = DBConnectionFactory::getConnection()->query($sql_query)->fetchAll(\PDO::FETCH_ASSOC);
         // }
 
-        $query = $data["query"];
-        $size = $data['size'];
+        // $result = [
+        //     "hits"=>[
+        //         "hits"=>[],
+        //         "total"=>count($results)
+        //     ]
+        // ];
 
-        if ($query == "*"){
-            $query = "";
-        }
-        $sql_query = "SELECT TOP $size PatientID FROM Patients.Patient WHERE (PatientFullName LIKE '%$query%' OR PatientFullName = '$query' OR PatientUUID LIKE '%$query%')  AND ProfileDeleted = 0";
+        // foreach ($results as $_result){
+        //     $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
+        //     $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        $results = DBConnectionFactory::getConnection()->query($sql_query)->fetchAll(\PDO::FETCH_ASSOC);
-
-        if (count($results) == 0){
-            $sql_query = "SELECT a.PatientID FROM Patients.Patient a INNER JOIN (SELECT DISTINCT TOP $size PatientID FROM Patients.PatientRecordsFieldValue WHERE FieldValue LIKE '%$query%') b ON a.PatientID = b.PatientID WHERE a.ProfileDeleted = 0;";
-
-            $results = DBConnectionFactory::getConnection()->query($sql_query)->fetchAll(\PDO::FETCH_ASSOC);
-        }
-
-        $result = [
-            "hits"=>[
-                "hits"=>[],
-                "total"=>count($results)
-            ]
-        ];
-
-        foreach ($results as $_result){
-            $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
-            $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
-
-            $_result = ["_source"=>$_result[0] ?? []];
-            $result["hits"]["hits"][] = $_result;
-        }
+        //     $_result = ["_source"=>$_result[0] ?? []];
+        //     $result["hits"]["hits"][] = $_result;
+        // }
 
         foreach ($result["hits"]["hits"] as $key=>$hit){
             if (isset($hit["_source"]["patientid"]) || isset($hit["_source"]["PatientID"])){
