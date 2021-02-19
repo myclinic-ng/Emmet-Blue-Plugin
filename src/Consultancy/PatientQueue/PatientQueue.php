@@ -39,9 +39,9 @@ class PatientQueue
         $consultant = $data['consultant'] ?? null;
 
         $query = "SELECT * FROM Consultancy.PatientQueue WHERE Patient=$patient AND Consultant=$consultant;";
-        $result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
+        $_result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
 
-        if (count($result) > 0){
+        if (count($_result) > 0){
             return true;
         }
 
