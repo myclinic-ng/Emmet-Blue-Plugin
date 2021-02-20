@@ -91,7 +91,10 @@ class StoreInventory
         $items = $data['items'] ?? null;
         $store = $data['store'] ?? null;
 
-        $queryV = [];
+        $queryV = [];   
+        if (!is_null($items)){
+            $items = array_splice($items, 0, 999); // support SQL Server restriction of insert values to only a 1000 entries.
+        }
         foreach ($items as $key => $value) {
             $queryV[] = "($value, $store)";
         }
