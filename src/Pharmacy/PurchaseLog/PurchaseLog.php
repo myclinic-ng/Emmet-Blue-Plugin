@@ -38,17 +38,22 @@ class PurchaseLog
         $itemBuyee = $data['itemBuyee'] ?? null;
         $staff = $data["staff"] ?? 'NULL';
 
+        $restockData = ["items"=>[], "staffId"=>$staff, "storeId"=>1, "globalRestock"=>true, "comment"=> "Purchase log invoice number $invoiceNo"];
         foreach ($items as $item){
             $itemId = $item['item'] ?? null;
             $itemQty = $item['itemQty'] ?? null;
             $itemPrice = $item['itemCostPrice'] ?? null;
             $values[] = "($itemId, '$invoiceNo', $itemQty, $itemPrice, $itemVendor, '$itemPurchaseDate', '$itemBuyee', $staff)";
+            
+            $restockData["items"][] = ["item"=>$itemId, "quantityAdded"=>$itemQty];
         }
 
         $query = "INSERT INTO Pharmacy.ItemPurchaseLog (ItemID, InvoiceNumber, ItemQuantity, ItemCostPrice, ItemVendor, ItemPurchaseDate, ItemBuyee, CreatedBy) VALUES ". implode(", ", $values);
         try
         {
             $result = DBConnectionFactory::getConnection()->exec($query);
+
+            $restock = \EmmetBlue\Plugins\Pharmacy\StoreRestockHistory\StoreRestockHistory::create($restockData);
 
             return $result;
         }

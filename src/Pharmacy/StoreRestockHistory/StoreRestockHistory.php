@@ -51,7 +51,7 @@ class StoreRestockHistory
         {
             foreach ($items as $item){
                 $itemId = $item['item'] ?? null;
-                $quantityBefore = $item['quantityBefore'] ?? null;
+                $quantityBefore = /*$item['quantityBefore'] ??*/ null; //<- Disallow sending this value by the user
                 $quantityAdded = $item['quantityAdded'] ?? null;
 
                 if (is_null($quantityBefore)){
