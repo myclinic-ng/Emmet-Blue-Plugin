@@ -101,7 +101,7 @@ class StoreInventory
 
         $query = "INSERT INTO Pharmacy.StoreInventoryItems (Item, StoreID) VALUES ".implode(", ", $queryV);
 
-        // die($query);
+        die($query);
         
         try
         {
