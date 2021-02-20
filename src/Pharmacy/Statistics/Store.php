@@ -52,7 +52,7 @@ class Store
                     ) a 
                     INNER JOIN (
                         SELECT c.ItemID, COUNT(c.ItemID) AS TotalDisp FROM Pharmacy.DispensedItems a 
-                        INNER JOIN Pharmacy.StoreInventoryItems b ON a.ItemID = b.ItemID 
+                        FULL OUTER JOIN Pharmacy.StoreInventoryItems b ON a.ItemID = b.ItemID 
                         INNER JOIN Pharmacy.StoreInventory c ON b.Item = c.ItemID
                         WHERE b.ItemQuantity=0 AND b.StoreID=$resourceId
                         GROUP BY c.ItemID
