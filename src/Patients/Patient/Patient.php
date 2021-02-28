@@ -815,4 +815,22 @@ class Patient
             
         }
     }
+
+    public static function reIndexElasticSearch(){
+        $query = "Patients.GetPatientBasicProfile ";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        
+        $esClient = ESClientFactory::getClient();
+        foreach($result as $patient){
+            $params = [
+                'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                'type' =>'patient-info',
+                'id'=>$patient["PatientID"],
+                'body'=>$patient
+            ];
+
+            $esClient->index($params);
+        }
+    }
 }

@@ -161,4 +161,8 @@ class Patient
     public static function viewByRegistration(array $data){
         return Patient\Patient::viewPatientsByRegistration($data);
     }
+
+    public static function reIndexElasticSearch(){
+        return Patient\Patient::reIndexElasticSearch();
+    }
 }
