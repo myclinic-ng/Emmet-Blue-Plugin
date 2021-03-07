@@ -274,7 +274,7 @@ class TransactionMeta
                     $result[$key]["BillingAmountBalance"] = number_format((float)$metaItem["BillingAmountBalance"], 2, '.', '');
                     $result[$key]["BilledAmountTotal"] = number_format((float)$metaItem["BilledAmountTotal"], 2, '.', '');
                     $patient = $metaItem["PatientID"];
-                    $query = "SELECT a.*, b.BillingTypeItemName FROM Accounts.BillingTransactionItems a INNER JOIN Accounts.BillingTypeItems b ON a.BillingTransactionItem = b.BillingTypeItemID WHERE a.BillingTransactionMetaID = $id";
+                    $query = "SELECT a.*, b.BillingTypeItemName FROM Accounts.BillingTransactionItems a INNER JOIN Accounts.BillingTypeItems b ON a.BillingTransactionItem = b.BillingTypeItemID WHERE a.BillingTransactionMetaID = $id;";
                     $queryResult = (
                         DBConnectionFactory::getConnection()
                         ->query($query)
