@@ -37,7 +37,7 @@ class DeleteAccountsBillingTypeItems
 	 */
 	public static function delete(int $accountBillingTypeItemId)
 	{
-		$deleteQuery = "UPDATE Accounts.BillingTypeItems SET DeleteStatus = 1 WHERE BillingTypeItemID = $accountBillingTypeItemId;";
+		$deleteQuery = "UPDATE Accounts.BillingTypeItems SET DeleteStatus = 1, BillingTypeItemName = CONCAT(BillingTypeItemName, ' DELETED') WHERE BillingTypeItemID = $accountBillingTypeItemId;";
 
 		try
 		{
