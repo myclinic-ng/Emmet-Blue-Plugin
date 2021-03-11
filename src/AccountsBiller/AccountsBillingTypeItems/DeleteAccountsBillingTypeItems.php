@@ -39,6 +39,7 @@ class DeleteAccountsBillingTypeItems
 	{
 		$deleteQuery = "UPDATE Accounts.BillingTypeItems SET DeleteStatus = 1 WHERE BillingTypeItemID = $accountBillingTypeItemId;";
 
+		die ($deleteQuery);
 		try
 		{
 			$deleteOperation = (
@@ -46,7 +47,7 @@ class DeleteAccountsBillingTypeItems
 				->exec((string)$deleteQuery)
 			);
 
-			DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_DELETE,'Accounts', 'BillingTypeItems', (string)$deleteOperation);
+			// DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_DELETE,'Accounts', 'BillingTypeItems', (string)$deleteOperation);
 
 			return $deleteOperation;
 
