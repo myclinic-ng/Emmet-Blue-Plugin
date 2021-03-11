@@ -39,7 +39,6 @@ class DeleteAccountsBillingTypeItems
 	{
 		$deleteQuery = "UPDATE Accounts.BillingTypeItems SET DeleteStatus = 1 WHERE BillingTypeItemID = $accountBillingTypeItemId;";
 
-		die ($deleteQuery);
 		try
 		{
 			$deleteOperation = (
