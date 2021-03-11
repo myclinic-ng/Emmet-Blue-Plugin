@@ -85,8 +85,7 @@ class BillingTypeItems
 
 	public static function deleteBillingTypeItems(int $resourceId)
 	{
-		die ("here");
-		return AccountsBillingTypeItems\DeleteAccountsBillingTypeitems::delete($resourceId);
+		return AccountsBillingTypeItems\DeleteAccountsBillingTypeItems::delete($resourceId);
 	}
 
 	public static function editBillingTypeItems(int $resourceId, array $data)
