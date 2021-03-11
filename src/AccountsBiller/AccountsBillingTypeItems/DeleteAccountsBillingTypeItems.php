@@ -37,17 +37,13 @@ class DeleteAccountsBillingTypeItems
 	 */
 	public static function delete(int $accountBillingTypeItemId)
 	{
-		$deleteBuilder = (new Builder('QueryBuilder', 'Delete'))->getBuilder();
-
-		$deleteBuilder
-			->from('Accounts.BillingTypeItems')
-			->where('BillingTypeItemID = '.$accountBillingTypeItemId);
+		$deleteQuery = "UPDATE Accounts.BillingTypeItems SET DeleteStatus = 1 WHERE BillingTypeItemID = $accountBillingTypeItemId;";
 
 		try
 		{
 			$deleteOperation = (
 				DBConnectionFactory::getConnection()
-				->exec((string)$deleteBuilder)
+				->exec((string)$deleteQuery)
 			);
 
 			DatabaseLog::log(Session::get('USER_ID'), Constant::EVENT_DELETE,'Accounts', 'BillingTypeItems', (string)$deleteOperation);

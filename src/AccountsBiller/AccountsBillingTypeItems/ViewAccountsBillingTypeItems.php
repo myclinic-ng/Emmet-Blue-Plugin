@@ -49,7 +49,7 @@ class ViewAccountsBillingTypeItems
             
             $selectBuilder->from("Accounts.BillingTypeItems");
 
-            $selectBuilder->where("BillingType = $resourceId");
+            $selectBuilder->where("BillingType = $resourceId AND DeleteStatus = 0");
 
             $result = (
                     DBConnectionFactory::getConnection()
