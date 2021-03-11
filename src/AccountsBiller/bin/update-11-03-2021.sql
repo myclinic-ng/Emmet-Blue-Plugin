@@ -1,0 +1,1 @@
+ALTER TABLE Accounts.BillingTypeItems ADD DeleteStatus BIT DEFAULT 0 NOT NULL
