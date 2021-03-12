@@ -171,7 +171,8 @@ class Patient
                 $data["patientType"],
                 $data["patientName"],
                 $data["createdBy"],
-                $data["fingerprints"]
+                $data["fingerprints"],
+                $data["patientId"]
             );
             
             try
