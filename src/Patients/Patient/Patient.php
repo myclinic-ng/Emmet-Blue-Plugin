@@ -153,6 +153,7 @@ class Patient
             $passport = $data["patientPassport"] ?? null;
             $documents = $data["documents"] ?? null;
             $fingerprints = $data["fingerprints"] ?? [];
+            $patientId = $data["patientId"] ?? null;
 
             $hospitalHistory = $data["hospitalHistory"] ?? [];
             $diagnosis = $data["diagnosis"] ?? [];
@@ -175,14 +176,20 @@ class Patient
             
             try
             {
-                $result = DBQueryFactory::insert('Patients.Patient', [
+                $insertData = [
                     'PatientFullName'=>(is_null($fullName)) ? 'NULL' : QB::wrapString((string)$fullName, "'"),
                     'PatientPicture'=> QB::wrapString(self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."photo.jpg", "'"),
                     'PatientType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'"),
                     'PatientIdentificationDocument'=> QB::wrapString(self::getPatientArchiveDir().$patientUuid.DIRECTORY_SEPARATOR.'profile'.DIRECTORY_SEPARATOR."documents.jpg", "'"),
                     'PatientUUID'=>QB::wrapString((string)$patientUuid, "'"),
                     'CreatedBy'=>is_null($creator) ? 'NULL' : $creator
-                ]);
+                ];
+
+                if (!is_null($patientId)){
+                    $insertData["PatientID"] = $patientId;
+                }
+                
+                $result = DBQueryFactory::insert('Patients.Patient', $insertData);
 
                 if ($result){
                     $id = $result['lastInsertId'];
