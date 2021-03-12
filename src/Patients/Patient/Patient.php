@@ -188,6 +188,9 @@ class Patient
                 if (!is_null($patientId)){
                     $insertData["PatientID"] = $patientId;
                 }
+
+                print_r($insertData);
+                die();
                 
                 $result = DBQueryFactory::insert('Patients.Patient', $insertData);
 
