@@ -189,8 +189,20 @@ class Patient
                 if (!is_null($patientId)){
                     $insertData["PatientID"] = $patientId;
                 }
+
+                $insertKeys = implode(",",array_keys($insertData));
+                $insertVals = implode(",",array_values($insertData));
+
+                $query = "INSERT INTO Patients.Patient ($insertKeys) VALUES($insertVals);";
+
+                if (!is_null($patientId)){
+                    $query = "SET IDENTITY_INSERT Patients.Patient ON;".$query."SET IDENTITY_INSERT Patients.Patient OFF;";
+                }
                 
-                $result = DBQueryFactory::insert('Patients.Patient', $insertData);
+                $connection = DBConnectionFactory::getConnection();
+                $result = $connection->prepare($query)->execute();
+
+                $result = [$result, "lastInsertId"=>$connection->lastInsertId()];
 
                 if ($result){
                     $id = $result['lastInsertId'];
