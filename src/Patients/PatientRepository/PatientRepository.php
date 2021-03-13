@@ -59,20 +59,27 @@ class PatientRepository
         $description = $data["description"] ?? null;
         $creator = $data["creator"] ?? null;
         $type = $data["type"] ?? null;
+        $creationDate = $data["date"] ?? null;
 
         $query = "SELECT PatientUUID FROM Patients.Patient WHERE PatientID = $patient";
         $uuid = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0]["PatientUUID"];
 
         try
         {
-            $result = DBQueryFactory::insert('Patients.PatientRepository', [
+            $insertData = [
                 'PatientID'=>$patient,
                 'RepositoryNumber'=>QB::wrapString($number, "'"),
                 'RepositoryName'=>(is_null($name)) ? 'NULL' : QB::wrapString((string)$name, "'"),
                 'RepositoryDescription'=>(is_null($description)) ? 'NULL' : QB::wrapString((string)$description, "'"),
                 'RepositoryCreator'=>(is_null($creator)) ? 'NULL' : $creator,
                 'RepositoryType'=>(is_null($type)) ? 'NULL' : QB::wrapString((string)$type, "'")
-            ]);
+            ];
+
+            if (!is_null($creationDate)){
+                $insertData["RepositoryCreationDate"] = (new \DateTime($creationDate))->format('Y-m-d\TH:i:s');
+            }
+
+            $result = DBQueryFactory::insert('Patients.PatientRepository', $insertData);
 
             if ($result && !self::createRepoFolders($uuid, $number)){
                 self::delete((int)$result["lastInsertId"]);
