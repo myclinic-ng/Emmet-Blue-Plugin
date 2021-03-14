@@ -148,7 +148,7 @@ class RepositoryItem
                     case "file":{
                         $json = $data["file"] ?? null;
                         
-                        if (!self::createRepoFile($puuid, $ruuid, $json, $number.".".$ext)){
+                        if (!self::createRepoFile($puuid, $ruuid, base64_decode($json), $number.".".$ext)){
                             self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
                         }
                         break;
