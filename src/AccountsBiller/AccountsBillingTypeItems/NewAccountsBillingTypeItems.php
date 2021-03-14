@@ -48,37 +48,40 @@ class NewAccountsBillingTypeItems
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
 		$billingTypeItem = $result["lastInsertId"];
 
-		foreach($data["priceStructures"] as $priceStructure){
-			$price = $priceStructure["price"];
-			$patientTypes = $priceStructure["patientTypes"];
-			$intervalBased = !empty($priceStructure["interval"]);
-			$rateBased = isset($priceStructure["rate"]);
-			$rateIdentifier = ($rateBased) ? $priceStructure["rate"] : null;
+		if (isset($data["priceStructures"])){	
+			foreach($data["priceStructures"] as $priceStructure){
+				$price = $priceStructure["price"];
+				$patientTypes = $priceStructure["patientTypes"];
+				$intervalBased = !empty($priceStructure["interval"]);
+				$rateBased = isset($priceStructure["rate"]);
+				$rateIdentifier = ($rateBased) ? $priceStructure["rate"] : null;
 
-			foreach($patientTypes as $patientType){
-				$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
-			}
-
-			if ($intervalBased){
-				foreach ($priceStructure["interval"] as $interval){
-					$int = $interval["interval"] ?? null;
-					$type = $interval["type"] ?? null;
-					$increment = $interval["increment"] ?? null;
-
-					$intervalQuery[] = "(".$billingTypeItem.", ".$int.", '".$type."', ".$increment.")";
+				foreach($patientTypes as $patientType){
+					$queryValue[] = "(".$billingTypeItem.", '".$patientType."', '".$price."', ".(int)$rateBased.", '".$rateIdentifier."', ".(int)$intervalBased.")";
 				}
-				
-				$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
-				$intervalQuery = [];
+
+				if ($intervalBased){
+					foreach ($priceStructure["interval"] as $interval){
+						$int = $interval["interval"] ?? null;
+						$type = $interval["type"] ?? null;
+						$increment = $interval["increment"] ?? null;
+
+						$intervalQuery[] = "(".$billingTypeItem.", ".$int.", '".$type."', ".$increment.")";
+					}
+					
+					$query[] = "INSERT INTO Accounts.BillingTypeItemsInterval VALUES ".implode(", ", $intervalQuery);
+					$intervalQuery = [];
+				}
+
+				$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
+				$queryValue  = [];
 			}
 
-			$query[] = "INSERT INTO Accounts.BillingTypeItemsPrices VALUES ".implode(", ", $queryValue);
-			$queryValue  = [];
+			$query = implode(";", $query);
+			$result = DBConnectionFactory::getConnection()->exec($query);
 		}
 
-		$query = implode(";", $query);
-		$result = DBConnectionFactory::getConnection()->exec($query);
-		return ["result"=>$result, "billingTypeItemId"=>$billingTypeItem];
+		return ["billingTypeItemId"=>$billingTypeItem];
 	}
 
 	public static function newCategoryPrice(array $resource){
