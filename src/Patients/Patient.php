@@ -152,6 +152,7 @@ class Patient
 
     public static function changeType(array $data){
         return Patient\Patient::changeType($data);
+        
     }
 
     public static function viewRecordFields(int $data){

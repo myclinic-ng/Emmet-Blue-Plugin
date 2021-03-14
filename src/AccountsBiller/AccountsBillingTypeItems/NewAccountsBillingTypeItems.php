@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -78,7 +78,7 @@ class NewAccountsBillingTypeItems
 
 		$query = implode(";", $query);
 		$result = DBConnectionFactory::getConnection()->exec($query);
-		return $result;
+		return ["result"=>$result, "billingTypeItemId"=>$billingTypeItem];
 	}
 
 	public static function newCategoryPrice(array $resource){
