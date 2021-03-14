@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @license MIT
- * @author Bardeson Lucky <flashup4all@gmail.com>
+ * @author Samuel Adeshina <samueladeshina73@gmail.com>
  *
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
@@ -88,6 +88,10 @@ class RepositoryItem
             $fileNameArray = explode(".", $_FILES["documents"]["name"]);
             $ext = $fileNameArray[count($fileNameArray) - 1];
         }
+        else if (isset($data["documents"])){
+            $data["file"] = $data["documents"];
+            $ext = $category;
+        }
         else if(isset($data["json"])){
             $ext = "json";
         }
@@ -115,7 +119,6 @@ class RepositoryItem
                 switch (strtolower($category))
                 {
                     case "image":
-                    case "pdf":
                     case "text":
                     {
                         if (in_array(strtolower($ext), self::$allowedExtensions[strtolower($category)])){
@@ -141,6 +144,7 @@ class RepositoryItem
                         }
                         break;
                     }
+                    case "pdf":
                     case "file":{
                         $json = $data["file"] ?? null;
                         
