@@ -60,7 +60,7 @@ class PatientDiagnosis
             ];
 
             if (!is_null($diagnosisDate)){
-                $insertData["DiagnosisDate"] = (new \DateTime($diagnosisDate))->format('Y-m-d\TH:i:s');
+                $insertData["DiagnosisDate"] = QB::wrapString((new \DateTime($diagnosisDate))->format('Y-m-d\TH:i:s'), "'");
             }
 
             $result = DBQueryFactory::insert('Patients.PatientDiagnosis', $insertData);
