@@ -55,7 +55,7 @@ class PatientDiagnosis
                 'CodeNumber'=>(is_null($codeNumber)) ? 'NULL' : QB::wrapString($codeNumber, "'"),
                 'DiagnosisType'=>QB::wrapString($diagnosisType, "'"),
                 'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'"),
-                'DiagnosisTitle'=>(is_null($diagnosisTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
+                'DiagnosisTitle'=>(is_null($diagnosiViewsTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
                 'DiagnosisBy'=>(is_null($diagnosisBy)) ? 'NULL' : QB::wrapString($diagnosisBy, "'")
             ];
 
@@ -214,9 +214,16 @@ class PatientDiagnosis
     public static function viewDiagnosisInDateGroups(int $resourceId, array $data){
         $month = $data["month"];
         $year = $data["year"];
-        $month2 = $month + 1;
+
+        if ($month == 12){ //if month is december
+            $dateMax = "$year-$month-31";
+        }
+        else {
+            $month2 = $month + 1;
+            $dateMax = "$year-$month2-1";
+        }
         $query = "SELECT * FROM Patients.PatientDiagnosis WHERE PatientID=$resourceId AND
-                DiagnosisDate >= CONVERT(DATE, '$year-$month-1') AND DiagnosisDate < CONVERT(DATE, '$year-$month2-1')";
+                DiagnosisDate >= CONVERT(DATE, '$year-$month-1') AND DiagnosisDate < CONVERT(DATE, $dateMax)";
 
         // die($query);
 
