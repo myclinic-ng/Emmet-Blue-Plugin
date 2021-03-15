@@ -55,7 +55,7 @@ class PatientDiagnosis
                 'CodeNumber'=>(is_null($codeNumber)) ? 'NULL' : QB::wrapString($codeNumber, "'"),
                 'DiagnosisType'=>QB::wrapString($diagnosisType, "'"),
                 'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'"),
-                'DiagnosisTitle'=>(is_null($diagnosiViewsTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
+                'DiagnosisTitle'=>(is_null($diagnosisTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
                 'DiagnosisBy'=>(is_null($diagnosisBy)) ? 'NULL' : QB::wrapString($diagnosisBy, "'")
             ];
 
@@ -223,9 +223,7 @@ class PatientDiagnosis
             $dateMax = "$year-$month2-1";
         }
         $query = "SELECT * FROM Patients.PatientDiagnosis WHERE PatientID=$resourceId AND
-                DiagnosisDate >= CONVERT(DATE, '$year-$month-1') AND DiagnosisDate < CONVERT(DATE, $dateMax)";
-
-        // die($query);
+                DiagnosisDate >= CONVERT(DATE, '$year-$month-1') AND DiagnosisDate < CONVERT(DATE, '$dateMax')";
 
         try
         {
