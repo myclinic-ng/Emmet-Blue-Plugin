@@ -44,19 +44,26 @@ class PatientDiagnosis
         $diagnosis = $data["diagnosis"] ?? null;
         $diagnosisBy = $data["diagnosisBy"] ?? null;
         $staffId = $data["staff"] ?? null;
+        $diagnosisDate = $data["diagnosisDate"] ?? null;
 
         $diagnosis = serialize($diagnosis);
 
         try
         {
-            $result = DBQueryFactory::insert('Patients.PatientDiagnosis', [
+            $insertData = [
                 'PatientID'=>$patient,
                 'CodeNumber'=>(is_null($codeNumber)) ? 'NULL' : QB::wrapString($codeNumber, "'"),
                 'DiagnosisType'=>QB::wrapString($diagnosisType, "'"),
                 'Diagnosis'=>(is_null($diagnosis)) ? 'NULL' : QB::wrapString($diagnosis, "'"),
                 'DiagnosisTitle'=>(is_null($diagnosisTitle)) ? 'NULL' : QB::wrapString($diagnosisTitle, "'"),
                 'DiagnosisBy'=>(is_null($diagnosisBy)) ? 'NULL' : QB::wrapString($diagnosisBy, "'")
-            ]);
+            ];
+
+            if (!is_null($diagnosisDate)){
+                $insertData["DiagnosisDate"] = (new \DateTime($value))->format($diagnosisDate);
+            }
+
+            $result = DBQueryFactory::insert('Patients.PatientDiagnosis', $insertData);
 
             \EmmetBlue\Plugins\Consultancy\DiagnosisLog::newDiagnosisLog([
                 "patient"=>$patient,
