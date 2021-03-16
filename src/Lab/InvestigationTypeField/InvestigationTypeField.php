@@ -40,7 +40,7 @@ class InvestigationTypeField
         $investigationType = $data['investigationType'] ?? null;
         $fieldType = $data['fieldType'] ?? null;
         $name = $data['name'] ?? null;
-        $description = $data['description'] ?? null;
+        $description = $data['description'] ?? null; 
 
         try
         {
