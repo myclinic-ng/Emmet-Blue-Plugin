@@ -40,6 +40,13 @@ class PatientDiagnosis
         return $result;
     }
 
+    public static function uploadBulk(array $data)
+    {
+        $result = PatientDiagnosis\PatientDiagnosis::uploadBulk($data);
+
+        return $result;
+    }
+
     /**
      * Selects PatientDiagnosis UUID(s)
      */

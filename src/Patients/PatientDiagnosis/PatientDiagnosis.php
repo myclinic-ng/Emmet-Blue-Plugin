@@ -107,6 +107,21 @@ class PatientDiagnosis
         }
     }
 
+    public static function uploadBulk(array $data){
+        if (!empty($data)){
+            foreach ($data as $diagnosis){
+                try {
+                    self::create($diagnosis);
+                }
+                catch(\Exception $e){
+
+                }
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Modifies the content of a field title type
      */
