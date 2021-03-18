@@ -557,7 +557,7 @@ class Patient
         }
         catch(\Exception $e){
             $query = $data["query"];
-            $size = $data['size'];
+            $size = $data['size'] ?? 1;
 
             if ($query == "*"){
                 $query = "";
