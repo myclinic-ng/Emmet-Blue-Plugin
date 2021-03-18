@@ -94,7 +94,8 @@ class LabRequest
                 (string)$selectBuilder
             );
 
-            $viewOperation  = $viewOperation[0] ?? $viewOperation;
+            // $viewOperation  = $viewOperation[0] ?? $viewOperation;
+            
             return $viewOperation;
         } 
         catch (\PDOException $e) 
