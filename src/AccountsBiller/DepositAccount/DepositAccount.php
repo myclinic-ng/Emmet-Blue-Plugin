@@ -66,17 +66,15 @@ class DepositAccount
         $amount = $data["amount"] ?? null;
         $comment = $data["comment"] ?? null;
 
-        $result = [];
-
         if (!self::accountExists((int) $patient)){
             self::create(["patient"=>$patient, "staff"=>$staff]);
-
-            $accountId = self::viewAccountInfo((int) $patient)["AccountID"];
-
-            $query = "INSERT INTO Accounts.PatientDepositsAccountTransactions(AccountID, TransactionAmount, TransactionComment, StaffID) VALUES($accountId, '$amount', '$comment', $staff)";
-
-            $result = DBConnectionFactory::getConnection()->exec($query);
         }
+
+        $accountId = self::viewAccountInfo((int) $patient)["AccountID"];
+
+        $query = "INSERT INTO Accounts.PatientDepositsAccountTransactions(AccountID, TransactionAmount, TransactionComment, StaffID) VALUES($accountId, '$amount', '$comment', $staff)";
+
+        $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;        
     }
