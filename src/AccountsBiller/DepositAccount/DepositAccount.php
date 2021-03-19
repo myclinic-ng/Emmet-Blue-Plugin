@@ -41,11 +41,11 @@ class DepositAccount
 	}
 
     public static function accountExists(int $resourceId){
-        $query = "SELECT 1 as total FROM Accounts.PatientDepositsAccount WHERE PatientID = $resourceId";
+        $query = "SELECT * FROM Accounts.PatientDepositsAccount WHERE PatientID = $resourceId";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        return $result[0]["total"] ?? 0;
+        return (count($result) == 1);
     }
 
     public static function viewAccountInfo(int $resourceId) {
