@@ -143,12 +143,9 @@ class PatientRepository
 
             $result['RepositoryDetails'] = self::view((int)$result['RepositoryID']);
 
-            if (file_exists($result['RepositoryDetails']['RepositoryUrl'].$result['RepositoryItemNumber'])){
-                $result['RepositoryItemContent'] = unserialize(file_get_contents($result['RepositoryDetails']['RepositoryUrl'].$result['RepositoryItemNumber']));
-            }
-            else {
-                $result['RepositoryItemContent'] = NULL;
-            }
+            $file = \EmmetBlue\Core\Constant::getGlobals()["file-server-path"].$result['RepositoryDetails']['RepositoryUrl'].$result['RepositoryItemNumber'];
+            
+            $result['RepositoryItemContent'] = unserialize(file_get_contents($file));
         }
 
         return $result;
