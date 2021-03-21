@@ -133,6 +133,16 @@ class TransactionMeta
         }
     }
 
+    public static function getTransactionNumber(int $resourceId){
+        $query = "SELECT BillingTransactionNumber FROM Accounts.BillingTransactionMeta WHERE BillingTransactionMetaID=$resourceId";
+        $result = (
+            DBConnectionFactory::getConnection()
+            ->query((string)$query)
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        $result = $result[0] ?? 0;
+    }
+
     /**
      * Returns department group data
      *

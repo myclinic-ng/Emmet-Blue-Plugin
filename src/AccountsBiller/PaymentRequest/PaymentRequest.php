@@ -367,7 +367,7 @@ class PaymentRequest
                 }
 
                 if ($value["AttachedInvoice"] != ""){
-                    $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::view((int) $value["AttachedInvoice"], ["a.BillingTransactionNumber"])[0]["BillingTransactionNumber"];
+                    $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::getTransactionNumber((int) $value["AttachedInvoice"])["BillingTransactionNumber"];
                 }
 
                 $result[$key]["RequestByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$result[$key]["RequestBy"]])["StaffFullName"];
