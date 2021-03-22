@@ -141,6 +141,8 @@ class TransactionMeta
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $result = $result[0] ?? 0;
+
+        return $result;
     }
 
     /**
