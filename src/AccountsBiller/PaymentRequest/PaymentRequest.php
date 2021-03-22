@@ -228,7 +228,7 @@ class PaymentRequest
         $query = 
                 "
                     SELECT 
-                        ROW_NUMBER() OVER (ORDER BY a.RequestDate) AS RowNum,
+                        ROW_NUMBER() OVER (ORDER BY a.RequestDate DESC) AS RowNum,
                         a.*, 
                         b.Name, 
                         b.GroupID, 
