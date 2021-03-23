@@ -60,7 +60,7 @@ class LoadDoctors
         $doctors = self::view();
 
         foreach ($doctors as $key=>$doctor){
-            $query = "SELECT COUNT(*) as count FROM Consultancy.PatientQueue WHERE Consultant = ".$doctor["StaffID"];
+            $query = "SELECT COUNT(*) as count FROM Consultancy.PatientQueue WHERE Consultant = ".$doctor["StaffID"]." AND RemovedFromQueue = 0;";
             $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             if (isset($result[0])){
               $doctors[$key]["queueCount"] = $result[0]["count"];
