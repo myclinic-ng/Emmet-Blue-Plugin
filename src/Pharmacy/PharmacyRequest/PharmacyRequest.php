@@ -102,7 +102,7 @@ class PharmacyRequest
 
             foreach ($viewOperation as $key => $value) {
                 $id = $value['PatientID'];
-                $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $id);
+                $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $id);
                 $viewOperation[$key]["patientInfo"] = $patient["_source"];
                 $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["RequestedBy"])["StaffFullName"];
                 $viewOperation[$key]["AcknowledgedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int)$value["AcknowledgedBy"])["StaffFullName"];
