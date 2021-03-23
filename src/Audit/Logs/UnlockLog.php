@@ -86,13 +86,12 @@ class UnlockLog {
 		$staff = $data["staff"] ?? null;
 
 		try {
-			$query = "INSERT INTO FinancialAuditing.UnlockLogStatus (LogID, Status, StatusNote, StaffID) VALUES ($resourceId, $status, '$note', $staff)";
-			$result = DBConnectionFactory::getConnection()->exec($query);
-		}
-		catch(\PDOException $e){
 			$query = "UPDATE FinancialAuditing.UnlockLogStatus SET Status = $status, StatusNote = '$note', StaffID = $staff WHERE LogID = $resourceId";
 
 			$result = DBConnectionFactory::getConnection()->exec($query);
+		}
+		catch(\PDOException $e){
+			return $e->getMessage();
 		}
 
 		return $result;
