@@ -95,9 +95,7 @@ class PatientQueue
             ->columns('*')
             ->from('Consultancy.PatientQueue')
             ->where('Consultant ='.$resourceId. " AND RemovedFromQueue=0 ORDER BY QueueDate DESC");
-
-        print_r((string) $selectBuilder);
-        die();
+            
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -161,7 +159,7 @@ class PatientQueue
     
     public static function delete(int $resourceId)
     {
-        $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE QueueID = $resourceId"
+        $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE QueueID = $resourceId";
 
         try
         {
