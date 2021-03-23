@@ -50,6 +50,13 @@ class PatientQueue
         return $result;
     }
 
+    public static function getPatientQueueInfo(int $resourceId=0)
+    {
+        $result = PatientQueue\PatientQueue::getPatientQueueInfo($resourceId);
+
+        return $result;
+    }
+
 
     /**
      * edit PatientQueue

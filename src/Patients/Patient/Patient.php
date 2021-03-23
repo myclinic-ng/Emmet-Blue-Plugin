@@ -709,6 +709,9 @@ class Patient
             else {
                 $result[$key]["LastVisitDetails"] = [];
             }
+
+            $queue = \EmmetBlue\Plugins\Consultancy\PatientQueue::getPatientQueueInfo((int) $value["PatientID"]);
+            $result[$key]["queueInfo"] = $queue;
         }
 
         return $result;

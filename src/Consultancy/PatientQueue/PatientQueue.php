@@ -116,6 +116,24 @@ class PatientQueue
         }
     }
 
+    public static function getPatientQueueInfo(int $resourceId){
+        $query = "SELECT * FROM Consultancy.PatientQueue WHERE Patient=$resourceId AND RemovedFromQueue = 0;";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($result[0])){
+            $consultant = $result[0]["Consultant"];
+            $staff = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffProfile((int) $consultant);
+
+            $staff = isset($staff[0]) ? $staff[0] : $staff;
+
+            $result[0]["ConsultantInfo"] = $staff;
+
+            $result = $result[0];
+        }
+
+        return $result;
+    }
+
     
     public static function editPatientQueue(int $resourceId, array $data)
     {
