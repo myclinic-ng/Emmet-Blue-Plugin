@@ -77,22 +77,19 @@ class PatientQueue
         $patient = $data["patient"];
 
         $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE Patient = $patient AND RemovedFromQueue = 0;";
-        
+
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;
     }
 
-    /**
-     * view allergies
-     */
     public static function view(int $resourceId)
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
             ->from('Consultancy.PatientQueue')
-            ->where('Consultant ='.$resourceId. " AND RemovedFromQueue=0 ORDER BY QueueDate DESC");
+            ->where('Consultant ='.$resourceId. " AND RemovedFromQueue=0 ORDER BY QueueDate ASC");
 
         try
         {
