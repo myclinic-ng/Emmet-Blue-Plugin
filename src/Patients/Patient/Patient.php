@@ -145,7 +145,7 @@ class Patient
 
         $_result = [$_result, "lastInsertId"=>$connection->lastInsertId()];
 
-        \EmmetBlue\Plugins\Audit\UnlockLog::setStatus((int)$_result["lastInsertId"], ["status"=>0]);
+        \EmmetBlue\Plugins\Audit\UnlockLog::setStatus((int)$_result["lastInsertId"], ["status"=>0, "staff"=>$staff]);
 
         return $result;
     }
