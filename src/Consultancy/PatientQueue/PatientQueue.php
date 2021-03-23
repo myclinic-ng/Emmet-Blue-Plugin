@@ -38,11 +38,15 @@ class PatientQueue
         $patient = $data['patient'] ?? null;
         $consultant = $data['consultant'] ?? null;
 
-        $query = "SELECT * FROM Consultancy.PatientQueue WHERE Patient=$patient AND Consultant=$consultant;";
-        $_result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
+        // $query = "SELECT * FROM Consultancy.PatientQueue WHERE Patient=$patient AND Consultant=$consultant;";
+        // $_result = (DBConnectionFactory::getConnection()->query($query))->fetchAll(\PDO::FETCH_ASSOC);
 
-        if (count($_result) > 0){
-            return true;
+        // if (count($_result) > 0){
+        //     return true;
+        // }
+
+        if (!is_null($patient) && !is_null($consultant)){
+            $_result = self::removeFromQueue($data);
         }
 
         try
@@ -71,6 +75,16 @@ class PatientQueue
         }
     }
 
+    public static function removeFromQueue(array $data){
+        $patient = $data["patient"];
+        $consultant = $data["consultant"];
+
+        $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE (Patient = $patient AND Consultant = $consultant) AND RemovedFromQueue = 0";
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
+    }
+
     /**
      * view allergies
      */
@@ -80,7 +94,7 @@ class PatientQueue
         $selectBuilder
             ->columns('*')
             ->from('Consultancy.PatientQueue')
-            ->where('Consultant ='.$resourceId. " ORDER BY QueueDate DESC");
+            ->where('Consultant ='.$resourceId. " AND RemovedFromQueue = 0 ORDER BY QueueDate DESC");
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -151,26 +165,14 @@ class PatientQueue
     
     public static function delete(int $resourceId)
     {
-        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+        $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE QueueID = $resourceId"
 
         try
         {
-            $deleteBuilder
-                ->from("Consultancy.PatientQueue")
-                ->where("QueueID = $resourceId");
-            
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->exec((string)$deleteBuilder)
+                    ->exec((string)$query)
                 );
-
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Consultancy',
-                'PatientQueue',
-                (string)$deleteBuilder
-            );
 
             return $result;
         }
