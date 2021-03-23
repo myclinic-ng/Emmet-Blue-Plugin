@@ -94,7 +94,7 @@ class PatientQueue
         $selectBuilder
             ->columns('*')
             ->from('Consultancy.PatientQueue')
-            ->where('Consultant ='.$resourceId. " AND RemovedFromQueue = 0 ORDER BY QueueDate DESC");
+            ->where('Consultant ='.$resourceId. " AND RemovedFromQueue=0 ORDER BY QueueDate DESC");
 
         print_r((string) $selectBuilder);
         die();
