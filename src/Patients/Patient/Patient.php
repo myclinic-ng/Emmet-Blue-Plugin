@@ -140,7 +140,12 @@ class Patient
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         $query = "INSERT INTO Patients.PatientProfileUnlockLog (PatientID, Staff) VALUES ($patient, $staff)";
-        DBConnectionFactory::getConnection()->exec($query);
+        $connection = DBConnectionFactory::getConnection();
+        $_result = $connection->prepare($query)->execute();
+
+        $_result = [$_result, "lastInsertId"=>$connection->lastInsertId()];
+
+        \EmmetBlue\Plugins\Audit\setStatus($_result["lastInsertId"], ["status"=>0]);
 
         return $result;
     }
