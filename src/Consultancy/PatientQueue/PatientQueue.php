@@ -75,11 +75,9 @@ class PatientQueue
 
     public static function removeFromQueue(array $data){
         $patient = $data["patient"];
-        $consultant = $data["consultant"];
 
-        $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE (Patient = $patient AND Consultant = $consultant) AND RemovedFromQueue = 0;";
-
-        die($query);
+        $query = "UPDATE Consultancy.PatientQueue SET RemovedFromQueue = 1, DateRemovedFromQueue = GETDATE() WHERE Patient = $patient AND RemovedFromQueue = 0;";
+        
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;
