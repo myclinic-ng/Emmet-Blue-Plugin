@@ -45,9 +45,7 @@ class PatientQueue
         //     return true;
         // }
 
-        if (!is_null($patient) && !is_null($consultant)){
-            $_result = self::removeFromQueue($data);
-        }
+        $_result = self::removeFromQueue($data);
 
         try
         {
@@ -95,7 +93,7 @@ class PatientQueue
             ->columns('*')
             ->from('Consultancy.PatientQueue')
             ->where('Consultant ='.$resourceId. " AND RemovedFromQueue=0 ORDER BY QueueDate DESC");
-            
+
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
