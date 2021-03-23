@@ -95,21 +95,17 @@ class PatientQueue
             ->columns('*')
             ->from('Consultancy.PatientQueue')
             ->where('Consultant ='.$resourceId. " AND RemovedFromQueue = 0 ORDER BY QueueDate DESC");
+
+        print_r((string) $selectBuilder);
+        die();
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Consultancy',
-                'PatientQueue',
-                (string)$selectBuilder
-            );
-
             foreach ($viewOperation as $key=>$value){
-                if (isset(\EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"])["_source"])){
-                    $viewOperation[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"])["_source"];
+                $patientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"]);
+                if (isset($patientInfo["_source"])){
+                    $viewOperation[$key]["patientInfo"] = $patientInfo["_source"];
                 }
             }
 
