@@ -95,7 +95,6 @@ class PharmacyRequest
         }
 
         // die($selectBuilder);
-
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
