@@ -140,7 +140,7 @@ class Patient
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($viewOperation as $key=>$result){
-                $patientView = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"]);
+                $patientView = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $result["PatientID"]);
                 if (isset($patientView["_source"])){
                     $viewOperation[$key]["PatientInfo"] = $patientView["_source"];
                 }
