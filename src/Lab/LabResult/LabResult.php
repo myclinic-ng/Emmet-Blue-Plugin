@@ -264,7 +264,7 @@ class LabResult
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($viewOperation as $key=>$result){
-                $viewOperation[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"];
+                $viewOperation[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $result["PatientID"])["_source"];
                 $viewOperation[$key]["ReportedByDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["ReportedBy"]);
             }
 
@@ -300,7 +300,7 @@ class LabResult
         if (!empty($result)){
             $result["ReportedBy"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["ReportedBy"]);
             $result["RequestedBy"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"]);
-            $result["PatientPicture"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"]["patientpicture"];
+            $result["PatientPicture"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $result["PatientID"])["_source"]["patientpicture"];
 
         }
 
