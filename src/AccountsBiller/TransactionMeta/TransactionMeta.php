@@ -226,7 +226,7 @@ class TransactionMeta
             {
                 $id = $metaItem["BillingTransactionMetaID"];
                 $patient = $metaItem["PatientID"];
-                $_patient = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient);
+                $_patient = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patient);
                 if (isset($_patient["_source"])){
                     $result[$key]["PatientName"] = $_patient["_source"]["patientfullname"];
                 }
@@ -297,7 +297,7 @@ class TransactionMeta
                     }
 
                     $result[$key]["BillingTransactionItems"] = $queryResult;
-                    $result[$key]["PatientName"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient)["_source"]["patientfullname"];
+                    $result[$key]["PatientName"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patient)["_source"]["patientfullname"];
                     if (is_null($metaItem["BillingAmountPaid"])){
                         $status = 0;
                     }

@@ -104,7 +104,7 @@ class HmoSalesVerification
                     $result[$key]["SignedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["SignedBy"])["StaffFullName"];
                 }
 
-                $result[$key]["PatientInformation"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $data["PatientID"])["_source"];
+                $result[$key]["PatientInformation"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $data["PatientID"])["_source"];
             }
 
             return $result;
@@ -127,7 +127,7 @@ class HmoSalesVerification
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach($result as $key=>$data){
-            $result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $data["PatientID"])["_source"];
+            $result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $data["PatientID"])["_source"];
             $result[$key]["StaffDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["StaffID"]);
         }
 

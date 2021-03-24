@@ -84,7 +84,7 @@ class PharmacyRequest
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
             foreach ($result as $key=>$value){
                 $id = $value["PatientID"];
-                $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $id);
+                $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $id);
 
                 $result[$key]["patientInfo"] = $patient["_source"];
             }

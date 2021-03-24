@@ -45,7 +45,7 @@ class HmoInPatients
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($result as $key => $value) {
-            $result[$key]["PatientInformation"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"];
+            $result[$key]["PatientInformation"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"])["_source"];
         }
 
         return $result;

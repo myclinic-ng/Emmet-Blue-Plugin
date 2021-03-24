@@ -74,7 +74,7 @@ class PatientProcessLog
         );
 
         foreach ($result as $key=>$value){
-        	$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["PatientID"])["_source"];
+        	$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["PatientID"])["_source"];
         }
 
         if (isset($data["paginate"])){

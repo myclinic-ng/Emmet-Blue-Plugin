@@ -141,7 +141,7 @@ class Reports
             )->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($dispensationResult as $key => $value) {
-                $dispensationResult[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["Patient"])["_source"];
+                $dispensationResult[$key]["patientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["Patient"])["_source"];
                 $dispensationResult[$key]["staffInfo"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["StaffID"]);
                 $dispensationResult[$key]["staffInfo"]["Role"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $value["StaffID"])["Name"];
             }

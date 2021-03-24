@@ -41,7 +41,7 @@ class MedicalLog {
 		foreach ($result as $key=>$value){
 			$result[$key]["StaffDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["StaffID"]);
 			$result[$key]["StaffDetails"]["StaffRole"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $value["StaffID"]);
-			$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $value["PatientID"])["_source"];
+			$result[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $value["PatientID"])["_source"];
 		}
 
 		return $result;

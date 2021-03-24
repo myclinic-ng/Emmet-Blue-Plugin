@@ -55,7 +55,7 @@ class Logs
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($viewOperation as $key=>$result){
-                $viewOperation[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $result["PatientID"])["_source"];
+                $viewOperation[$key]["PatientInfo"] = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $result["PatientID"])["_source"];
             }
 
             if (isset($data["paginate"])){
