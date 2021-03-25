@@ -275,6 +275,10 @@ class PaymentRequest
                 $query .= " WHERE e.CategoryName = '".$data["query"]."'";
                 break;
             }
+            case "paymentmethod":{
+                $query .= " WHERE f.BillingPaymentMethod = '".$data["query"]."'";
+                break;
+            }
             case "invoice":{
                 $query .= " WHERE a.AttachedInvoice = ".$data["query"];
                 break;
@@ -322,10 +326,19 @@ class PaymentRequest
                 }
             }
 
+            if (isset($data["_paymentmethod"]) && $data["_paymentmethod"] != ""){
+                $data["_paymentmethod"] = explode(",", str_replace(" ", "", $data["_paymentmethod"]));
+
+                foreach ($data["_paymentmethod"] as $value) {
+                    $_filters["paymentmethod"][] = "f.BillingPaymentMethod ='".$value."'";
+                }
+            }
+
             $string[] = empty($_filters["status"]) ? "1=1" : "(".implode(" OR ", $_filters["status"]).")";
             $string[] = empty($_filters["date"]) ? "1=1" : "(".implode(" OR ", $_filters["date"]).")";
             $string[] = empty($_filters["department"]) ? "1=1" : "(".implode(" OR ", $_filters["department"]).")";
             $string[] = empty($_filters["patienttype"]) ? "1=1" : "(".implode(" OR ", $_filters["patienttype"]).")";
+            $string[] = empty($_filters["paymentmethod"]) ? "1=1" : "(".implode(" OR ", $_filters["paymentmethod"]).")";
 
             $string = implode(" AND ", $string);
 
