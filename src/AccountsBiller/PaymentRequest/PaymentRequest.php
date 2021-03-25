@@ -458,10 +458,10 @@ class PaymentRequest
             $finalData["totalMoReceived"][] = $data["BillingAmountPaid"];
 
             if (!isset($receivedMoneyBreakdown[$data["BillingPaymentMethod"]])){
-                $receivedMoneyBreakdown[$value["BillingPaymentMethod"]] = 0;
+                $receivedMoneyBreakdown[$data["BillingPaymentMethod"]] = 0;
             }
 
-            $receivedMoneyBreakdown[$value["BillingPaymentMethod"]] += (int)$value["BillingAmountPaid"];
+            $receivedMoneyBreakdown[$data["BillingPaymentMethod"]] += (int)$data["BillingAmountPaid"];
         }
 
 
