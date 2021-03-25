@@ -47,7 +47,12 @@ class BillPaymentRule
             }
         }
 
-        $query = "INSERT INTO Accounts.BillPaymentRules(PatientType, BillingTypeItem, RuleType, RuleValue) VALUES ". implode(",", $queryValue);
+        $queryChunks = array_chunk($queryValue, 500);
+
+        $query = "";
+        foreach ($queryChunks as $chunk) {
+            $query .= "INSERT INTO Accounts.BillPaymentRules(PatientType, BillingTypeItem, RuleType, RuleValue) VALUES ". implode(",", $chunk).";";
+        }
 
         // die($query);
 
