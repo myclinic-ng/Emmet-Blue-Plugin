@@ -457,11 +457,13 @@ class PaymentRequest
             $finalData["totalExPrice"][] = $sums["sumExPrice"];
             $finalData["totalMoReceived"][] = $data["BillingAmountPaid"];
 
-            if (!isset($receivedMoneyBreakdown[$data["BillingPaymentMethod"]])){
-                $receivedMoneyBreakdown[$data["BillingPaymentMethod"]] = 0;
-            }
+            if ($data["BillingPaymentMethod"] != ""){
+                if (!isset($receivedMoneyBreakdown[$data["BillingPaymentMethod"]])){
+                    $receivedMoneyBreakdown[$data["BillingPaymentMethod"]] = 0;
+                }
 
-            $receivedMoneyBreakdown[$data["BillingPaymentMethod"]] += (int)$data["BillingAmountPaid"];
+                $receivedMoneyBreakdown[$data["BillingPaymentMethod"]] += (int)$data["BillingAmountPaid"];   
+            }
         }
 
 
