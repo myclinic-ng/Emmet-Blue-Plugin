@@ -92,7 +92,7 @@ class UnlockLog {
 				$query = "UPDATE FinancialAuditing.UnlockLogStatus SET Status = $status, StatusNote = '$note', StaffID = $staff WHERE LogID = $resourceId";
 			}
 			else {
-				$query = "INSERT INTO FinancialAuditing.UnlockLogStatus (LogID, Status, StatusNote, StaffID) VALUES ($resourceId, $status, '$statusNote', $staff);";
+				$query = "INSERT INTO FinancialAuditing.UnlockLogStatus (LogID, Status, StatusNote, StaffID) VALUES ($resourceId, $status, '$note', $staff);";
 			}
 
 			$result = DBConnectionFactory::getConnection()->exec($query);
