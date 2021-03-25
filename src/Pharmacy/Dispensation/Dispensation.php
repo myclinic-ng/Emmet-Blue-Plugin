@@ -173,8 +173,8 @@ class Dispensation
                         break;
                     }
                     case "date":{
-                        $sDate = QB::wrapString(date("m/d/Y",strtotime($data["startdate"])), "'");
-                        $eDate = QB::wrapString(date("m/d/Y",strtotime($data["enddate"])), "'");
+                        $sDate = QB::wrapString($data["startdate"], "'");
+                        $eDate = QB::wrapString($data["enddate"], "'");
                         $selectBuilder .= " WHERE (CONVERT(date, a.DispensationDate) BETWEEN $sDate AND $eDate OR CONVERT(date, e.RequestDate) BETWEEN $sDate AND $eDate)";
                         break;
                     }
