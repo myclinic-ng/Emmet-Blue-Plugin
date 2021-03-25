@@ -239,7 +239,8 @@ class PaymentRequest
                         d.GroupName, 
                         e.CategoryName AS PatientCategoryName, 
                         e.PatientTypeName, 
-                        f.BillingAmountPaid 
+                        f.BillingAmountPaid,
+                        f.BillingPaymentMethod  
                     FROM Accounts.PaymentRequest a 
                     JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID 
                     JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID 
@@ -436,12 +437,6 @@ class PaymentRequest
                     $analysis["breakdown"][$value["ItemID"]] = ["name"=>$value["BillingTypeItemName"],  "value"=>0, "qty"=>0, "expectedPrice"=>0];
                 }
 
-                if (!isset($receivedMoneyBreakdown[$value["PaymentMethod"]])){
-                    $receivedMoneyBreakdown[$value["PaymentMethod"]] = 0;
-                }
-
-                $receivedMoneyBreakdown[$value["PaymentMethod"]] += (int)$value["AmountPaid"];
-
                 $analysis["breakdown"][$value["ItemID"]]["value"] += $value["totalPrice"];
                 $payRuleData = [
                     "amounts"=>[
@@ -461,6 +456,12 @@ class PaymentRequest
             $finalData["totals"][] = $sums["sum"];
             $finalData["totalExPrice"][] = $sums["sumExPrice"];
             $finalData["totalMoReceived"][] = $data["BillingAmountPaid"];
+
+            if (!isset($receivedMoneyBreakdown[$data["BillingPaymentMethod"]])){
+                $receivedMoneyBreakdown[$value["BillingPaymentMethod"]] = 0;
+            }
+
+            $receivedMoneyBreakdown[$value["BillingPaymentMethod"]] += (int)$value["BillingAmountPaid"];
         }
 
 
@@ -486,7 +487,7 @@ class PaymentRequest
     public static function loadPaymentRequestBillingItems($resourceId)
     {
         $paymentRequestId = $resourceId;
-        $query = "SELECT a.*, b.BillingTypeItemName, c.RequestPatientID as PatientID, d.BillingPaymentMethod as PaymentMethod, d.BillingAmountPaid as AmountPaid FROM Accounts.PaymentRequestItems a JOIN Accounts.BillingTypeItems b On a.ItemID = b.BillingTypeItemID JOIN Accounts.PaymentRequest c ON a.RequestID = c.PaymentRequestID LEFT OUTER JOIN Accounts.BillingTransaction d ON d.BillingTransactionMetaID = c.AttachedInvoice WHERE a.RequestID = $paymentRequestId" ;
+        $query = "SELECT a.*, b.BillingTypeItemName, c.RequestPatientID as PatientID FROM Accounts.PaymentRequestItems a JOIN Accounts.BillingTypeItems b On a.ItemID = b.BillingTypeItemID JOIN Accounts.PaymentRequest c ON a.RequestID = c.PaymentRequestID WHERE a.RequestID = $paymentRequestId" ;
             
         $res = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
         foreach ($res as $key=>$result){
