@@ -86,7 +86,14 @@ class UnlockLog {
 		$staff = $data["staff"] ?? null;
 
 		try {
-			$query = "UPDATE FinancialAuditing.UnlockLogStatus SET Status = $status, StatusNote = '$note', StaffID = $staff WHERE LogID = $resourceId";
+			$query = "SELECT COUNT(*) as total FROM FinancialAuditing.UnlockLogStatus WHERE LogID = $resourceId;";
+			$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["total"];
+			if ($result == 1){
+				$query = "UPDATE FinancialAuditing.UnlockLogStatus SET Status = $status, StatusNote = '$note', StaffID = $staff WHERE LogID = $resourceId";
+			}
+			else {
+				$query = "INSERT INTO FinancialAuditing.UnlockLogStatus (LogID, Status, StaffID) VALUES ($resourceId, $status, $staff);";
+			}
 
 			$result = DBConnectionFactory::getConnection()->exec($query);
 		}
