@@ -328,18 +328,18 @@ class StoreInventory
                     ->query((string)$selectBuilder)
                 )->fetchAll(\PDO::FETCH_ASSOC);
 
-                foreach ($result as $key=>$storeItem)
-                {
-                    $id = $storeItem["ItemID"];
-                    $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
+                // foreach ($result as $key=>$storeItem)
+                // {
+                //     $id = $storeItem["ItemID"];
+                //     $query = "SELECT TagID, TagTitle, TagName FROM Pharmacy.StoreInventoryTags WHERE ItemID = $id";
 
-                    $queryResult = (
-                        DBConnectionFactory::getConnection()
-                        ->query($query)
-                    )->fetchAll(\PDO::FETCH_ASSOC);
+                //     $queryResult = (
+                //         DBConnectionFactory::getConnection()
+                //         ->query($query)
+                //     )->fetchAll(\PDO::FETCH_ASSOC);
 
-                    $result[$key]["Tags"] = $queryResult;
-                }
+                //     $result[$key]["Tags"] = $queryResult;
+                // }
 
                 $total = DBConnectionFactory::getConnection()->query(
                     "SELECT COUNT(*) AS count FROM ($_query) q"
