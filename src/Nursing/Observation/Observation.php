@@ -50,7 +50,7 @@ class Observation
         {
             $repoData = [
                 "patient"=>$patientId,
-                "name"=>$observationTypeName. " (Nursing observation, ".$date.")",
+                "name"=>$observationTypeName,
                 "type"=>"observation",
                 "creator"=>$staffId
             ];
@@ -58,7 +58,7 @@ class Observation
 
             $repoItemData = [
                 "repository"=>$repoId,
-                "name"=>$observationTypeName." deduction",
+                "name"=>$observationTypeName,
                 "category"=>"json",
                 "json"=>unserialize($observation),
                 "creator"=>$staffId
