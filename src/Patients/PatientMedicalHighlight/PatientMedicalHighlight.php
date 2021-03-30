@@ -106,7 +106,8 @@ class PatientMedicalHighlight
         }
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            $selectBuilder = (string)$selectBuilder . " ORDER BY HighlightDate DESC";
+            $result = (DBConnectionFactory::getConnection()->query($selectBuilder)->fetchAll(\PDO::FETCH_ASSOC);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
