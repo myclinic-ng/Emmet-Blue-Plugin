@@ -97,16 +97,9 @@ class PatientMedicalHighlight
 
     public static function view(int $resourceId)
     {
-        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        $selectBuilder
-            ->columns('*')
-            ->from('Patients.PatientMedicalHighlights');
-        if ($resourceId != 0){
-            $selectBuilder->where('PatientID ='.$resourceId);
-        }
         try
         {
-            $selectBuilder = (string)$selectBuilder . " ORDER BY HighlightDate DESC;";
+            $selectBuilder = "SELECT * FROM Patients.PatientMedicalHighlights WHERE PatientID = $resourceId ORDER BY HighlightDate DESC;";
             $result = (DBConnectionFactory::getConnection()->query($selectBuilder)->fetchAll(\PDO::FETCH_ASSOC);
 
             DatabaseLog::log(
