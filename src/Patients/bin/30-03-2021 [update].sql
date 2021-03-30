@@ -1,0 +1,10 @@
+CREATE TABLE Patients.PatientMedicalHighlights (
+	MedicalHighlightID INT PRIMARY KEY IDENTITY NOT NULL,
+	PatientID INT NOT NULL,
+	HighlightDate DATETIME DEFAULT GETDATE(),
+	HighlightTitle VARCHAR(100),
+	HighlightMessage VARCHAR(MAX),
+	CreatedBy INT,
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient(PatientID) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (CreatedBy) REFERENCES Staffs.Staff (StaffID) ON UPDATE CASCADE ON DELETE SET NULL,
+)
