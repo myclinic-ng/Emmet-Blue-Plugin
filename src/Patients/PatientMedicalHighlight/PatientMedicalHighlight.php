@@ -102,13 +102,13 @@ class PatientMedicalHighlight
             $selectBuilder = "SELECT * FROM Patients.PatientMedicalHighlights WHERE PatientID = $resourceId ORDER BY HighlightDate DESC;";
             $result = (DBConnectionFactory::getConnection()->query($selectBuilder)->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'PatientMedicalHighlights',
-                (string)serialize($selectBuilder)
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Patients',
+            //     'PatientMedicalHighlights',
+            //     (string)serialize($selectBuilder)
+            // );
 
             return $result;
 
