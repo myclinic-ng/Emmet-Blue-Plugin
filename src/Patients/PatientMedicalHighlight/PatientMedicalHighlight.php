@@ -100,7 +100,7 @@ class PatientMedicalHighlight
         try
         {
             $selectBuilder = "SELECT * FROM Patients.PatientMedicalHighlights WHERE PatientID = $resourceId ORDER BY HighlightDate DESC;";
-            $result = (DBConnectionFactory::getConnection()->query($selectBuilder)->fetchAll(\PDO::FETCH_ASSOC);
+            $result = DBConnectionFactory::getConnection()->query($selectBuilder)->fetchAll(\PDO::FETCH_ASSOC);
 
             // DatabaseLog::log(
             //     Session::get('USER_ID'),
