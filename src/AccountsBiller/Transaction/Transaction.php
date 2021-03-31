@@ -184,7 +184,7 @@ class Transaction
                 $result[$key]["invoiceData"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::viewByNumber((int) $value["BillingTransactionNumber"])[0];
             }
 
-            if (isset($result[0])){
+            if (!isset($data["limit"]) && isset($result[0])){
                 $result = $result[0];
             }
 
