@@ -240,13 +240,16 @@ class PaymentRequest
                         e.CategoryName AS PatientCategoryName, 
                         e.PatientTypeName, 
                         f.BillingAmountPaid,
-                        f.BillingPaymentMethod  
+                        f.BillingPaymentMethod,
+                        g.BillingTransactionNumber as AttachedInvoiceNumber,
+                        g.BillingTransactionStatus  
                     FROM Accounts.PaymentRequest a 
                     JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID 
                     JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID 
                     JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID 
                     JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID 
                     LEFT OUTER JOIN Accounts.BillingTransaction f ON f.BillingTransactionMetaID = a.AttachedInvoice
+                    LEFT OUTER JOIN Accounts.BillingTransactionMeta g ON g.BillingTransactionMetaID = f.BillingTransactionMetaID
                 ";
 
         switch($data["filtertype"]){
@@ -380,9 +383,9 @@ class PaymentRequest
                     $result[$key]["BillingAmountPaid"] += $value["BillingAmountPaid"];
                 }
 
-                if ($value["AttachedInvoice"] != ""){
-                    $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::getTransactionNumber((int) $value["AttachedInvoice"])["BillingTransactionNumber"];
-                }
+                // if ($value["AttachedInvoice"] != ""){
+                //     $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::getTransactionNumber((int) $value["AttachedInvoice"])["BillingTransactionNumber"];
+                // }
 
                 $result[$key]["RequestByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$result[$key]["RequestBy"]])["StaffFullName"];
             }
