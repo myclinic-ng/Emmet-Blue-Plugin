@@ -128,11 +128,6 @@ class Transaction
         }
     }
 
-    /**
-     * Returns department group data
-     *
-     * @param int $resourceId optional
-     */
     public static function view(int $resourceId = 0, array $data = [])
     {
         $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
@@ -168,11 +163,15 @@ class Transaction
         }
     }
 
-    public static function viewByInvoice(int $resourceId = 0)
+    public static function viewByInvoice(int $resourceId = 0, array $data = [])
     {
-        $query = "SELECT TOP 1 a.*, b.BillingTransactionNumber FROM Accounts.BillingTransaction a INNER JOIN Accounts.BillingTransactionMeta b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID WHERE a.BillingTransactionMetaID = (SELECT AttachedInvoice FROM Accounts.PaymentRequest WHERE PaymentRequestID = $resourceId)";
-
-        // die($query);
+        if (!isset($data["limit"])){
+            $limit = "TOP 1";
+        }
+        else {
+            $limit = "";
+        }
+        $query = "SELECT $limit a.*, b.BillingTransactionNumber FROM Accounts.BillingTransaction a INNER JOIN Accounts.BillingTransactionMeta b ON a.BillingTransactionMetaID = b.BillingTransactionMetaID WHERE a.BillingTransactionMetaID = (SELECT AttachedInvoice FROM Accounts.PaymentRequest WHERE PaymentRequestID = $resourceId)";
 
         try
         {            

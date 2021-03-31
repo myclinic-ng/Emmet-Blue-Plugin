@@ -38,9 +38,9 @@ class Transaction
 		return Transaction\Transaction::view($resourceId, $data);
 	}
 
-	public static function viewByInvoice(int $resourceId=0)
+	public static function viewByInvoice(int $resourceId=0, array $data=[])
 	{
-		return Transaction\Transaction::viewByInvoice($resourceId);
+		return Transaction\Transaction::viewByInvoice($resourceId, $data);
 	}
 
 	public static function deleteTransaction(int $resourceId)
