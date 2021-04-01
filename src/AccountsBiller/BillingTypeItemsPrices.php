@@ -40,6 +40,6 @@ class BillingTypeItemsPrices
 
 	public static function deleteBillingTypeItemsPrices(int $accountsBillingTypeItemPriceId)
 	{
-		return AccountsBillingTypeItemsPrices\DeleteAccountsBillingTypeitemsPrices::delete($accountsBillingTypeitemPriceId);
+		return AccountsBillingTypeItemsPrices\DeleteAccountsBillingTypeItemsPrices::delete($accountsBillingTypeItemPriceId);
 	}
 }
