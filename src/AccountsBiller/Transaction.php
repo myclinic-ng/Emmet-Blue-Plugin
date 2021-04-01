@@ -54,4 +54,10 @@ class Transaction
 
         return $result;
     }
+
+    public static function getPaymentBreakdownByStaff(int $resourceId, array $data = []){
+    	$result = Transaction\Transaction::getPaymentBreakdownByStaff($resourceId, $data);
+
+    	return $result;
+    }
 }

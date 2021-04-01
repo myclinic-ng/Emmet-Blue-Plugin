@@ -224,4 +224,17 @@ class Transaction
             ), Constant::UNDEFINED);
         }
     }
+
+    public static function getPaymentBreakdownByStaff(int $resourceId, array $data = []){
+        $sDate = QB::wrapString($data["startdate"], "'");
+        $eDate = QB::wrapString($data["enddate"], "'");
+
+        $query = "SELECT BillingPaymentMethod, SUM(BillingAmountPaid) as total, StaffID FROM Accounts.BillingTransaction ";
+        $query .= " WHERE (CONVERT(date, BillingTransactionDate) BETWEEN $sDate AND $eDate) AND StaffID = $resourceId ";
+        $query .= " GROUP BY BillingPaymentMethod,StaffID;";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
 }
