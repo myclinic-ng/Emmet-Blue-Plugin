@@ -203,9 +203,7 @@ class InvestigationTypeField
             
         }
     }
-    /**
-     * Modifies a Ward resource
-     */
+
     public static function edit(int $resourceId, array $data)
     {
         $updateBuilder = (new Builder("QueryBuilder", "Update"))->getBuilder();
@@ -224,7 +222,7 @@ class InvestigationTypeField
 
             $result = (
                     DBConnectionFactory::getConnection()
-                    ->query((string)$updateBuilder)
+                    ->exec((string)$updateBuilder)
                 );
 
             return $result;
