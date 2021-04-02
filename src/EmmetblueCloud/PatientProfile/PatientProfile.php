@@ -36,15 +36,15 @@ class PatientProfile {
 
 		$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 
-		$patientInfo  = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patient);
-		if (isset($patientInfo["_source"])){
+		$patientInfo  = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient);
+		if ($patientInfo["found"]){
 			$patientInfo = $patientInfo["_source"];
 			$patientInfo["resourceId"] = $profile;
 
-			$path = $patientInfo["patientpicture"];
-			$type = pathinfo($path, PATHINFO_EXTENSION);
-			$data = file_get_contents($path);
-			$patientInfo["patientpicture"] = 'data:image/' . $type . ';base64,' . base64_encode($data);
+			// $path = $patientInfo["patientpicture"];
+			// $type = pathinfo($path, PATHINFO_EXTENSION);
+			// $data = file_get_contents($path);
+			$patientInfo["patientpicture"] = '';//'data:image/' . $type . ';base64,' . base64_encode($data);
 
 			$url = HTTPRequest::$cloudUrl."/provider/user-profile/upload-data";
 			$response = HTTPRequest::httpPostRequest($url, $patientInfo, $keyBunch);
