@@ -53,6 +53,7 @@ class PatientProfile {
 		}
 
 		return false;
+		
 	}
 
 	public static function newLink(array $data){
