@@ -44,7 +44,7 @@ class PatientProfile {
 			// $path = $patientInfo["patientpicture"];
 			// $type = pathinfo($path, PATHINFO_EXTENSION);
 			// $data = file_get_contents($path);
-			$patientInfo["patientpicture"] = "";//'data:image/' . $type . ';base64,' . base64_encode($data);
+			$patientInfo["patientpicture"] = ""; //'data:image/' . $type . ';base64,' . base64_encode($data);
 
 			$url = HTTPRequest::$cloudUrl."/provider/user-profile/upload-data";
 			$response = HTTPRequest::httpPostRequest($url, $patientInfo, $keyBunch);
