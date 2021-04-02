@@ -31,7 +31,7 @@ use EmmetBlue\Core\Factory\HTTPRequestFactory as HTTPRequest;
  */
 class XHttpRequest {
 	public static $cloudUrls = ["https://emmetblue.ng/endpoints/cloud/v1", "http://localhost:6543/v1"];
-	public static $cloudUrl = "https://emmetblue.ng/endpoints/cloud/v1";
+	public static $cloudUrl = "http://api.emmetblue.ng:7002/v1";//"https://emmetblue.ng/endpoints/cloud/v1";
 
 	public static function httpRequest($url, $keyBunch){
 		$request = HTTPRequest::get($url, [
