@@ -37,7 +37,7 @@ class PatientProfile {
 		$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 
 		$patientInfo  = \EmmetBlue\Plugins\Patients\Patient\Patient::view((int) $patient);
-		if ($patientInfo["found"]){
+		if (isset($patientInfo["_source"])){
 			$patientInfo = $patientInfo["_source"];
 			$patientInfo["resourceId"] = $profile;
 
