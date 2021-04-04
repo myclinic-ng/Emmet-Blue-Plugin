@@ -47,10 +47,10 @@ class TreatmentChart
             $route = $items["route"] ?? null;
             $note = $items["note"] ?? null;
 
-            $_query[] = "($admissionId, '$drug', $nurse, '$dose', '$route', '$note', '$date', $planId)";
+            $_query[] = "($admissionId, '$drug', $loggedBy, '$dose', '$route', '$note', '$date', $planId)";
         }
 
-        $query = "INSERT INTO Nursing.AdmissionTreatmentChart (PatientAdmissionID, Drug, Nurse, Dose, Route, Note, Date, TreatmentPlanID) VALUES ".implode(",", $_query);
+        $query = "INSERT INTO Nursing.AdmissionTreatmentChart (PatientAdmissionID, Drug, LoggedBy, Dose, Route, Note, Date, TreatmentPlanID) VALUES ".implode(",", $_query);
 
         try
         {
