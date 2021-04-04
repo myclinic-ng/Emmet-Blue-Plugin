@@ -51,11 +51,22 @@ class TreatmentPlan
             $hourlyInterval = $data["hourlyInterval"] ?? null;
             $numberOfDays = $data["numberOfDays"] ?? null;
 
-            $_query = "($admissionId, '$drug', '$dose', '$route', $hourlyInterval, $numberOfDays, '$startdate', $loggedBy, '$note')";
-            $query = "INSERT INTO Nursing.AdmissionTreatmentPlan (PatientAdmissionID, Drug, Dose, Route, HourlyInterval, NumberOfDays, StartDate, LoggedBy, Note) VALUES ".$_query;
+            // $_query = "($admissionId, '$drug', '$dose', '$route', $hourlyInterval, $numberOfDays, '$startdate', $loggedBy, '$note')";
+            // $query = "INSERT INTO Nursing.AdmissionTreatmentPlan (PatientAdmissionID, Drug, Dose, Route, HourlyInterval, NumberOfDays, StartDate, LoggedBy, Note) VALUES ".$_query;
+
             try
             {
-                $result = DBConnectionFactory::getConnection()->exec($query);
+                $result = DBQueryFactory::insert('Nursing.AdmissionTreatmentPlan', [
+                    'PatientAdmissionID'=>QB::wrapString($admissionId, "'"),
+                    'Drug'=>QB::wrapString($drug, "'"),
+                    'Dose'=>QB::wrapString($dose, "'"),
+                    'Route'=>QB::wrapString($route, "'"),
+                    'HourlyInterval'=>QB::wrapString($hourlyInterval, "'"),
+                    'NumberOfDays'=>QB::wrapString($numberOfDays, "'"),
+                    'StartDate'=>QB::wrapString($startdate, "'"),
+                    'LoggedBy'=>QB::wrapString($loggedBy, "'"),
+                    'Note'=>QB::wrapString($note, "'")
+                ]);
 
                 DatabaseLog::log(
                     Session::get('USER_ID'),
