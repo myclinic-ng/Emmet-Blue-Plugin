@@ -85,7 +85,9 @@ class TreatmentPlan
 
                 $frequency = (24 / $hourlyInterval) * $numberOfDays;
                 $new_time = $startdate;
-                for ($i=0; $i < $frequency; $i++) {
+                $chart_tpl["date"] = $new_time;
+                $chart[] = $chart_tpl;
+                for ($i=1; $i < $frequency; $i++) {
                     $new_time = date("Y-m-d H:i:s", strtotime(sprintf("+%d hours", $hourlyInterval), strtotime($new_time)));
                     $chart_tpl["date"] = $new_time;
                     $chart[] = $chart_tpl;
@@ -203,7 +205,7 @@ class TreatmentPlan
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         $chart = \EmmetBlue\Plugins\Nursing\TreatmentChart\TreatmentChart::discontinuePlan($resourceId);
-        
+
         return $result;
     }    
 }
