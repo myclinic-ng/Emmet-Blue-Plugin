@@ -156,5 +156,13 @@ class TreatmentChart
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;
+    }
+
+    public static function discontinuePlan(int $resourceId)
+    {
+        $query="UPDATE Nursing.AdmissionTreatmentChart SET Deleted = 1 WHERE TreatmentPlanID = $resourceId AND Date >= GETDATE()";
+        $result = DBConnectionFactory::getConnection()->exec($query);
+
+        return $result;
     }    
 }

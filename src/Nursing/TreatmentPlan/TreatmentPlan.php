@@ -202,6 +202,8 @@ class TreatmentPlan
         $query .= " WHERE TreatmentPlanID = $resourceId";
         $result = DBConnectionFactory::getConnection()->exec($query);
 
+        $chart = \EmmetBlue\Plugins\Nursing\TreatmentChart\TreatmentChart::discontinuePlan($resourceId);
+        
         return $result;
     }    
 }
