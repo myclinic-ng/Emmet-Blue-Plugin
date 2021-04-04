@@ -44,12 +44,12 @@ class TreatmentPlan
         $_charts = [];
 
         foreach ($items as $key => $data) {
-            $drug = $data['drug'] ?? null;
-            $dose = $data["dose"] ?? null;
-            $route = $data["route"] ?? null;
-            $note = $data["note"] ?? null;
-            $hourlyInterval = $data["hourlyInterval"] ?? null;
-            $numberOfDays = $data["numberOfDays"] ?? null;
+            $drug = $data['drug'] ?? 'NULL';
+            $dose = $data["dose"] ?? 'NULL';
+            $route = $data["route"] ?? 'NULL';
+            $note = $data["note"] ?? 'NULL';
+            $hourlyInterval = $data["hourlyInterval"] ?? 'NULL';
+            $numberOfDays = $data["numberOfDays"] ?? 'NULL';
 
             // $_query = "($admissionId, '$drug', '$dose', '$route', $hourlyInterval, $numberOfDays, '$startdate', $loggedBy, '$note')";
             // $query = "INSERT INTO Nursing.AdmissionTreatmentPlan (PatientAdmissionID, Drug, Dose, Route, HourlyInterval, NumberOfDays, StartDate, LoggedBy, Note) VALUES ".$_query;
@@ -67,14 +67,6 @@ class TreatmentPlan
                     'LoggedBy'=>QB::wrapString($loggedBy, "'"),
                     'Note'=>QB::wrapString($note, "'")
                 ]);
-
-                DatabaseLog::log(
-                    Session::get('USER_ID'),
-                    Constant::EVENT_SELECT,
-                    'Nursing',
-                    'AdmissionTreatmentPlan',
-                    (string)serialize($result)
-                );
 
                 $planId = $result["lastInsertId"];
                 $chart = [];
