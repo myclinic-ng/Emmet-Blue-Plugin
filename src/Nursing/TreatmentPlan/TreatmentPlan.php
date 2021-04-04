@@ -38,6 +38,7 @@ class TreatmentPlan
         $items = $data["items"];
         $admissionId = $sData['admissionId'] ?? 'NULL';
         $loggedBy = $sData["loggedBy"] ?? 'NULL';
+        $startdate = $sData["startDate"] ?? 'NULL';
         
         $_query = "";
         $_charts = [];
@@ -49,7 +50,6 @@ class TreatmentPlan
             $note = $data["note"] ?? null;
             $hourlyInterval = $data["hourlyInterval"] ?? null;
             $numberOfDays = $data["numberOfDays"] ?? null;
-            $startdate = $sData["startDate"] ?? 'NULL';
 
             $_query = "($admissionId, '$drug', '$dose', '$route', $hourlyInterval, $numberOfDays, '$startdate', $loggedBy, '$note')";
             $query = "INSERT INTO Nursing.AdmissionTreatmentPlan (PatientAdmissionID, Drug, Dose, Route, HourlyInterval, NumberOfDays, StartDate, LoggedBy, Note) VALUES ".$_query;
