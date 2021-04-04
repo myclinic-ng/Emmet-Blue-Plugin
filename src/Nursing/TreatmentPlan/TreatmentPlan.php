@@ -189,9 +189,17 @@ class TreatmentPlan
     }
 
     
-    public static function deleteTreatmentPlan(int $resourceId)
+    public static function deleteTreatmentPlan(int $resourceId, array $data)
     {
-        $query="UPDATE Nursing.AdmissionTreatmentPlan SET Deleted = 1 WHERE TreatmentPlanID = $resourceId";
+        $note = $data["note"] ?? null;
+        $staff = $data["staffId"];
+
+        $query="UPDATE Nursing.AdmissionTreatmentPlan SET Deleted = 1, DeletedBy=$staff, DateDeleted=GETDATE()";
+        if (!is_null($note)){
+            $query .= ", Note = '$note'";
+        }
+
+        $query .= " WHERE TreatmentPlanID = $resourceId";
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;

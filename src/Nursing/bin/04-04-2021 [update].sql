@@ -10,7 +10,7 @@ CREATE TABLE Nursing.AdmissionTreatmentPlan (
 	DateLogged DATETIME NOT NULL DEFAULT GETDATE(),
 	LoggedBy INT,
 	Deleted SMALLINT DEFAULT 0,
-	DateDeleted DATETIME NOT NULL DEFAULT GETDATE(),
+	DateDeleted DATETIME,
 	DeletedBy INT,
 	Note VARCHAR(500),
 	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID) ON UPDATE CASCADE ON DELETE CASCADE,

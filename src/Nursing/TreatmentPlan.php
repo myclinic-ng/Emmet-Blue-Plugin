@@ -49,9 +49,9 @@ class TreatmentPlan
         return $result;
     }
 
-    public static function deleteTreatmentPlan(int $resourceId)
+    public static function deleteTreatmentPlan(int $resourceId, array $data)
     {
-        $result = TreatmentPlan\TreatmentPlan::deleteTreatmentPlan($resourceId);
+        $result = TreatmentPlan\TreatmentPlan::deleteTreatmentPlan($resourceId, $data);
 
         return $result;
     }
