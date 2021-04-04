@@ -86,7 +86,7 @@ class TreatmentPlan
                 $frequency = (24 / $hourlyInterval) * $numberOfDays;
                 $new_time = $startdate;
                 for ($i=0; $i < $frequency; $i++) {
-                    $new_time = date("Y-m-d H:i:s", strtotime(sprintf("+%d hours", $hourlyInterval)));
+                    $new_time = date("Y-m-d H:i:s", strtotime(sprintf("+%d hours", $hourlyInterval), strtotime($new_time)));
                     $chart_tpl["date"] = $new_time;
                     $chart[] = $chart_tpl;
                 }
