@@ -76,7 +76,7 @@ class TreatmentChart
         $selectBuilder
             ->columns('*')
             ->from('Nursing.AdmissionTreatmentChart')
-            ->where('PatientAdmissionID = '.$resourceId);
+            ->where('Deleted = 0 AND PatientAdmissionID = '.$resourceId);
 
         try
         {
@@ -116,7 +116,7 @@ class TreatmentChart
         $selectBuilder
             ->columns('TOP 1 *')
             ->from('Nursing.AdmissionTreatmentChart')
-            ->where('PatientAdmissionID = '.$resourceId);
+            ->where('Deleted = 0 AND PatientAdmissionID = '.$resourceId);
 
         try
         {
