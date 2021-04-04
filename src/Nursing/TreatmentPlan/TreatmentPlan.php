@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+    <?php declare(strict_types=1);
 /**
  * @license MIT
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
@@ -6,7 +6,7 @@
  * This file is part of the EmmetBlue project, please read the license document
  * available in the root level of the project
  */
-namespace EmmetBlue\Plugins\Nursing\TreatmentChart;
+namespace EmmetBlue\Plugins\Nursing\TreatmentPlan;
 
 use EmmetBlue\Core\Builder\BuilderFactory as Builder;
 use EmmetBlue\Core\Factory\DatabaseConnectionFactory as DBConnectionFactory;
@@ -18,53 +18,89 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 /**
- * class TreatmentChart.
+ * class TreatmentPlan.
  *
- * TreatmentChart Controller
+ * TreatmentPlan Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
- * @since v0.0.1 19/08/2016 13:35
+ * @since v0.0.1 04/04/2021 15:50
  */
-class TreatmentChart
+class TreatmentPlan
 {
     /**
-     * creates new TreatmentChart
+     * creates new TreatmentPlan
      *
      * @param array $data
      */
     public static function create(array $data)
     {
-        $_query = [];
-        foreach ($data as $sData) {
-            $items = $sData["items"];
-            $admissionId = $sData['admissionId'] ?? 'NULL';
-            $loggedBy = $sData["loggedBy"] ?? 'NULL';
-            $date = $sData["date"] ?? 'NULL';
-            $planId = $sData["planId"] ?? null;
+        $sData = $data;
+        $items = $data["items"];
+        $admissionId = $sData['admissionId'] ?? 'NULL';
+        $loggedBy = $sData["loggedBy"] ?? 'NULL';
+        
+        $_query = "";
+        $_charts = [];
 
-            $drug = $items['drug'] ?? null;
-            $dose = $items["dose"] ?? null;
-            $route = $items["route"] ?? null;
-            $note = $items["note"] ?? null;
+        foreach ($items as $key => $data) {
+            $drug = $data['drug'] ?? null;
+            $dose = $data["dose"] ?? null;
+            $route = $data["route"] ?? null;
+            $note = $data["note"] ?? null;
+            $hourlyInterval = $data["hourlyInterval"] ?? null;
+            $numberOfDays = $data["numberOfDays"] ?? null;
+            $startdate = $sData["startDate"] ?? 'NULL';
 
-            $_query[] = "($admissionId, '$drug', $nurse, '$dose', '$route', '$note', '$date', $planId)";
+            $_query = "($admissionId, '$drug', '$dose', '$route', $hourlyInterval, $numberOfDays, '$startdate', $loggedBy, '$note')";
+            $query = "INSERT INTO Nursing.AdmissionTreatmentPlan (PatientAdmissionID, Drug, Dose, Route, HourlyInterval, NumberOfDays, StartDate, LoggedBy, Note) VALUES ".$_query;
+            try
+            {
+                $result = DBConnectionFactory::getConnection()->exec($query);
+
+                DatabaseLog::log(
+                    Session::get('USER_ID'),
+                    Constant::EVENT_SELECT,
+                    'Nursing',
+                    'AdmissionTreatmentPlan',
+                    (string)serialize($result)
+                );
+
+                $planId = $result["lastInsertId"];
+                $chart = [];
+                $chart_tpl = [
+                    "date"=>"", 
+                    "planId"=>$planId,
+                    "admissionId"=>$admissionId,
+                    "loggedBy"=>$loggedBy,
+                    "items"=>[
+                        "drug"=>$drug,
+                        "dose"=>$dose,
+                        "route"=>$route,
+                        "note"=>$note
+                    ]
+                ];
+
+                $frequency = (24 / $hourlyInterval) * $numberOfDays;
+                $new_time = $startdate;
+                for ($i=0; $i < $frequency; $i++) {
+                    $new_time = date("Y-m-d H:i:s", strtotime(sprintf("+%d hours", $hourlyInterval)));
+                    $chart_tpl["date"] = $new_time;
+                    $chart[] = $chart_tpl;
+                }
+
+                $treatmentChart = \EmmetBlue\Plugins\Nursing\TreatmentChart\TreatmentChart::create($chart);
+
+            }
+            catch (\PDOException $e)
+            {
+                throw new SQLException(sprintf(
+                    "Unable to process request, %s",
+                    $e->getMessage()
+                ), Constant::UNDEFINED);
+            }
         }
 
-        $query = "INSERT INTO Nursing.AdmissionTreatmentChart (PatientAdmissionID, Drug, Nurse, Dose, Route, Note, Date, TreatmentPlanID) VALUES ".implode(",", $_query);
-
-        try
-        {
-            $result = DBConnectionFactory::getConnection()->exec($query);
-
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process request, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
-        }
+        return true;
     }
 
     /**
@@ -75,7 +111,7 @@ class TreatmentChart
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('*')
-            ->from('Nursing.AdmissionTreatmentChart')
+            ->from('Nursing.AdmissionTreatmentPlan')
             ->where('PatientAdmissionID = '.$resourceId);
 
         try
@@ -90,7 +126,7 @@ class TreatmentChart
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Nursing',
-                'AdmissionTreatmentChart',
+                'AdmissionTreatmentPlan',
                 (string)$selectBuilder
             );
 
@@ -115,7 +151,7 @@ class TreatmentChart
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
         $selectBuilder
             ->columns('TOP 1 *')
-            ->from('Nursing.AdmissionTreatmentChart')
+            ->from('Nursing.AdmissionTreatmentPlan')
             ->where('PatientAdmissionID = '.$resourceId);
 
         try
@@ -130,7 +166,7 @@ class TreatmentChart
                 Session::get('USER_ID'),
                 Constant::EVENT_SELECT,
                 'Nursing',
-                'AdmissionTreatmentChart',
+                'AdmissionTreatmentPlan',
                 (string)$selectBuilder
             );
 
@@ -150,9 +186,9 @@ class TreatmentChart
     }
 
     
-    public static function deleteTreatmentChart(int $resourceId)
+    public static function deleteTreatmentPlan(int $resourceId)
     {
-        $query="UPDATE Nursing.AdmissionTreatmentChart SET Deleted = 1 WHERE TreatmentChartID = $resourceId";
+        $query="UPDATE Nursing.AdmissionTreatmentPlan SET Deleted = 1 WHERE TreatmentPlanID = $resourceId";
         $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $result;

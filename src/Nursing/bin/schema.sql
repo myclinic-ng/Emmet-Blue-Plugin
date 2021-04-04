@@ -128,23 +128,6 @@ CREATE TABLE Nursing.WardAdmission (
 )
 GO
 
-CREATE TABLE Nursing.AdmissionTreatmentChart (
-	TreatmentChartID INT PRIMARY KEY IDENTITY NOT NULL,
-	PatientAdmissionID INT NOT NULL,
-	Drug VARCHAR(100),
-	Dose VARCHAR(50),
-	Route VARCHAR(50),
-	Time VARCHAR(20),
-	Note VARCHAR(500),
-	Nurse INT,
-	Date DATETIME NOT NULL DEFAULT GETDATE(),
-	DateLogged DATETIME NOT NULL DEFAULT GETDATE(),
-	Deleted SMALLINT DEFAULT 0,
-	FOREIGN KEY (PatientAdmissionID) REFERENCES [Consultancy].[PatientAdmission] (PatientAdmissionID),
-	FOREIGN KEY (Nurse) REFERENCES [Staffs].[Staff] (StaffID) ON UPDATE CASCADE ON DELETE SET NULL
-)
-GO
-
 CREATE TABLE Nursing.ServicesRendered (
 	ServicesRenderedID INT PRIMARY KEY IDENTITY NOT NULL,
 	PatientAdmissionID INT,

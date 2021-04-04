@@ -34,25 +34,20 @@ class TreatmentChartStatus
      */
     public static function create(array $data)
     {
-        $sData = $data;
-        $items = $data["items"];
-        $time = $sData["associatedTime"];
-        $admissionId = $sData['admissionId'] ?? 'NULL';
-        $nurse = $sData["nurse"] ?? 'NULL';
-        $date = $sData["time"] ?? 'NULL';
-        
         $_query = [];
+        foreach ($data as $_data){
+            $sData = $_data;
+            $chartId = $_data["treatmentChartId"];
+            $status = $_data["status"] ?? 1;
+            $note = $_data["note"] ?? null;
+            $staff = $_data["staff"] ?? null;
+            $associatedDate = $_data["associatedDate"];
+            $associatedTime = $_data["associatedTime"];
 
-        foreach ($items as $key => $data) {
-            $drug = $data['drug'] ?? null;
-            $dose = $data["dose"] ?? null;
-            $route = $data["route"] ?? null;
-            $note = $data["note"] ?? null;
-
-            $_query[] = "($admissionId, '$drug', $nurse, '$dose', '$route', '$note', '$time', '$date')";
+            $_query = "($chartId, $status, '$note', $staff, '$associatedDate')";
         }
 
-        $query = "INSERT INTO Nursing.AdmissionTreatmentChartStatus (PatientAdmissionID, Drug, Nurse, Dose, Route, Note, Time, Date) VALUES ".implode(", ", $_query);
+        $query = "INSERT INTO Nursing.AdmissionTreatmentChartStatus (TreatmentChartID, Status, Note, StaffID, AssociatedDate) VALUES ".implode(", ", $_query);
 
         try
         {
@@ -71,7 +66,7 @@ class TreatmentChartStatus
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (chart not saved), %s",
+                "Unable to process request, %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
@@ -83,14 +78,14 @@ class TreatmentChartStatus
         $selectBuilder
             ->columns('*')
             ->from('Nursing.AdmissionTreatmentChartStatus')
-            ->where('PatientAdmissionID = '.$resourceId);
+            ->where('TreatmentChartID = '.$resourceId);
 
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY DateLogged DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
-                $result[$i]["NurseDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"]);
+                $result[$i]["NurseDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["StaffID"]);
             }
 
             DatabaseLog::log(
@@ -123,14 +118,14 @@ class TreatmentChartStatus
         $selectBuilder
             ->columns('TOP 1 *')
             ->from('Nursing.AdmissionTreatmentChartStatus')
-            ->where('PatientAdmissionID = '.$resourceId);
+            ->where('TreatmentChartID = '.$resourceId);
 
         try
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
-                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["Nurse"])["StaffFullName"];
+                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["StaffID"])["StaffFullName"];
             }
 
             DatabaseLog::log(
