@@ -275,8 +275,12 @@ class PaymentRequest
                 $query .= " WHERE f.StaffID = ".$data["query"];
                 break;
             }
+            case "patientcategory":{
+                $query .= " WHERE e.CategoryName = '".$data["query"]."'";
+                break;
+            }
             case "patienttype":{
-                $query .= " WHERE e.PatientTypeName = '".$data["query"]."'";
+                $query .= " WHERE c.PatientType = '".$data["query"]."'";
                 break;
             }
             case "paymentmethod":{
@@ -354,7 +358,7 @@ class PaymentRequest
         if (isset($data["paginate"])){
             if (isset($data["keywordsearch"])){
                 $keyword = $data["keywordsearch"];
-                $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR c.PatientType LIKE '%$keyword%' OR b.Name LIKE '%$keyword%')";
+                $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR e.PatientTypeName LIKE '%$keyword%' OR b.Name LIKE '%$keyword%' OR e.CategoryName LIKE '%$keyword%')";
             }
 
             $_query = $query;
