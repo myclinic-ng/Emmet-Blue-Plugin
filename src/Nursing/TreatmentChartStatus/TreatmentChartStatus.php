@@ -85,7 +85,7 @@ class TreatmentChartStatus
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY DateLogged DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
-                $result[$i]["NurseDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["StaffID"]);
+                $result[$i]["StaffDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["StaffID"]);
             }
 
             DatabaseLog::log(
@@ -122,10 +122,10 @@ class TreatmentChartStatus
 
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY DateLogged DESC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
-                $result[$i]["NurseFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["StaffID"])["StaffFullName"];
+                $result[$i]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["StaffID"])["StaffFullName"];
             }
 
             DatabaseLog::log(

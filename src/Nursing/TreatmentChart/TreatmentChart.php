@@ -84,6 +84,8 @@ class TreatmentChart
 
             foreach ($result as $i=>$j){
                 $result[$i]["StaffDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["LoggedBy"]);
+
+                $result[$i]["Status"] = \EmmetBlue\Plugins\Nursing\TreatmentChartStatus\TreatmentChartStatus::viewMostRecent((int)$j["TreatmentChartID"])
             }
 
             DatabaseLog::log(
