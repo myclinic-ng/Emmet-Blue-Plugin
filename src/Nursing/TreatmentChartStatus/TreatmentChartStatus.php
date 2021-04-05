@@ -42,9 +42,9 @@ class TreatmentChartStatus
             $note = $_data["note"] ?? null;
             $staff = $_data["staff"] ?? null;
             $associatedDate = $_data["associatedDate"];
-            $associatedTime = $_data["associatedTime"];
+            $associatedTime = $_data["associatedTime"] ?? null;
 
-            $_query = "($chartId, $status, '$note', $staff, '$associatedDate')";
+            $_query[] = "($chartId, $status, '$note', $staff, '$associatedDate')";
         }
 
         $query = "INSERT INTO Nursing.AdmissionTreatmentChartStatus (TreatmentChartID, Status, Note, StaffID, AssociatedDate) VALUES ".implode(", ", $_query);
