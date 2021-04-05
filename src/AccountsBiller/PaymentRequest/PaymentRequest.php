@@ -276,7 +276,7 @@ class PaymentRequest
                 break;
             }
             case "patienttype":{
-                $query .= " WHERE e.CategoryName = '".$data["query"]."'";
+                $query .= " WHERE e.PatientTypeName = '".$data["query"]."'";
                 break;
             }
             case "paymentmethod":{
