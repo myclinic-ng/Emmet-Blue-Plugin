@@ -142,7 +142,7 @@ class TreatmentChartStatus
         {
             throw new SQLException(
                 sprintf(
-                    "Error procesing request %s",
+                    "Error procesing request %s ",
                     $e->getMessage()
                 ),
                 Constant::UNDEFINED
