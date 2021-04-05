@@ -33,9 +33,9 @@ class LabRequest
 		return LabRequest\LabRequest::create($data);
 	}
 
-	public static function viewLabRequest(int $resourceId = 0)
+	public static function viewLabRequest(int $resourceId = 0, array $data = [])
 	{
-		return LabRequest\LabRequest::view($resourceId);
+		return LabRequest\LabRequest::view($resourceId, $data);
 	}
 
 	public static function viewByPatient(int $resourceId = 0, array $data)
