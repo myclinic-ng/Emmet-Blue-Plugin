@@ -84,6 +84,13 @@ class PharmacyRequest
             $selectBuilder .= " WHERE a.Acknowledged = 0";
         }  
 
+        if (isset($data["startdate"]) && isset($data["enddate"])){
+            $sDate = QB::wrapString($data["startdate"], "'");
+            $eDate = QB::wrapString($data["enddate"], "'");
+
+            $selectBuilder .= " AND CONVERT(date, a.RequestDate) BETWEEN $sDate AND $eDate";
+        }
+
         if (isset($data["paginate"])){
             if (isset($data["keywordsearch"])){
                 $keyword = $data["keywordsearch"];
