@@ -260,7 +260,7 @@ class PaymentRequest
             case "date":{
                 $sDate = QB::wrapString($data["startdate"], "'");
                 $eDate = QB::wrapString($data["enddate"], "'");
-                $query .= " WHERE CONVERT(date, a.RequestDate) BETWEEN $sDate AND $eDate";
+                $query .= " WHERE CONVERT(date, a.RequestDate) BETWEEN $sDate AND $eDate OR CONVERT(date, f.BillingTransactionDate) BETWEEN $sDate AND $eDate";
                 break;
             }
             case "department":{
