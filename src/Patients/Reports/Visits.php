@@ -71,7 +71,7 @@ class Visits
 		$sd = $data["startdate"];
 		$ed = $data["enddate"];
 
-		$query = "SELECT COUNT(DISTINCT a.PatientID) as Count FROM Patients.PatientProfileUnlockLog a WHERE CONVERT(date, a.DateLogged) BETWEEN '$sd' AND '$ed'";
+		$query = "SELECT COUNT(DISTINCT a.PatientID) as TotalPatientCount FROM Patients.PatientProfileUnlockLog a WHERE CONVERT(date, a.DateLogged) BETWEEN '$sd' AND '$ed'";
 
 		$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
 
