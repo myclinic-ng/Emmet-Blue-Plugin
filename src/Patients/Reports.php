@@ -48,4 +48,25 @@ class Reports
 
         return $result;
     }
+
+    public static function getTotalVisits(array $data)
+    {
+        $result = Reports\Visits::total($data);
+
+        return $result;
+    }
+
+    public static function getTotalVisitsByCategories(array $data)
+    {
+        $result = Reports\Visits::totalByCategories($data);
+
+        return $result;
+    }
+
+    public static function getTotalVisitsByCategory(array $data)
+    {
+        $result = Reports\Visits::totalByCategory($data);
+
+        return $result;
+    }
 }
