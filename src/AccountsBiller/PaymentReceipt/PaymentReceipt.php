@@ -262,7 +262,7 @@ class PaymentReceipt
             }
 
             if (isset($data["paginate"])){
-                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                $total = DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC);
                 $meta = $total[0];
                 $_result = [
                     "data"=>$_result,
