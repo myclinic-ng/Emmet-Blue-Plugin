@@ -77,9 +77,9 @@ class MedicalSummary
         return $result;
     }
 
-    public static function editField(int $resourceId=0)
+    public static function editField(int $resourceId, array $data)
     {
-        $result = MedicalSummary\Field::edit($resourceId);
+        $result = MedicalSummary\Field::edit($resourceId, $data);
 
         return $result;
     }
