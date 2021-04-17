@@ -241,7 +241,7 @@ class PaymentRequest
                         e.PatientTypeName, 
                         f.BillingAmountPaid,
                         f.BillingPaymentMethod,
-                        f.BillingAmountBalance,
+                        FORMAT(f.BillingAmountBalance, 'C', 'ng-ng'),
                         g.BillingTransactionNumber as AttachedInvoiceNumber,
                         g.BillingTransactionStatus  
                     FROM Accounts.PaymentRequest a 
