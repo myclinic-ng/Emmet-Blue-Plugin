@@ -369,7 +369,7 @@ class PaymentRequest
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
-        // die($query);
+        die($query);
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
