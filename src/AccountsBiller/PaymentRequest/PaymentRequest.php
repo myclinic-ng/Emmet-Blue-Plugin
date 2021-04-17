@@ -241,6 +241,7 @@ class PaymentRequest
                         e.PatientTypeName, 
                         f.BillingAmountPaid,
                         f.BillingPaymentMethod,
+                        f.BillingAmountBalance,
                         g.BillingTransactionNumber as AttachedInvoiceNumber,
                         g.BillingTransactionStatus  
                     FROM Accounts.PaymentRequest a 
