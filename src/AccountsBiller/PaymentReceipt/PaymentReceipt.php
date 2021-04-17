@@ -89,7 +89,7 @@ class PaymentReceipt
 
     }
 
-    public static function view(int $resourceId = 0, array $data = [])
+    public static function view(array $data = [])
     {
         $query = 
                 "

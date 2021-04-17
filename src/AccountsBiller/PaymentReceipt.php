@@ -33,9 +33,9 @@ class PaymentReceipt
 		return PaymentReceipt\PaymentReceipt::create($data);
 	}
 
-	public static function viewPaymentReceipt(int $resourceId=0, array $data = [])
+	public static function viewPaymentReceipt(array $data = [])
 	{
-		return PaymentReceipt\PaymentReceipt::view($resourceId, $data);
+		return PaymentReceipt\PaymentReceipt::view($data);
 	}
 
 	public static function deletePaymentReceipt(int $resourceId)
