@@ -251,21 +251,22 @@ class PaymentReceipt
             $_result = [];
             $meta = [
                 "sumTotal"=>0,
-                "patients"=>[]
+                "totalPatients"=>[]
             ];
 
             foreach ($result as $value){
                 $_result[] = $value;
                 $meta["sumTotal"] += $value["BillingAmountPaid"];
-                if (!in_array($value["RequestPatientID"], $meta["patients"])){
-                    $meta["patients"][] = $value["RequestPatientID"];
+                if (!in_array($value["RequestPatientID"], $meta["totalPatients"])){
+                    $meta["totalPatients"][] = $value["RequestPatientID"];
                 }
             }
 
             if (isset($data["paginate"])){
                 $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
                 // $filtered = count($_result) + 1;
-                $meta["patients"] = count($meta["patients"]);
+                $meta["totalPatients"] = count($meta["totalPatients"]);
+                $meta["totalReceipts"] = count($_result);
                 $_result = [
                     "data"=>$_result,
                     "meta"=>$meta,
