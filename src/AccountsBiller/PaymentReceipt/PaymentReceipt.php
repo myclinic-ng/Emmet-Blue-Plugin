@@ -105,16 +105,15 @@ class PaymentReceipt
                         d.GroupName, 
                         e.CategoryName AS PatientCategoryName, 
                         e.PatientTypeName, 
-                        f.BillingAmountPaid,
-                        f.BillingPaymentMethod,
+                        f.*,
                         g.BillingTransactionNumber as AttachedInvoiceNumber,
                         g.BillingTransactionStatus  
-                    FROM Accounts.PaymentRequest a 
+                    FROM Accounts.BillingTransaction f
+                    INNER JOIN Accounts.PaymentRequest a ON f.BillingTransactionMetaID = a.AttachedInvoice
                     JOIN Staffs.Department b ON a.RequestDepartment=b.DepartmentID 
                     JOIN Staffs.DepartmentGroup d ON b.GroupID=d.DepartmentGroupID 
                     JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID 
                     JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID 
-                    INNER JOIN Accounts.BillingTransaction f ON f.BillingTransactionMetaID = a.AttachedInvoice
                     LEFT OUTER JOIN Accounts.BillingTransactionMeta g ON g.BillingTransactionMetaID = f.BillingTransactionMetaID
                 ";
 
