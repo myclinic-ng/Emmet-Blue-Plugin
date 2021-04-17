@@ -155,13 +155,13 @@ class PaymentRequest
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Accounts',
-                'PaymentRequest',
-                (string)$query
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Accounts',
+            //     'PaymentRequest',
+            //     (string)$query
+            // );
             
             return $viewPaymentRequestOperation;  
         } 
@@ -184,13 +184,13 @@ class PaymentRequest
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Accounts',
-                'PaymentRequest',
-                (string)$query
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Accounts',
+            //     'PaymentRequest',
+            //     (string)$query
+            // );
             
             return $viewPaymentRequestOperation;  
         } 
