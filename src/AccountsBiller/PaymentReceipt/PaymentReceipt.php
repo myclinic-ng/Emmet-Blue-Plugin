@@ -226,7 +226,7 @@ class PaymentReceipt
                 $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR e.PatientTypeName LIKE '%$keyword%' OR b.Name LIKE '%$keyword%' OR e.CategoryName LIKE '%$keyword%')";
             }
 
-            $_query = "SELECT FORMAT(SUM(a.BillingAmountPaid), 'C') as sumTotal, COUNT(DISTINCT a.RequestPatientID) as totalPatients, COUNT(*) as totalReceipts FROM ($query) a;";
+            $_query = "SELECT FORMAT(SUM(a.BillingAmountPaid), 'C', 'ng-ng') as sumTotal, COUNT(DISTINCT a.RequestPatientID) as totalPatients, COUNT(*) as totalReceipts FROM ($query) a;";
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
