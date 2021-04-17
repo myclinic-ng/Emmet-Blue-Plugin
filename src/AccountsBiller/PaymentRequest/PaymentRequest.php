@@ -287,6 +287,10 @@ class PaymentRequest
                 $query .= " WHERE f.BillingPaymentMethod = '".$data["query"]."'";
                 break;
             }
+            case "paymentstatus":{
+                $query .= " WHERE f.BillingTransactionStatus = '".$data["query"]."'";
+                break;
+            }
             case "invoice":{
                 $query .= " WHERE a.AttachedInvoice = ".$data["query"];
                 break;
