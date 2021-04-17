@@ -117,22 +117,24 @@ class Field
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'MedicalSummaryFields',
-                (string)$selectBuilder
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Patients',
+            //     'MedicalSummaryFields',
+            //     (string)$selectBuilder
+            // );
 
-            if(count($viewOperation) > 0)
-            {
-                return $viewOperation;
-            }
-            else
-            {
-                return null;
-            }           
+            return $viewOperation;
+
+            // if(count($viewOperation) > 0)
+            // {
+            //     return $viewOperation;
+            // }
+            // else
+            // {
+            //     return null;
+            // }           
         } 
         catch (\PDOException $e) 
         {
