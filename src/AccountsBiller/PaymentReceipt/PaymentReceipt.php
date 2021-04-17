@@ -226,11 +226,10 @@ class PaymentReceipt
                 $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR e.PatientTypeName LIKE '%$keyword%' OR b.Name LIKE '%$keyword%' OR e.CategoryName LIKE '%$keyword%')";
             }
 
-            $_query = $query;
+            $_query = "SELECT SUM(a.BillingAmountPaid) as sumTotal, COUNT(DISTINCT a.RequestPatientID) as totalPatients, COUNT(*) as totalReceipts FROM ($query) a;";
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
-        // die($query);
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
@@ -251,26 +250,24 @@ class PaymentReceipt
             $_result = [];
             $meta = [
                 "sumTotal"=>0,
-                "totalPatients"=>[]
+                "totalPatients"=>0
             ];
 
             foreach ($result as $value){
                 $_result[] = $value;
-                $meta["sumTotal"] += $value["BillingAmountPaid"];
-                if (!in_array($value["RequestPatientID"], $meta["totalPatients"])){
-                    $meta["totalPatients"][] = $value["RequestPatientID"];
-                }
+                // $meta["sumTotal"] += $value["BillingAmountPaid"];
+                // if (!in_array($value["RequestPatientID"], $meta["totalPatients"])){
+                //     $meta["totalPatients"][] = $value["RequestPatientID"];
+                // }
             }
 
             if (isset($data["paginate"])){
                 $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
-                // $filtered = count($_result) + 1;
-                $meta["totalPatients"] = count($meta["totalPatients"]);
-                $meta["totalReceipts"] = count($_result);
+                $meta = $total[0];
                 $_result = [
                     "data"=>$_result,
                     "meta"=>$meta,
-                    "total"=>$total,
+                    "total"=>$total[0]["totalReceipts"],
                     "filtered"=>$total
                 ];
             }
