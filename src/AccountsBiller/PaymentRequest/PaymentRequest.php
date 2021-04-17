@@ -288,7 +288,7 @@ class PaymentRequest
                 break;
             }
             case "paymentstatus":{
-                $query .= " WHERE f.BillingTransactionStatus = '".$data["query"]."'";
+                $query .= " WHERE g.BillingTransactionStatus = '".$data["query"]."'";
                 break;
             }
             case "invoice":{
@@ -369,7 +369,7 @@ class PaymentRequest
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
-        die($query);
+        // die($query);
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
