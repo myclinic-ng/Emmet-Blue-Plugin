@@ -250,7 +250,7 @@ class PaymentRequest
                     JOIN Patients.Patient c ON a.RequestPatientID=c.PatientID 
                     JOIN Patients.PatientType e ON c.PatientType = e.PatientTypeID 
                     LEFT OUTER JOIN Accounts.BillingTransaction f ON f.BillingTransactionMetaID = a.AttachedInvoice
-                    LEFT OUTER JOIN Accounts.BillingTransactionMeta g ON g.BillingTransactionMetaID = f.BillingTransactionMetaID
+                    LEFT OUTER JOIN Accounts.BillingTransactionMeta g ON g.BillingTransactionMetaID = a.AttachedInvoice
                 ";
 
         switch($data["filtertype"]){
