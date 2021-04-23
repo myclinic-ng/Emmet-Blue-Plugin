@@ -261,7 +261,7 @@ class PaymentRequest
             case "date":{
                 $sDate = QB::wrapString($data["startdate"], "'");
                 $eDate = QB::wrapString($data["enddate"], "'");
-                $query .= " WHERE CONVERT(date, a.RequestDate) BETWEEN $sDate AND $eDate OR CONVERT(date, f.BillingTransactionDate) BETWEEN $sDate AND $eDate";
+                $query .= " WHERE (CONVERT(date, a.RequestDate) BETWEEN $sDate AND $eDate OR CONVERT(date, f.BillingTransactionDate) BETWEEN $sDate AND $eDate)";
                 break;
             }
             case "department":{
@@ -370,7 +370,7 @@ class PaymentRequest
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
-        die($query);
+        // die($query);
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
