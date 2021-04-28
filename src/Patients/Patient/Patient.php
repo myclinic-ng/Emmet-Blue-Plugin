@@ -529,12 +529,10 @@ class Patient
     }
 
     private static function viewPatientsByCurrentDayVisit(){
-        $start = (new \DateTime())->format("d/m/Y");
-        $end = (new \DateTime("+1day"))->format("d/m/Y");
+        $start = (new \DateTime())->format("m/d/Y");
+        $end = (new \DateTime("+1day"))->format("m/d/Y");
 
         $query = "SELECT c.PatientID FROM Patients.PatientProfileUnlockLog a INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
-
-        die($query);
 
         $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
