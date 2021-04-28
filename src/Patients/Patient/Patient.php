@@ -534,6 +534,8 @@ class Patient
 
         $query = "SELECT c.PatientID FROM Patients.PatientProfileUnlockLog a INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
 
+        die($query);
+
         $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         $result = [
