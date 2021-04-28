@@ -528,37 +528,66 @@ class Patient
         return $result;
     }
 
+    private static function viewPatientsByCurrentDayVisit(){
+        $start = (new DateTime())->format("d/m/Y");
+        $end = (new DateTime("+1day"))->format("d/m/Y");
+
+        $query = "SELECT c.PatientID FROM Patients.PatientProfileUnlockLog a INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
+
+        $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        $result = [
+            "hits"=>[
+                "hits"=>[],
+                "total"=>count($results)
+            ]
+        ];
+
+        foreach ($results as $_result){
+            $query = "Patients.GetPatientBasicProfile ".$_result["PatientID"];
+            $_result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            $_result = ["_source"=>$_result[0] ?? []];
+            $result["hits"]["hits"][] = $_result;
+        }
+
+        return $result;
+    }
+
     public static function search(array $data)
     {
         try {
             if ($data["query"] == ""){
-                $data["query"] = "*";
+                $result = self::viewPatientsByCurrentDayVisit();
             }
-            $query = explode(" ", $data["query"]);
-            $builtQuery = [];
-            foreach ($query as $element){
-                $builtQuery[] = "(".$element."* ".$element."~)";
-            }
+            else {
+                $query = explode(" ", $data["query"]);
+                $builtQuery = [];
+                foreach ($query as $element){
+                    $builtQuery[] = "(".$element."* ".$element."~)";
+                }
 
-            $builtQuery = implode(" AND ", $builtQuery);
-            
-            $params = [
-                'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
-                'type'=>'patient-info',
-                'size'=>$data['size'] ?? 1,
-                'from'=>$data['from'] ?? 0,
-                'body'=>array(
-                    "query"=>array(
-                        "query_string"=>array(
-                            "query"=>$builtQuery
+                $builtQuery = implode(" AND ", $builtQuery);
+                
+                $params = [
+                    'index'=>Constant::getGlobals()["patient-es-archive-index"] ?? '',
+                    'type'=>'patient-info',
+                    'size'=>$data['size'] ?? 1,
+                    'from'=>$data['from'] ?? 0,
+                    'body'=>array(
+                        "query"=>array(
+                            "query_string"=>array(
+                                "query"=>$builtQuery
+                            )
                         )
                     )
-                )
-            ];
+                ];
 
-            $esClient = ESClientFactory::getClient();
+                $esClient = ESClientFactory::getClient();
 
-            $result = $esClient->search($params);
+                $result = $esClient->search($params);
+            }
+            
         }
         catch(\Exception $e){
             $query = $data["query"];
