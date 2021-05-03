@@ -224,7 +224,7 @@ class PaymentRequest
         return $result;
     }
 
-    public static function loadAllRequests($data){
+    private static function getAllRequestsData($data){
         $query = 
                 "
                     SELECT 
@@ -370,7 +370,8 @@ class PaymentRequest
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
-        die($query);
+        
+
         try
         {
             $viewPaymentRequestOperation = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
@@ -382,39 +383,18 @@ class PaymentRequest
                 (string)$query
             );
 
-            $result = [];
-            foreach ($viewPaymentRequestOperation as $value) {
-                $key = $value["PaymentRequestID"];
-                if (!isset($result[$key])){
-                    $result[$key] = $value; 
-                }
-                else {
-                    $result[$key]["BillingAmountPaid"] += $value["BillingAmountPaid"];
-                }
-
-                // if ($value["AttachedInvoice"] != ""){
-                //     $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::getTransactionNumber((int) $value["AttachedInvoice"])["BillingTransactionNumber"];
-                // }
-
-                $result[$key]["RequestByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$result[$key]["RequestBy"]])["StaffFullName"];
-            }
-                
             $_result = [];
-            foreach ($result as $value){
-                $_result[] = $value;
-            }
-
             if (isset($data["paginate"])){
                 $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
                 // $filtered = count($_result) + 1;
                 $_result = [
-                    "data"=>$_result,
+                    "data"=>[], //$_result,
                     "total"=>$total,
                     "filtered"=>$total
                 ];
             }
 
-            return $_result;  
+            return [$viewPaymentRequestOperation, $_result]; 
         }
         catch (\PDOException $e) 
         {
@@ -428,8 +408,53 @@ class PaymentRequest
         }
     }
 
+    public static function loadAllRequests($data){
+        $requests = self::getAllRequestsData($data);
+        
+        $result = [];
+        foreach ($requests[0] as $value) {
+            $key = $value["PaymentRequestID"];
+            if (!isset($result[$key])){
+                $result[$key] = $value; 
+            }
+            else {
+                $result[$key]["BillingAmountPaid"] += $value["BillingAmountPaid"];
+            }
+
+            // if ($value["AttachedInvoice"] != ""){
+            //     $result[$key]["AttachedInvoiceNumber"] = \EmmetBlue\Plugins\AccountsBiller\TransactionMeta\TransactionMeta::getTransactionNumber((int) $value["AttachedInvoice"])["BillingTransactionNumber"];
+            // }
+
+            $result[$key]["RequestByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullNameFromUUID(["uuid"=>$result[$key]["RequestBy"]])["StaffFullName"];
+        }
+            
+        $_result = [];
+        foreach ($result as $value){
+            $_result[] = $value;
+        }
+
+        if (isset($data["paginate"])){
+            $requests[1]["data"] = $_result;
+            $_result = $requests[1];
+        }
+
+        return $_result;  
+    }
+
+    public static function loadAllRequestsUngrouped($data){
+        $result = self::getAllRequestsData($data);
+            
+        $_result = $result[0];
+        if (isset($data["paginate"])){
+            $result[1]["data"] = $_result;
+            $_result = $result[1];
+        }
+
+        return $_result;  
+    }
+
     public static function analyseRequests($data){
-        $dataToCrunch = self::loadAllRequests($data);
+        $dataToCrunch = self::loadAllRequestsUngrouped($data);
         $analysis = ["summary"=>[], "breakdown"=>[], "paymentMethodBreakdown"=>[]];
         $finalData = [
             "totals"=>[],
