@@ -29,7 +29,7 @@ class DepositAccount
 		return DepositAccount\DepositAccount::newTransaction($data);
 	}
 
-	public static function viewTransactions(int $data)
+	public static function viewTransactions(array $data)
 	{
 		return DepositAccount\DepositAccount::viewTransactions($data);
 	}
@@ -42,5 +42,9 @@ class DepositAccount
 	public static function accountExists(int $data)
 	{
 		return DepositAccount\DepositAccount::accountExists($data);
+	}
+
+	public static function getCreditTransactionsTotal(array $data){
+		return DepositAccount\DepositAccount::getCreditTransactionsTotal($data);
 	}
 }

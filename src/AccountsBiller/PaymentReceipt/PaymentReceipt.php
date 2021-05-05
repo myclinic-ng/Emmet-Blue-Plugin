@@ -158,75 +158,13 @@ class PaymentReceipt
             }
         }
 
-        unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
-
-        if (isset($data["constantstatus"]) && $data["constantstatus"] != ""){
-           $query .= " AND a.RequestFulfillmentStatus = ".$data["constantstatus"];
-           unset($data["constantstatus"]);
-        }
-
-        if (!empty($data)){
-            $_filters = ["status"=>[], "department"=>[], "date"=>[]];
-            if (isset($data["_status"]) && $data["_status"] != ""){
-                $data["_status"] = explode(",", str_replace(" ", "", $data["_status"]));
-
-                foreach ($data["_status"] as $value) {
-                    $_filters["status"][] = "a.RequestFulfillmentStatus=".$value;
-                }
-            }
-
-            if (isset($data["_date"]) && $data["_date"] != ""){
-                $data["_date"] = explode(",", str_replace(" ", "", $data["_date"]));
-
-                foreach ($data["_date"] as $value) {
-                    $_filters["date"][] = "CAST(f.BillingTransactionDate AS DATE) ='".$value."'";
-                }
-            }
-
-            if (isset($data["_department"]) && $data["_department"] != ""){
-                $data["_department"] = explode(",", str_replace(" ", "", $data["_department"]));
-
-                foreach ($data["_department"] as $value) {
-                    $_filters["department"][] = "a.RequestDepartment =".$value;
-                }
-            }
-
-            if (isset($data["_patienttype"]) && $data["_patienttype"] != ""){
-                $data["_patienttype"] = explode(",", str_replace(" ", "", $data["_patienttype"]));
-
-                foreach ($data["_patienttype"] as $value) {
-                    $_filters["patienttype"][] = "e.PatientTypeID =".$value;
-                }
-            }
-
-            if (isset($data["_paymentmethod"]) && $data["_paymentmethod"] != ""){
-                $data["_paymentmethod"] = explode(",", str_replace(" ", "", $data["_paymentmethod"]));
-
-                foreach ($data["_paymentmethod"] as $value) {
-                    $_filters["paymentmethod"][] = "f.BillingPaymentMethod ='".$value."'";
-                }
-            }
-
-            $string[] = empty($_filters["status"]) ? "1=1" : "(".implode(" OR ", $_filters["status"]).")";
-            $string[] = empty($_filters["date"]) ? "1=1" : "(".implode(" OR ", $_filters["date"]).")";
-            $string[] = empty($_filters["department"]) ? "1=1" : "(".implode(" OR ", $_filters["department"]).")";
-            $string[] = empty($_filters["patienttype"]) ? "1=1" : "(".implode(" OR ", $_filters["patienttype"]).")";
-            $string[] = empty($_filters["paymentmethod"]) ? "1=1" : "(".implode(" OR ", $_filters["paymentmethod"]).")";
-
-            $string = implode(" AND ", $string);
-
-            if ($string != ""){
-                $query .= " AND (".$string.")";
-            }
-        }
-
         if (isset($data["paginate"])){
             if (isset($data["keywordsearch"])){
                 $keyword = $data["keywordsearch"];
                 $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR e.PatientTypeName LIKE '%$keyword%' OR b.Name LIKE '%$keyword%' OR e.CategoryName LIKE '%$keyword%')";
             }
 
-            $_query = "SELECT SUM(a.BillingAmountPaid) as sumTotal, COUNT(DISTINCT a.RequestPatientID) as totalPatients, COUNT(*) as totalReceipts FROM ($query) a;";
+            $_query = "SELECT SUM(a.BillingAmountPaid) as sumTotalSales, COUNT(DISTINCT a.RequestPatientID) as totalPatients, COUNT(*) as totalReceipts FROM ($query) a;";
             $size = $data["size"] + $data["from"];
             $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
@@ -250,7 +188,9 @@ class PaymentReceipt
             $_result = [];
             $meta = [
                 "sumTotal"=>0,
-                "totalPatients"=>0
+                "sumTotalSales"=>0,
+                "totalPatients"=>0,
+                "totalDepositCredits"=>0
             ];
 
             foreach ($result as $value){
@@ -264,6 +204,9 @@ class PaymentReceipt
             if (isset($data["paginate"])){
                 $total = DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC);
                 $meta = $total[0];
+                $deposits = \EmmetBlue\Plugins\AccountsBiller\DepositAccount::getCreditTransactionsTotal($data);
+                $meta["totalDepositCredits"] = $deposits["totalCredit"];
+                $meta["sumTotal"] = $deposits["totalCredit"] + $meta["sumTotalSales"];
                 $_result = [
                     "data"=>$_result,
                     "meta"=>$meta,
