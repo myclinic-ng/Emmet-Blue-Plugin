@@ -79,7 +79,7 @@ class DepositAccount
         return $result;        
     }
 
-    public static function viewTransactions(int $resourceId){
+    public static function _viewTransactions(int $resourceId){
         $query = "SELECT a.* FROM Accounts.PatientDepositsAccountTransactions a INNER JOIN Accounts.PatientDepositsAccount b ON a.AccountID = b.AccountID WHERE b.PatientID = $resourceId ORDER BY a.TransactionID DESC";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
@@ -89,5 +89,76 @@ class DepositAccount
         }
 
         return $result;
+    }
+
+    public static function viewTransactions(array $data){
+        $query = "
+            SELECT 
+                ROW_NUMBER() OVER (ORDER BY a.TransactionDate DESC) AS RowNum,
+                a.*,
+                c.PatientFullName,
+                c.PatientPicture,
+                d.PatientTypeName,
+                d.CategoryName
+            FROM Accounts.PatientDepositsAccountTransactions a
+            INNER JOIN Accounts.PatientDepositsAccount b ON a.AccountID = b.AccountID
+            INNER JOIN Patients.Patient c ON b.PatientID = c.PatientID 
+            INNER JOIN Patients.PatientType d on c.PatientType = d.PatientTypeID
+        ";
+
+        switch($data["filtertype"]){
+            case "patient":{
+                $query .= " WHERE b.PatientID = '".$data["query"]."'";
+                break;
+            }
+            case "date":{
+                $sDate = QB::wrapString($data["startdate"], "'");
+                $eDate = QB::wrapString($data["enddate"], "'");
+                $query .= " WHERE (CONVERT(date, a.TransactionDate) BETWEEN $sDate AND $eDate)";
+                break;
+            }
+        }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $query .= " AND (c.PatientFullName LIKE '%$keyword%' OR d.PatientTypeName LIKE '%$keyword%' OR d.CategoryName LIKE '%$keyword%')";
+            }
+
+            $_query = $query;
+            $size = $data["size"] + $data["from"];
+            $query = "SELECT * FROM ($query) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query((string)$query))->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($result as $key=>$data){
+                $result[$key]["StaffName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $data["StaffID"])["StaffFullName"];
+            }
+
+            $_result = [];
+            if (isset($data["paginate"])){
+                $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+                $_result = [
+                    "data"=>$result,
+                    "total"=>$total,
+                    "filtered"=>$total
+                ];
+            }
+
+            return $_result;
+        }
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request"
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
     }
 }
