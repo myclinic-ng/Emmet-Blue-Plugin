@@ -181,7 +181,7 @@ class TransactionMeta
                         break;
                     }
                     case "status":{
-                        $add = " WHERE a.BillingTransactionStatus = ".$data["query"];
+                        $add = " WHERE a.BillingTransactionStatus = '".$data["query"]."'";
                         break;
                     }
                     case "staff":{
