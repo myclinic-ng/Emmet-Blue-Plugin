@@ -46,7 +46,7 @@ class StoreInventory
             
             $id = $result['lastInsertId']; 
 
-            self::createInventoryTags(["tags"=>$data["tags"], "item"=>$id]);
+            self::createInventoryTags(["tags"=>$storeInventoryTags, "item"=>$id]);
 
             return ['lastInsertId'=>$id];
         }
