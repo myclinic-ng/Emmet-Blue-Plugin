@@ -91,46 +91,71 @@ class StoreRestockHistory
         }
     }
 
-    /**
-     * Returns store group data
-     *
-     * @param int $resourceId optional
-     */
     public static function view(int $resourceId = 0, array $data = [])
     {
-        $selectBuilder = (new Builder("QueryBuilder", "Select"))->getBuilder();
+        $filters = $data["filtertype"] ?? null;
+        $selectBuilder = "SELECT ROW_NUMBER() OVER (ORDER BY a.RestockDate) AS RowNum,
+                    a.*, b.ItemBrand, b.ItemManufacturer, c.BillingType, c.BillingTypeItemName,
+                    c.BillingTypeItemID
+                FROM Pharmacy.StoreRestockHistory a 
+                LEFT JOIN Pharmacy.StoreInventory b ON a.ItemID = b.ItemID 
+                INNER JOIN Accounts.BillingTypeItems c ON b.Item = c.BillingTypeItemID";
 
-        try
-        {
-            if (empty($data)){
-                $selectBuilder->columns("*");
+        if (!is_null($filters)){
+            $sDate = QB::wrapString($data["startdate"], "'");
+            $eDate = QB::wrapString($data["enddate"], "'");
+            $selectBuilder .= " WHERE (CONVERT(date, a.RestockDate)) BETWEEN $sDate AND $eDate";
+
+
+            switch($data["filtertype"]){
+                default:{
+
+                }
             }
-            else {
-                $selectBuilder->columns(implode(", ", $data));
-            }
-            
-            $selectBuilder->from("Pharmacy.StoreRestockHistory a")->innerJoin("Pharmacy.StoreInventory b", "a.ItemID = b.ItemID");
-            $selectBuilder->innerJoin('Accounts.BillingTypeItems c', 'b.Item = c.BillingTypeItemID');
 
-            if ($resourceId !== 0){
-                $selectBuilder->where("a.ItemID = $resourceId");
+            unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
+
+            if (isset($data["constantstatus"]) && $data["constantstatus"] != ""){
+               unset($data["constantstatus"]);
             }
 
-            // die($selectBuilder);
-            
-            $result = (
-                DBConnectionFactory::getConnection()
-                ->query((string)$selectBuilder)
-            )->fetchAll(\PDO::FETCH_ASSOC);
-
-            return $result;
+            unset($data["filtertype"], $data["query"], $data["startdate"], $data["enddate"]);
         }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to retrieve requested data, %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+
+        if ($resourceId !== 0){
+            $selectBuilder .= " AND a.HistoryID = $resourceId";
         }
+
+        if (isset($data["paginate"])){
+            if (isset($data["keywordsearch"])){
+                $keyword = $data["keywordsearch"];
+                $selectBuilder .= " AND (c.BillingTypeItemName LIKE '%$keyword%' OR a.Comment LIKE '%$keyword%')";
+            }
+            $size = $data["from"] + $data["size"];
+            $_query = $selectBuilder;
+            $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
+        }
+
+        $result = (
+            DBConnectionFactory::getConnection()
+            ->query((string)$selectBuilder)
+        )->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $key => $value) {
+            $result[$key]["staffInfo"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $value["StaffID"]);
+            $result[$key]["staffInfo"]["Role"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $value["StaffID"])["Name"];
+        }
+
+        if (isset($data["paginate"])){
+            $total = count(DBConnectionFactory::getConnection()->query($_query)->fetchAll(\PDO::FETCH_ASSOC));
+            // $filtered = count($_result) + 1;
+            $result = [
+                "data"=>$result,
+                "total"=>$total,
+                "filtered"=>$total
+            ];
+        }
+
+        return $result;
     }
 }

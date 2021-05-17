@@ -101,7 +101,6 @@ class PharmacyRequest
             $selectBuilder = "SELECT * FROM ($selectBuilder) AS RowConstrainedResult WHERE RowNum >= ".$data["from"]." AND RowNum < ".$size." ORDER BY RowNum";
         }
 
-        // die($selectBuilder);
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -123,13 +122,7 @@ class PharmacyRequest
                     $viewOperation[$key]["isAdmitted"] = false;
                 }
             }
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Pharmacy',
-                'PrescriptionRequests',
-                (string)$selectBuilder
-            );
+            
 
             if ($resourceId !== 0 && isset($viewOperation[0])){
                 $viewOperation = $viewOperation[0];
