@@ -33,4 +33,9 @@ class PurchaseLog
 	public static function viewPurchaseLog(int $resourceId = 0, array $data=[]){
 		return PurchaseLog\PurchaseLog::view($resourceId, $data);
 	}
+
+
+	public static function registerNewItem(array $data=[]){
+		return PurchaseLog\PurchaseLog::registerNewItem($data);
+	}
 }

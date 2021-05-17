@@ -181,4 +181,24 @@ class PurchaseLog
             
         }
     }
+
+    public static function registerNewItem(array $data){
+        // create billing type item
+        $billingData = $data["billing"];
+        $result = \EmmetBlue\Plugins\AccountsBiller\AccountsBillingTypeItems\NewAccountsBillingTypeItems::default($data);
+        $billingItemId = $result["billingTypeItemId"];
+
+        // create general default price
+        $priceData = $data["price"];
+        $priceData = ["price"=>$priceData, "billingTypeItem"=>$billingItemId];
+        $result = \EmmetBlue\Plugins\AccountsBiller\AccountsBillingTypeItems\NewAccountsBillingTypeItems::newGeneralPrice($data);
+
+        // add to store inventory
+        $storeData = $data["inventory"];
+        $storeData["item"] = $billingItemId;
+
+        $result = \EmmetBlue\Plugins\Pharmacy\StoreInventory\StoreInventory::create($storeData);
+
+        return $result;
+    }
 }
