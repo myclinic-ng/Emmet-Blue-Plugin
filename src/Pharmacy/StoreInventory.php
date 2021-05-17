@@ -68,6 +68,11 @@ class StoreInventory
 		return StoreInventory\storeInventory::delete($resourceId);
 	}
 
+	public static function deleteStoreInventoryItem(int $resourceId)
+	{
+		return StoreInventory\storeInventory::deleteStoreItem($resourceId);
+	}
+
 	public static function editStoreInventory(int $resourceId, array $data)
     {
         $result = StoreInventory\StoreInventory::editStoreInventory($resourceId, $data);

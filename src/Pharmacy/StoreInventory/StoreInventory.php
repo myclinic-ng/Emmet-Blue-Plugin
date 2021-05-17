@@ -483,6 +483,32 @@ class StoreInventory
         }
     }
 
+    public static function deleteStoreItem(int $resourceId)
+    {
+        $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
+
+        try
+        {
+            $deleteBuilder
+                ->from("Pharmacy.StoreInventoryItems")
+                ->where("ItemID = $resourceId");
+            
+            $result = (
+                    DBConnectionFactory::getConnection()
+                    ->exec((string)$deleteBuilder)
+                );
+
+            return $result;
+        }
+        catch (\PDOException $e)
+        {
+            throw new SQLException(sprintf(
+                "Unable to process delete request, %s",
+                $e->getMessage()
+            ), Constant::UNDEFINED);
+        }
+    }
+
     public static function deleteStoreInventoryTag(int $resourceId)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "Delete"))->getBuilder();
