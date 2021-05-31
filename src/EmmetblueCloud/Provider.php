@@ -65,7 +65,12 @@ class Provider {
 
 			$path = $staff["StaffPicture"];
 			$type = pathinfo($path, PATHINFO_EXTENSION);
-			$data = file_get_contents($path);
+			if (file_exists($path)){
+				$data = file_get_contents($path);	
+			}
+			else {
+				$data = "";
+			}
 			$picture = 'data:image/' . $type . ';base64,' . base64_encode($data);
 
 			$result = HTTPRequest::httpPostRequest($url, [

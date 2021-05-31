@@ -92,8 +92,16 @@ class PatientDiagnosis
      */
     public static function deletePatientDiagnosis(int $resourceId)
     {
-    	$result = PatientDiagnosis\PatientDiagnosis::delete($resourceId);
+        $result = PatientDiagnosis\PatientDiagnosis::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
+
+    public static function getDiagnosisData(int $resourceId=0)
+    {
+        $result = PatientDiagnosis\DiagnosisData::getData($resourceId);
+
+        return $result;
+    }
+
 }

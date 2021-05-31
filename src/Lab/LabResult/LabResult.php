@@ -76,11 +76,16 @@ class LabResult
                     $reqs[] = "($value, $repoId, '$reportedBy')";
                     $reqs2[] = "UPDATE Lab.Patients SET Published = 1 WHERE PatientLabNumber = $value";
 
-                    \EmmetBlue\Plugins\EmmetblueCloud\Lab::sendPublishStatus([
-                        "patient"=>$patientId,
-                        "labNumber"=>$value,
-                        "staff"=>$reportedBy
-                    ]);
+                    try {
+                        \EmmetBlue\Plugins\EmmetblueCloud\Lab::sendPublishStatus([
+                            "patient"=>$patientId,
+                            "labNumber"=>$value,
+                            "staff"=>$reportedBy
+                        ]);
+                    }
+                    catch(\Exception $e){
+                        
+                    }
                 }
 
                 $query = "INSERT INTO Lab.LabResults (PatientLabNumber, RepositoryID, ReportedBy) VALUES ".implode(", ", $reqs);
@@ -88,13 +93,13 @@ class LabResult
 
                 DBConnectionFactory::getConnection()->exec(implode(";", $reqs2));
 
-                DatabaseLog::log(
-                    Session::get('USER_ID'),
-                    Constant::EVENT_INSERT,
-                    'Lab',
-                    'LabResults',
-                    serialize($query)
-                );
+                // DatabaseLog::log(
+                //     Session::get('USER_ID'),
+                //     Constant::EVENT_INSERT,
+                //     'Lab',
+                //     'LabResults',
+                //     serialize($query)
+                // );
             }
 
             return ["repoId"=>$repoId];

@@ -161,9 +161,12 @@ class PatientDiagnosis
             ->columns('*')
             ->from('Patients.PatientDiagnosis')
             ->where('PatientID ='.$resourceId);
+
+        $selectBuilder = (string)$selectBuilder . " ORDER BY DiagnosisDate DESC";
+
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query($selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
             DatabaseLog::log(
                 Session::get('USER_ID'),
@@ -204,13 +207,13 @@ class PatientDiagnosis
         {
             $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'PatientDiagnosis',
-                (string)serialize($selectBuilder)
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Patients',
+            //     'PatientDiagnosis',
+            //     (string)serialize($selectBuilder)
+            // );
 
             foreach ($result as $key => $value) {
                 $result[$key]["Diagnosis"] = unserialize($value["Diagnosis"]);

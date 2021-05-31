@@ -76,11 +76,16 @@ class Patient
 
                 $id = $result["lastInsertId"];
 
-                \EmmetBlue\Plugins\EmmetblueCloud\Lab::addFollowUp([
-                    "patient"=>$patientID,
-                    "labNumber"=>$id,
-                    "staff"=>$requestedBy
-                ]);
+                try {
+                    \EmmetBlue\Plugins\EmmetblueCloud\Lab::addFollowUp([
+                        "patient"=>$patientID,
+                        "labNumber"=>$id,
+                        "staff"=>$requestedBy
+                    ]);   
+                }
+                catch(\Exception $e){
+                    
+                }
 
                 DatabaseLog::log(
                     Session::get('USER_ID'),
@@ -101,10 +106,7 @@ class Patient
             ), Constant::UNDEFINED);
         }
     }
-
-    /**
-     * view Wards data
-     */
+    
     public static function view(int $resourceId, array $data=[])
     {
         $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();

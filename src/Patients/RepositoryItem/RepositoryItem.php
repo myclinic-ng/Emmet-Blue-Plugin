@@ -38,7 +38,7 @@ class RepositoryItem
     }
     
     protected static $allowedExtensions = [
-        "image"=>["jpg", "png", "jpeg"],
+        "image"=>["jpg", "png", "jpeg", "image"],
         "text"=>["txt"],
         "pdf"=>["pdf"]
     ];
@@ -87,10 +87,12 @@ class RepositoryItem
         if (isset($_FILES["documents"])){
             $fileNameArray = explode(".", $_FILES["documents"]["name"]);
             $ext = $fileNameArray[count($fileNameArray) - 1];
+            $document = $_FILES["documents"];
         }
         else if (isset($data["documents"])){
             $data["file"] = $data["documents"];
             $ext = $category;
+            $document = $data["documents"];
         }
         else if(isset($data["json"])){
             $ext = "json";
@@ -119,10 +121,31 @@ class RepositoryItem
                 switch (strtolower($category))
                 {
                     case "image":
+                    {
+                        if (in_array(strtolower($ext), self::$allowedExtensions[strtolower($category)])){
+                            $document = str_replace(" ", "+", $document);
+                            $document = base64_decode($document);
+                            $docs = explode(",", $document);
+                            $ext = explode("/", $docs[0])[1];
+                            $document = base64_decode($docs[1]);
+                            
+                           if (!self::createRepoFile($puuid, $ruuid, $document, $number.".".$ext)){
+                                self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
+                            }
+                        }
+                        else {
+                            self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
+                            throw new UnallowedOperationException(sprintf(
+                                "Unallowed file type detected. .%s files are not allowed",
+                                $ext
+                            ), Constant::UNDEFINED);
+                        }
+                        break;
+                    }
                     case "text":
                     {
                         if (in_array(strtolower($ext), self::$allowedExtensions[strtolower($category)])){
-                           if (!self::uploadRepoItems($puuid, $ruuid, $_FILES["documents"], $number)){
+                           if (!self::createRepoFile($puuid, $ruuid, $document, $number.".".$ext)){
                                 self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
                             }
                         }
