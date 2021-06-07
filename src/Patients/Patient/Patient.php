@@ -532,7 +532,7 @@ class Patient
         $start = (new \DateTime())->format("m/d/Y");
         $end = (new \DateTime("+1day"))->format("m/d/Y");
 
-        $query = "SELECT c.PatientID FROM Patients.PatientProfileUnlockLog a INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
+        $query = "SELECT DISTINCT c.PatientID FROM Patients.PatientProfileUnlockLog a INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID WHERE CONVERT(date, a.DateLogged) BETWEEN '$start' AND '$end'";
 
         $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
