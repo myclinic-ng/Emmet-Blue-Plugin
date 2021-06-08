@@ -139,7 +139,11 @@ class Account {
         $accounts = self::view();
 
         if ($period == 0){
-            $period = \EmmetBlue\Plugins\FinancialAccounts\AccountingPeriod\CurrentAccountingPeriod::view()["AccountingPeriodID"];
+            $_period = \EmmetBlue\Plugins\FinancialAccounts\AccountingPeriod\CurrentAccountingPeriod::view();
+
+            if (isset($_period["AccountingPeriodID"])){
+                $period = $_period["AccountingPeriodID"];
+            }
         }
         
         foreach ($accounts as $key=>$account){

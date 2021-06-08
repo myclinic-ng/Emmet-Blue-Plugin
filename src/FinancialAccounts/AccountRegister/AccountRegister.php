@@ -91,7 +91,12 @@ class AccountRegister {
             $result["total"][trim($value["EntryType"])] += $value["EntryValue"];
         }
 
-        $result["total"]["imprest"] = $result["total"]["credit"] - $result["total"]["debit"];
+        if (isset($result["total"]["credit"]) && isset($result["total"]["debit"])){
+            $result["total"]["imprest"] = $result["total"]["credit"] - $result["total"]["debit"];
+        }
+        else {
+            $result["total"]["imprest"] = 0;
+        }
         
         return $result;
     }
