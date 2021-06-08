@@ -48,9 +48,9 @@ class GeneralJournal {
 
         $entries = $data['entries'];
 
-        if (!self::isEntryBalanced($entries)){
-            throw new \Exception("Journal Entry must balance to submit it");
-        }
+        // if (!self::isEntryBalanced($entries)){
+        //     throw new \Exception("Journal Entry must balance to submit it");
+        // }
 
 		try {
 			 $result = DBQueryFactory::insert('FinancialAccounts.GeneralJournal', [
