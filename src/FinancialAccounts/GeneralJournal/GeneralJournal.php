@@ -48,6 +48,7 @@ class GeneralJournal {
 
         $entries = $data['entries'];
 
+        // WHY IS THIS IMPORTANT?
         // if (!self::isEntryBalanced($entries)){
         //     throw new \Exception("Journal Entry must balance to submit it");
         // }
@@ -241,11 +242,12 @@ class GeneralJournal {
             $accountId = $entry['account'];
             $entryType = trim($entry['type']) ?? null;
             $entryValue = $entry['value'] ?? null;
+            $entryUniqueKey = $entry['identifier'] ?? null
 
-            $entrySqlValue[] = "(".implode(",", [$journalId, QB::wrapString((string)$description, "'"), $accountId, QB::wrapString((string)$entryType, "'"), QB::wrapString((string)$entryValue, "'")]).")";
+            $entrySqlValue[] = "(".implode(",", [$journalId, QB::wrapString((string)$description, "'"), $accountId, QB::wrapString((string)$entryType, "'"), QB::wrapString((string)$entryValue, "'"), QB::wrapStrin((string)$entryUniqueKey, "'")]).")";
         }
 
-        $query = "INSERT INTO FinancialAccounts.GeneralJournalEntries (GeneralJournalID, EntryDescription, AccountID, EntryType, EntryValue) VALUES ".implode(", ", $entrySqlValue);
+        $query = "INSERT INTO FinancialAccounts.GeneralJournalEntries (GeneralJournalID, EntryDescription, AccountID, EntryType, EntryValue, UserGeneratedID) VALUES ".implode(", ", $entrySqlValue);
 
         $_result = DBConnectionFactory::getConnection()->exec($query);
 
