@@ -70,6 +70,7 @@ class HospitalHistory
         $query = "SELECT TOP(1) * from Patients.PatientHospitalHistory WHERE PatientID = $patientId ORDER BY HospitalHistoryID DESC";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
+        $result = $result[0] ?? [];
         return $result;
     }
 
