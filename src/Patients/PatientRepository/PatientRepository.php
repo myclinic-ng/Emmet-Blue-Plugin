@@ -40,7 +40,7 @@ class PatientRepository
     {
         $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoUuid;
-        if (!mkdir($repoDir)){
+        if (!mkdir($reopDir, 0777, true)){
             return false;
         }
 
