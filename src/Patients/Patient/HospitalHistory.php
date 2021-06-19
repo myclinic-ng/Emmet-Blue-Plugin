@@ -67,7 +67,7 @@ class HospitalHistory
     }
 
     public static function lastVisit(int $patientId){
-        $query = "SELECT TOP(1) * from Patients.PatientHospitalHistory WHERE PatientID = $patient ORDER BY HospitalHistoryID DESC";
+        $query = "SELECT TOP(1) * from Patients.PatientHospitalHistory WHERE PatientID = $patientId ORDER BY HospitalHistoryID DESC";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
