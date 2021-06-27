@@ -40,7 +40,7 @@ class Packets {
 
 		}
 
-		$url = HTTPRequest::$cloudUrl."/provider/message-packet/new-packet";
+		$url = HTTPRequest::getCloudUrl()."/provider/message-packet/new-packet";
 
 		$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
 

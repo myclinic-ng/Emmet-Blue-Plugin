@@ -63,7 +63,7 @@ class Provider {
 		if (isset($staff["StaffPicture"])){
 			$desc = $data["desc"] ?? \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole($staffId)["Name"];
 			$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
-			$url = HTTPRequest::$cloudUrl."/provider/member/new-member";
+			$url = HTTPRequest::getCloudUrl()."/provider/member/new-member";
 
 			$path = $staff["StaffPicture"];
 			$type = pathinfo($path, PATHINFO_EXTENSION);

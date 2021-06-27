@@ -34,14 +34,18 @@ class XHttpRequest {
 	public static $cloudUrl = ""; //"https://emmetblue.ng/endpoints/cloud/v1";
 
 	public static function getCloudUrl() {
-		if (isset(Constant::getGlobals()["cloud-url"])){
-			self::$cloudUrl = Constant::getGlobals()["cloud-url"];
+		if (isset(Constant::getGlobals()["cloud-server-url"])){
+			self::$cloudUrl = Constant::getGlobals()["cloud-server-url"];
 		}
 
 		return self::$cloudUrl;
 	}
 
 	public static function httpRequest($url, $keyBunch){
+		if (!isset($keyBunch["ProviderID"]) || !isset($keyBunch["ProviderSecretToken"])){
+			throw new \Exception("Provider not configured");
+		}
+
 		$request = HTTPRequest::get($url, [
 			'X-Authorization'=>$keyBunch["ProviderID"].",".$keyBunch["ProviderSecretToken"]
 		]);
@@ -56,6 +60,10 @@ class XHttpRequest {
 	}
 
 	public static function httpPostRequest($url, $data, $keyBunch){
+		if (!isset($keyBunch["ProviderID"]) || !isset($keyBunch["ProviderSecretToken"])){
+			throw new \Exception("Provider not configured");
+		}
+
 		$request = HTTPRequest::post($url, $data, [
 			'X-Authorization'=>$keyBunch["ProviderID"].",".$keyBunch["ProviderSecretToken"]
 		]);
