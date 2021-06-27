@@ -52,7 +52,9 @@ class Provider {
 	public static function getDetails(){
 		$query = "SELECT * FROM EmmetBlueCloud.Provider WHERE PKey = 1";
 
-		return DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0];
+		$result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+		return $result[0] ?? [];
 	}
 
 	public static function publishStaff(int $staffId, array $data=[]){
