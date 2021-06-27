@@ -46,7 +46,7 @@ class PatientProfile {
 			// $data = file_get_contents($path);
 			$patientInfo["patientpicture"] = ""; //'data:image/' . $type . ';base64,' . base64_encode($data);
 
-			$url = HTTPRequest::$cloudUrl."/provider/user-profile/upload-data";
+			$url = HTTPRequest::getCloudUrl()."/provider/user-profile/upload-data";
 			$response = HTTPRequest::httpPostRequest($url, $patientInfo, $keyBunch);
 
 			return $response;
@@ -68,7 +68,7 @@ class PatientProfile {
 
 			$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 
-			$url = HTTPRequest::$cloudUrl."/provider/user-profile/link?resourceId=$accountId&userProviderId=$patient&alias=$alias&provider=".$keyBunch["ProviderID"];
+			$url = HTTPRequest::getCloudUrl()."/provider/user-profile/link?resourceId=$accountId&userProviderId=$patient&alias=$alias&provider=".$keyBunch["ProviderID"];
 
 			$response = HTTPRequest::httpRequest($url, $keyBunch);
 
@@ -96,16 +96,16 @@ class PatientProfile {
 		$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 		switch($data["method"]){
 			case "username":
-				$url = HTTPRequest::$cloudUrl."/provider/user-profile/retrieve-user-account-details-by-username?username=".$data["value"];	
+				$url = HTTPRequest::getCloudUrl()."/provider/user-profile/retrieve-user-account-details-by-username?username=".$data["value"];	
 				break;
 			case "email":
-				$url = HTTPRequest::$cloudUrl."/provider/user-profile/retrieve-user-account-details-by-email?email=".$data["value"];	
+				$url = HTTPRequest::getCloudUrl()."/provider/user-profile/retrieve-user-account-details-by-email?email=".$data["value"];	
 				break;
 			case "phone":
-				$url = HTTPRequest::$cloudUrl."/provider/user-profile/retrieve-user-account-details-by-phone?phone=".$data["value"];	
+				$url = HTTPRequest::getCloudUrl()."/provider/user-profile/retrieve-user-account-details-by-phone?phone=".$data["value"];	
 				break;
 			default:
-				$url = HTTPRequest::$cloudUrl."/provider/user-profile/retrieve-user-account-details?resourceId=".$data["value"];	
+				$url = HTTPRequest::getCloudUrl()."/provider/user-profile/retrieve-user-account-details?resourceId=".$data["value"];	
 		}
 		
 		$response = HTTPRequest::httpRequest($url, $keyBunch);
