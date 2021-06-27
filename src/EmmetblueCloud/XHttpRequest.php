@@ -30,8 +30,8 @@ use EmmetBlue\Core\Factory\HTTPRequestFactory as HTTPRequest;
  * @since v0.0.1 01/23/2017 6:49 AM
  */
 class XHttpRequest {
-	public static $cloudUrls = ["https://emmetblue.ng/endpoints/cloud/v1", "http://localhost:6543/v1"];
-	public static $cloudUrl = "http://api.emmetblue.ng:7002/v1";//"https://emmetblue.ng/endpoints/cloud/v1";
+	public static $cloudUrls = ["https://emmetblue.ng/endpoints/cloud/v1", "http://localhost:6543/v1"]; 
+	public static $cloudUrl = Constant::getGlobals()["cloud-url"] ?? "http://api.emmetblue.ng:7002/v1";
 
 	public static function httpRequest($url, $keyBunch){
 		$request = HTTPRequest::get($url, [
