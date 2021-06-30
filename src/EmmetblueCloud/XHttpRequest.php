@@ -52,7 +52,7 @@ class XHttpRequest {
 
 		$response = json_decode($request->body);
 
-		if ($response->errorStatus || !$response->contentData){
+		if ($response->errorStatus){
 			throw new \Exception(!is_null($response->errorMessage) ? $response->errorMessage : "An error occurred");
 		}
 
@@ -70,7 +70,7 @@ class XHttpRequest {
 
 		$response = json_decode($request->body);
 
-		if ($response->errorStatus || !$response->contentData){
+		if ($response->errorStatus){
 			throw new \Exception(!is_null($response->errorMessage) ? $response->errorMessage : "An error occurred");
 		}
 

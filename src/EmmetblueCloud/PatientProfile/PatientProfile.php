@@ -130,6 +130,5 @@ class PatientProfile {
 		$response = HTTPRequest::httpRequest($url, $data);
 
 		return $response;
-
 	}
 }
