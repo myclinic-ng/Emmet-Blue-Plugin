@@ -50,14 +50,11 @@ class PatientProfile
         $result = PatientProfile\PatientProfile::newRegistration($data);
 
         if ($result) {
-            $publicInfo = self::retrieveAccountPublicInfo([
-                "method"=>"email",
-                "value"=>$data["email"]
-            ]);
+            $userId = $result->user_id;
 
             $result = self::newLink([
                 "patient"=>$data["patient"],
-                "accountId"=>$publicInfo->user_id,
+                "accountId"=>$userId,
                 "staff"=>$data["staff"]
             ]);
         }
