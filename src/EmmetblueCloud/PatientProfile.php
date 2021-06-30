@@ -58,8 +58,8 @@ class PatientProfile
             $result = self::newLink([
                 "patient"=>$data["patient"],
                 "account_id"=>$publicInfo["user_id"],
-                "staff"=>$data["staff"];
-            ])
+                "staff"=>$data["staff"]
+            ]);
         }
 
         return $result;
