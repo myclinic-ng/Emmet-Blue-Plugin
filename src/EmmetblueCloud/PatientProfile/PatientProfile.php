@@ -20,7 +20,7 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\EmmetblueCloud\XHttpRequest as HTTPRequest;
-use Samshal\Rando as Rando;
+use Samshal\Rando\Rando as Rando;
 
 /**
  * class PatientProfile.
@@ -115,9 +115,10 @@ class PatientProfile {
 	}
 
 	public static function newRegistration(array $data){
+		$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 		$email = $data["email"] ?? null;
 		$alias = $data["alias"] ?? null;
-		$password = Rando::character(['length'=>30]);
+		$password = Rando::text(["length"=>30]);
 
 		$url = HTTPRequest::getCloudUrl()."/provider/user-profile/register-new-user";
 		$data = [
@@ -127,8 +128,11 @@ class PatientProfile {
 			"alias"=>$alias
 		];
 
-		$response = HTTPRequest::httpRequest($url, $data);
+		$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
 
+		if (is_null($response)){
+			throw new \Exception("Invalid data. Check to ensure username/email has not been registered before");
+		}
 		return $response;
 	}
 }
