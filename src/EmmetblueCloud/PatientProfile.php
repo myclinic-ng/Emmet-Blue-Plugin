@@ -45,4 +45,10 @@ class PatientProfile
     public static function retrieveAccountPublicInfo(array $data){
     	return PatientProfile\PatientProfile::retrieveAccountPublicInfo($data);
     }
+    
+    public static function newLocalRegistration(array $data){
+        $result = PatientProfile\PatientProfile::newLocalRegistration($data);
+
+        return $result;
+    }
 }

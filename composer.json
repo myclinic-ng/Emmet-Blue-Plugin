@@ -1,7 +1,6 @@
 {
     "name": "emmetblue/emmet-blue-plugin",
     "description": "Plugin For EmmetBlue",
-    "type": "Project",
     "license": "MIT",
     "authors": [
         {
@@ -15,11 +14,14 @@
         }
     },
     "require": {
-        "gargron/fileupload":"~1.1.1"
+        "gargron/fileupload":"~1.1.1",
+        "samshal/rando": "dev-master"
     },
     "autoload":{
         "psr-4":{
             "EmmetBlue\\Plugins\\":"./src"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable":true
 }

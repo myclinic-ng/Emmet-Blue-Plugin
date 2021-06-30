@@ -20,6 +20,7 @@ use EmmetBlue\Core\Logger\DatabaseLog;
 use EmmetBlue\Core\Logger\ErrorLog;
 use EmmetBlue\Core\Constant;
 use EmmetBlue\Plugins\EmmetblueCloud\XHttpRequest as HTTPRequest;
+use Samshal\Rando as Rando;
 
 /**
  * class PatientProfile.
@@ -111,5 +112,24 @@ class PatientProfile {
 		$response = HTTPRequest::httpRequest($url, $keyBunch);
 
 		return $response;
+	}
+
+	public static function newRegistration(array $data){
+		$email = $data["email"] ?? null;
+		$alias = $data["alias"] ?? null;
+		$password = Rando::character(['length'=>30]);
+
+		$url = HTTPRequest::getCloudUrl()."/provider/user-profile/register-new-user";
+		$data = [
+			"username"=>$email,
+			"password"=>$alias,
+			"email"=>$email,
+			"alias"=>$alias
+		];
+
+		$response = HTTPRequest::httpRequest($url, $data);
+
+		return $response;
+
 	}
 }
