@@ -52,7 +52,7 @@ class PatientProfile
         if ($result) {
             $userId = $result->user_id;
 
-            $result = self::newLink([
+            self::newLink([
                 "patient"=>$data["patient"],
                 "accountId"=>$userId,
                 "staff"=>$data["staff"]
