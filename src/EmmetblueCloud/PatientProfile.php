@@ -49,6 +49,19 @@ class PatientProfile
     public static function newRegistration(array $data){
         $result = PatientProfile\PatientProfile::newRegistration($data);
 
+        if ($result) {
+            $publicInfo = self::retrieveAccountPublicInfo([
+                "method"=>"email",
+                "value"=>$data["email"]
+            ]);
+
+            $result = self::newLink([
+                "patient"=>$data["patient"],
+                "account_id"=>$publicInfo["user_id"],
+                "staff"=>$data["staff"];
+            ])
+        }
+
         return $result;
     }
 }
