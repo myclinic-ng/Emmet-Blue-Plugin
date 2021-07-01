@@ -118,7 +118,7 @@ class PatientProfile {
 		$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 		$email = $data["email"] ?? null;
 		$alias = $data["alias"] ?? null;
-		$password = Rando::text(["length"=>30]);
+		$password = substr(str_shuffle(MD5(microtime())), 0, 10); //Rando::text(["length"=>30]);
 
 		$url = HTTPRequest::getCloudUrl()."/provider/user-profile/register-new-user";
 		$data = [
