@@ -56,13 +56,13 @@ class PatientAppointment
 
             \EmmetBlue\Plugins\EmmetblueCloud\Appointment::publish($data);
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_INSERT,
-                'Patients',
-                'PatientAppointments',
-                (string)(serialize($result))
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_INSERT,
+            //     'Patients',
+            //     'PatientAppointments',
+            //     (string)(serialize($result))
+            // );
             
             return $result;
         }

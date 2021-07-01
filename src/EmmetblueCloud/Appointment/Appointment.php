@@ -53,7 +53,7 @@ class Appointment {
 				"appointmentId"=>$appointmentId
 			];
 
-			$url = HTTPRequest::$cloudUrl."/provider/appointment/create";
+			$url = HTTPRequest::getCloudUrl()."/provider/appointment/create";
 			$response = HTTPRequest::httpPostRequest($url, $_data, $keyBunch);
 
 			\EmmetBlue\Plugins\EmmetblueCloud\MessagePacket::sendAppointmentPacket($data);
@@ -71,7 +71,7 @@ class Appointment {
 			"provider"=>$keyBunch["ProviderID"]
 		];
 
-		$url = HTTPRequest::$cloudUrl."/provider/appointment/delete";
+		$url = HTTPRequest::getCloudUrl()."/provider/appointment/delete";
 		$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
 
 		if (!empty($data)){
