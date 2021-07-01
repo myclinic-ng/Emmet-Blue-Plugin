@@ -51,7 +51,7 @@ class Receipt {
 				"receipt"=>$receipt
 			];
 
-			$url = HTTPRequest::$cloudUrl."/provider/receipt/upload";
+			$url = HTTPRequest::getCloudUrl()."/provider/receipt/upload";
 			$response = HTTPRequest::httpPostRequest($url, $_data, $keyBunch);
 
 			// \EmmetBlue\Plugins\EmmetblueCloud\MessagePacket::sendReceiptPacket($data);

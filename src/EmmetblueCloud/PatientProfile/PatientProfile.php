@@ -123,7 +123,7 @@ class PatientProfile {
 		$url = HTTPRequest::getCloudUrl()."/provider/user-profile/register-new-user";
 		$data = [
 			"username"=>$email,
-			"password"=>$alias,
+			"password"=>$password,
 			"email"=>$email,
 			"alias"=>$alias
 		];
@@ -133,7 +133,7 @@ class PatientProfile {
 		if (is_null($response)){
 			throw new \Exception("Invalid data. Check to ensure username/email has not been registered before");
 		}
-		
+
 		return $response;
 	}
 }

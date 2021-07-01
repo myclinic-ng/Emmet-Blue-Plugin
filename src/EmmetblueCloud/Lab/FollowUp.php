@@ -62,7 +62,7 @@ class FollowUp {
 
 			$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 
-			$url = HTTPRequest::$cloudUrl."/provider/lab-followup/register";
+			$url = HTTPRequest::getCloudUrl()."/provider/lab-followup/register";
 			$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
 
 			\EmmetBlue\Plugins\EmmetblueCloud\MessagePacket::sendLabPacket([
@@ -93,7 +93,7 @@ class FollowUp {
 
 			$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 
-			$url = HTTPRequest::$cloudUrl."/provider/lab-followup/publish";
+			$url = HTTPRequest::getCloudUrl()."/provider/lab-followup/publish";
 			$response = HTTPRequest::httpPostRequest($url, $data, $keyBunch);
 
 			\EmmetBlue\Plugins\EmmetblueCloud\MessagePacket::sendLabPacket([
