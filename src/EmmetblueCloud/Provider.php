@@ -59,8 +59,11 @@ class Provider {
 
 	public static function publishStaff(int $staffId, array $data=[]){
 		$staff = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName($staffId);
-
-		$desc = $data["desc"] ?? \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole($staffId)["Name"];
+		$staffRole = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole($staffId);
+		if (!isset($staffRole["Name"])){
+			$staffRole = ["Name"=>""];
+		}
+		$desc = $data["desc"] ?? $staffRole["Name"];
 		$keyBunch = \EmmetBlue\Plugins\EmmetblueCloud\Provider::getDetails();
 		$url = HTTPRequest::getCloudUrl()."/provider/member/new-member";
 
