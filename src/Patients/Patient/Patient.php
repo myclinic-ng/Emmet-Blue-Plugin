@@ -596,7 +596,7 @@ class Patient
             if ($query == "*"){
                 $query = "";
             }
-            $query = "SELECT TOP $size a. PatientID FROM Patients.Patient a INNER JOIN Patients.PatientRecordsFieldValue b ON a.PatientID = b.PatientID WHERE (a.PatientFullName LIKE '%$query%' OR a.PatientFullName = '$query' OR a.PatientUUID LIKE '%$query%' OR b.FieldValue LIKE '%$query%')  AND a.ProfileDeleted = 0";
+            $query = "SELECT DISTINCT TOP $size a.PatientID FROM Patients.Patient a INNER JOIN Patients.PatientRecordsFieldValue b ON a.PatientID = b.PatientID WHERE (a.PatientFullName LIKE '%$query%' OR a.PatientFullName = '$query' OR a.PatientUUID LIKE '%$query%' OR b.FieldValue LIKE '%$query%')  AND a.ProfileDeleted = 0";
 
             $results = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
