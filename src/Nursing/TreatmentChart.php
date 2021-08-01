@@ -35,7 +35,7 @@ class TreatmentChart
         return $result;
     }
 
-    public static function view(int $resourceId, array $data)
+    public static function view(int $resourceId, array $data = [])
     {
         $result = TreatmentChart\TreatmentChart::view($resourceId, $data);
 
