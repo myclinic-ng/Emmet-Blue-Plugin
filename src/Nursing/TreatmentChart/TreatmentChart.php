@@ -115,12 +115,12 @@ class TreatmentChart
     }
 
     public static function viewDates(int $resourceId){
-        $query = "SELECT DISTINCT date FROM Nursing.AdmissionTreatmentChart WHERE Deleted = 0 AND PatientAdmissionID = $resourceId";
+        $query = "SELECT DISTINCT CONVERT(date, date) as date FROM Nursing.AdmissionTreatmentChart WHERE Deleted = 0 AND PatientAdmissionID = $resourceId";
 
         try
         {
             $result = (DBConnectionFactory::getConnection()->query($query." ORDER BY Date ASC"))->fetchAll(\PDO::FETCH_ASSOC);
-            
+
             return $result;
         } 
         catch (\PDOException $e) 
