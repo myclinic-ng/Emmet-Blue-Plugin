@@ -72,19 +72,13 @@ class TreatmentChart
      */
     public static function view(int $resourceId, array $data)
     {
-
-        // $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        // $selectBuilder
-        //     ->columns('*')
-        //     ->from('Nursing.AdmissionTreatmentChart')
-        //     ->where('Deleted = 0 AND (CONVERT(date, date) BETWEEN $sDate AND $eDate) AND PatientAdmissionID = '.$resourceId);
         
         $query = "SELECT * FROM Nursing.AdmissionTreatmentChart WHERE Deleted = 0 AND PatientAdmissionID = $resourceId";
 
         if (isset($data["startdate"]) && isset($data["enddate"])){   
             $sDate = QB::wrapString($data["startdate"], "'");
             $eDate = QB::wrapString($data["enddate"], "'");
-            $query = " AND (CONVERT(date, date) BETWEEN $sDate AND $eDate)";
+            $query .= " AND (CONVERT(date, date) BETWEEN $sDate AND $eDate)";
         }
 
         try
@@ -105,6 +99,28 @@ class TreatmentChart
             //     (string)$selectBuilder
             // );
 
+            return $result;
+        } 
+        catch (\PDOException $e) 
+        {
+            throw new SQLException(
+                sprintf(
+                    "Error procesing request %s",
+                    $e->getMessage()
+                ),
+                Constant::UNDEFINED
+            );
+            
+        }
+    }
+
+    public static function viewDates(int $resourceId){
+        $query = "SELECT DISTINCT date FROM Nursing.AdmissionTreatmentChart WHERE Deleted = 0 AND PatientAdmissionID = $resourceId";
+
+        try
+        {
+            $result = (DBConnectionFactory::getConnection()->query($query." ORDER BY Date ASC"))->fetchAll(\PDO::FETCH_ASSOC);
+            
             return $result;
         } 
         catch (\PDOException $e) 

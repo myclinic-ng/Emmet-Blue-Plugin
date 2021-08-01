@@ -42,6 +42,13 @@ class TreatmentChart
         return $result;
     }
 
+    public static function viewDates(int $resourceId)
+    {
+        $result = TreatmentChart\TreatmentChart::viewDates($resourceId);
+
+        return $result;
+    }
+
     public static function viewMostRecent(int $resourceId)
     {
         $result = TreatmentChart\TreatmentChart::viewMostRecent($resourceId);
