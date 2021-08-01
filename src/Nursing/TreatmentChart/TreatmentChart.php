@@ -70,17 +70,26 @@ class TreatmentChart
     /**
      * view allergies
      */
-    public static function view(int $resourceId)
+    public static function view(int $resourceId, array $data)
     {
-        $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
-        $selectBuilder
-            ->columns('*')
-            ->from('Nursing.AdmissionTreatmentChart')
-            ->where('Deleted = 0 AND PatientAdmissionID = '.$resourceId);
+
+        // $selectBuilder = (new Builder('QueryBuilder','Select'))->getBuilder();
+        // $selectBuilder
+        //     ->columns('*')
+        //     ->from('Nursing.AdmissionTreatmentChart')
+        //     ->where('Deleted = 0 AND (CONVERT(date, date) BETWEEN $sDate AND $eDate) AND PatientAdmissionID = '.$resourceId);
+        
+        $query = "SELECT * FROM Nursing.AdmissionTreatmentChart WHERE Deleted = 0 AND PatientAdmissionID = $resourceId";
+
+        if (isset($data["startdate"]) && isset($data["enddate"])){   
+            $sDate = QB::wrapString($data["startdate"], "'");
+            $eDate = QB::wrapString($data["enddate"], "'");
+            $query = " AND (CONVERT(date, date) BETWEEN $sDate AND $eDate)";
+        }
 
         try
         {
-            $result = (DBConnectionFactory::getConnection()->query((string)$selectBuilder." ORDER BY Date DESC"))->fetchAll(\PDO::FETCH_ASSOC);
+            $result = (DBConnectionFactory::getConnection()->query($query." ORDER BY Date ASC"))->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($result as $i=>$j){
                 $result[$i]["StaffDetails"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $j["LoggedBy"]);
@@ -88,13 +97,13 @@ class TreatmentChart
                 $result[$i]["Status"] = \EmmetBlue\Plugins\Nursing\TreatmentChartStatus\TreatmentChartStatus::viewMostRecent((int)$j["TreatmentChartID"]);
             }
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Nursing',
-                'AdmissionTreatmentChart',
-                (string)$selectBuilder
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Nursing',
+            //     'AdmissionTreatmentChart',
+            //     (string)$selectBuilder
+            // );
 
             return $result;
         } 
