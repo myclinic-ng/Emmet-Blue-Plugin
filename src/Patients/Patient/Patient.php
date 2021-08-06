@@ -300,7 +300,9 @@ class Patient
             }
             catch (\PDOException $e)
             {
-                self::delete((int)$id);
+                if(isset($id)){
+                    self::delete((int)$id);
+                }
                 throw new SQLException(sprintf(
                     "Unable to process request (patient not created), %s",
                     $e->getMessage()

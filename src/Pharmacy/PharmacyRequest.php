@@ -52,6 +52,11 @@ class PharmacyRequest
 		return PharmacyRequest\PharmacyRequest::close($resourceId, $data);
 	}
 
+	public static function declineRequest(int $resourceId, array $data=[])
+	{
+		return PharmacyRequest\PharmacyRequest::declineRequest($resourceId, $data);
+	}
+
 	public static function smartify(array $data)
 	{
 		return PharmacyRequest\PharmacyRequest::smartify($data);

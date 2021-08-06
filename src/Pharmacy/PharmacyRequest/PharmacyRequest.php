@@ -229,6 +229,13 @@ class PharmacyRequest
         return $conn->exec($query);
     }
 
+    public static function declineRequest(int $resourceId, array $data=[]){
+        $staff = $data["staff"] ?? null;
+        $status = "-2";
+        $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
+        return $conn->exec($query);
+    }
+
     public static function smartify(array $data){
         /**
          * [item category][:][item full name][no. of times=>{bd, tds, qds, od}][duration]
