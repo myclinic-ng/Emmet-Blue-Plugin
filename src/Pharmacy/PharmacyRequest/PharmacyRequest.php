@@ -233,7 +233,7 @@ class PharmacyRequest
         $staff = $data["staff"] ?? null;
         $status = "-2";
         $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
-        return $conn->exec($query);
+        return DBConnectionFactory::getConnection()->exec($query);
     }
 
     public static function smartify(array $data){
