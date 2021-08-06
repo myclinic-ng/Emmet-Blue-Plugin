@@ -229,7 +229,7 @@ class PharmacyRequest
         return $conn->exec($query);
     }
 
-    public static function declineRequest(int $resourceId, array $data=[]){
+    public static function declineRequest(array $data=[]){
         $staff = $data["staff"] ?? null;
         $status = "-2";
         $query = "UPDATE Pharmacy.PrescriptionRequests SET Acknowledged = $status, AcknowledgedBy = $staff WHERE RequestID = $resourceId";
