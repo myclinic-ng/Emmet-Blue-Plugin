@@ -34,7 +34,7 @@ class Logs
                             FROM Consultancy.PatientDiagnosisLog a
                             INNER JOIN Patients.PatientDiagnosis b ON a.DiagnosisID = b.DiagnosisID
                             INNER JOIN Patients.Patient c ON a.PatientID = c.PatientID
-                            WHERE StaffID=$resourceId
+                            -- WHERE StaffID=$resourceId
                         ";
         if (isset($data['startdate'])){
             $selectBuilder .= " AND CONVERT(date, a.DateLogged) BETWEEN '".$data["startdate"]."' AND '".$data["enddate"]."'"; 
