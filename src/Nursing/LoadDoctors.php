@@ -46,7 +46,9 @@ class LoadDoctors
             $re = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             foreach ($re as $key=>$r){
                 $re[$key]["StaffFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $r["StaffID"])["StaffFullName"];
-                $re[$key]["StaffRole"] = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $r["StaffID"])["Name"];
+                $role = \EmmetBlue\Plugins\HumanResources\Staff\Staff::viewStaffRole((int) $r["StaffID"]);
+
+                $re[$key]["StaffRole"] = $role["Name"] ?? "";
             }
 
             $result = array_merge($result, $re);
