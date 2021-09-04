@@ -108,7 +108,7 @@ class Store
 
         foreach($result as $key=>$item){
             $ratioToProfit = ($item["ProfitMargin"] * 100) / $totalProfit; 
-            $result[$key]["RatioToProfit"] = $ratioToProfit;
+            $result[$key]["RatioToProfit"] = round($ratioToProfit, 2, PHP_ROUND_HALF_UP);
             $ratioToProfitSum += $ratioToProfit;
         }
 
@@ -120,7 +120,7 @@ class Store
             return @$a['StockValueSales'] > $b['StockValueSales'] ? $a : $b ;
         });
 
-        $meanRatioToProfit = $ratioToProfitSum / count($result);
+        $meanRatioToProfit = round($ratioToProfitSum / count($result), 2, PHP_ROUND_HALF_UP);
 
 
         return [
