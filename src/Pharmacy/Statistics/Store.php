@@ -99,6 +99,7 @@ class Store
         $totalProfit = 0;
         $totalCostValue = 0;
         $totalSalesValue = 0;
+        $ratioToProfitSum = 0;
         foreach ($result as $item){
             $totalProfit += $item["ProfitMargin"];
             $totalCostValue += $item["StockValueCost"];
@@ -106,7 +107,9 @@ class Store
         }
 
         foreach($result as $key=>$item){
-            $result[$key]["RatioToProfit"] = ($item["ProfitMargin"] * 100) / $totalProfit; 
+            $ratioToProfit = ($item["ProfitMargin"] * 100) / $totalProfit; 
+            $result[$key]["RatioToProfit"] = $ratioToProfit;
+            $ratioToProfitSum += $ratioToProfit
         }
 
         $mostExpensiveItem = array_reduce($result, function ($a, $b) {
@@ -117,7 +120,7 @@ class Store
             return @$a['StockValueSales'] > $b['StockValueSales'] ? $a : $b ;
         });
 
-        $meanProfit = $totalProfit / count($result);
+        $meanRatioToProfit = $ratioToProfitSum / count($result);
 
 
         return [
@@ -127,7 +130,7 @@ class Store
                 "ProfitMargin"=>$totalProfit,
                 "MostExpensiveItem"=>$mostExpensiveItem,
                 "MostValuableItem"=>$mostValuableItem,
-                "MeanProfit"=>$meanProfit
+                "MeanRatioToProfit"=>$meanRatioToProfit
             ],
             "stockValues"=>$result
         ];
