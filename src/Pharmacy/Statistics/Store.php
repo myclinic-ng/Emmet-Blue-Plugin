@@ -109,6 +109,13 @@ class Store
             $result[$key]["RatioToProfit"] = ($item["ProfitMargin"] * 100) / $totalProfit; 
         }
 
+        $data = array_reduce($result, function ($a, $b) {
+            return @$a['StockValueCost'] > $b['StockValueCost'] ? $a : $b ;
+        });
+
+        return $data;
+
+
         return [
             "meta"=>[
                 "StockValueCost"=>$totalCostValue,
