@@ -26,6 +26,7 @@ use EmmetBlue\Core\Constant;
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
  * @since v0.0.1 24/08/2016 12:17
+ * 
  */
 class Store
 {
@@ -61,6 +62,48 @@ class Store
             ";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
+    /**
+     * function stockValues
+     * 
+     * Gets the current cost value, sales value and profit margin of items in a store
+     * 
+     * @since 04/09/2021 16:14
+     * 
+     */
+    public static function stockValues(int $resourceId) {
+        $query = "
+            SELECT 
+                a.Item, a.ItemQuantity, b.Item as BillingTypeItemID, c.ItemCostPrice, c.DateCreated as CostPriceLastUpdate, d.BillingTypeItemPrice,
+                a.ItemQuantity * c.ItemCostPrice as StockValueCost, a.ItemQuantity * d.BillingTypeItemPrice as StockValueSales,
+                (a.ItemQuantity * d.BillingTypeItemPrice) - (a.ItemQuantity * c.ItemCostPrice) as ProfitMargin, e.BillingTypeItemName,
+                b.ItemManufacturer, b.ItemBrand
+            FROM Pharmacy.StoreInventoryItems a 
+            INNER JOIN Pharmacy.StoreInventory b ON a.Item = b.ItemID
+            FULL OUTER JOIN (
+                SELECT a.ItemID, a.ItemCostPrice, a.DateCreated FROM Pharmacy.ItemPurchaseLog a INNER JOIN (
+                    SELECT ItemID, MAX(DateCreated) as DateCreated FROM Pharmacy.ItemPurchaseLog 
+                    GROUP BY ItemID
+                ) b ON a.ItemID =  b.ItemID WHERE a.DateCreated = b.DateCreated
+            ) c ON a.Item = c.ItemID
+            INNER JOIN Accounts.GeneralDefaultPrices d ON b.Item = d.BillingTypeItem
+            INNER JOIN Accounts.BillingTypeItems e ON e.BillingTypeItemID = d.BillingTypeItem
+            ORDER BY a.Item
+        ";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        $totalProfit = 0;
+        foreach ($result as $item){
+            $totalProfit += $item["ProfitMargin"];
+        }
+
+        foreach($result as $key=>$item){
+            $result[$key]["RatioToProfit"] = ($item["ProfitMargin"] * 100) / $totalProfit; 
+        }
 
         return $result;
     }

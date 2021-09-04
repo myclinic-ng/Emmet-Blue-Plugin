@@ -45,4 +45,8 @@ class Statistics
 	public static function outOfStockItems(int $resourceId){
 		return Statistics\Store::outOfStockItems($resourceId);
 	}
+
+	public static function stockValues(int $resourceId){
+		return Statistics\Store::stockValues($resourceId);
+	}
 }
