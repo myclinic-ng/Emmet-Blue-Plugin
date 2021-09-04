@@ -97,8 +97,12 @@ class Store
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         $totalProfit = 0;
+        $totalCostValue = 0;
+        $totalSalesValue = 0;
         foreach ($result as $item){
             $totalProfit += $item["ProfitMargin"];
+            $totalCostValue += $item["StockValueCost"];
+            $totalSalesValue += $item["StockValueSales"];
         }
 
         foreach($result as $key=>$item){
@@ -106,7 +110,11 @@ class Store
         }
 
         return [
-            "totalProfit"=>$totalProfit,
+            "meta"=>[
+                "StockValueCost"=>$totalCostValue,
+                "StockValueSales"=>$totalSalesValue,
+                "ProfitMargin"=>$totalProfit
+            ],
             "stockValues"=>$result
         ];
     }
