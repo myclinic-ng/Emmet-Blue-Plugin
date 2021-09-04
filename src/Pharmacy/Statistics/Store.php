@@ -105,6 +105,9 @@ class Store
             $result[$key]["RatioToProfit"] = ($item["ProfitMargin"] * 100) / $totalProfit; 
         }
 
-        return $result;
+        return [
+            "totalProfit"=>$totalProfit,
+            "stockValues"=>$result
+        ];
     }
 }
