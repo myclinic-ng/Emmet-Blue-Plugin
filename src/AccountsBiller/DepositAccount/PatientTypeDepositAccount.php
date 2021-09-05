@@ -88,12 +88,12 @@ class PatientTypeDepositAccount
                 d.CategoryName
             FROM Accounts.PatientTypeDepositsAccountTransactions a
             INNER JOIN Accounts.PatientTypeDepositsAccount b ON a.AccountID = b.AccountID
-            INNER JOIN Patients.PatientTypeID d on d.PatientType = b.PatientTypeID
+            INNER JOIN Patients.PatientType d on d.PatientTypeID = b.PatientTypeID
         ";
 
         switch($data["filtertype"]){
             case "patientType":{
-                $query .= " WHERE c.PatientTypeID = '".$data["query"]."'";
+                $query .= " WHERE d.PatientTypeID = '".$data["query"]."'";
                 break;
             }
             case "date":{
