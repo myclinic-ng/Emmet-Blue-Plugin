@@ -88,7 +88,7 @@ class PatientTypeDepositAccount
                 d.CategoryName
             FROM Accounts.PatientTypeDepositsAccountTransactions a
             INNER JOIN Accounts.PatientTypeDepositsAccount b ON a.AccountID = b.AccountID
-            INNER JOIN Patients.PatientType d on d.PatientType = b.PatientTypeID
+            INNER JOIN Patients.PatientTypeID d on d.PatientType = b.PatientTypeID
         ";
 
         switch($data["filtertype"]){
