@@ -47,4 +47,34 @@ class DepositAccount
 	public static function getCreditTransactionsTotal(array $data){
 		return DepositAccount\DepositAccount::getCreditTransactionsTotal($data);
 	}
+
+	 /**
+     * Patient Type Deposit Account Feature Implementation
+     * 
+     * @since 05/09/2021 12:31
+     * 
+     */
+	public static function newTransactionByPatientType(array $data)
+	{
+		return DepositAccount\PatientTypeDepositAccount::newTransaction($data);
+	}
+
+	public static function viewTransactionsByPatientType(array $data)
+	{
+		return DepositAccount\PatientTypeDepositAccount::viewTransactions($data);
+	}
+
+	public static function viewAccountInfoByPatientType(int $data)
+	{
+		return DepositAccount\PatientTypeDepositAccount::viewAccountInfo($data);
+	}
+
+	public static function accountExistsByPatientType(int $data)
+	{
+		return DepositAccount\PatientTypeDepositAccount::accountExists($data);
+	}
+
+	public static function getCreditTransactionsTotalByPatientType(array $data){
+		return DepositAccount\PatientTypeDepositAccount::getCreditTransactionsTotal($data);
+	}
 }
