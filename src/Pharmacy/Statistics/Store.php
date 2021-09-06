@@ -91,7 +91,7 @@ class Store
             ) c ON a.Item = c.ItemID
             INNER JOIN Accounts.GeneralDefaultPrices d ON b.Item = d.BillingTypeItem
             INNER JOIN Accounts.BillingTypeItems e ON e.BillingTypeItemID = d.BillingTypeItem
-            ORDER BY a.Item
+            WHERE a.StoreID=$resourceId ORDER BY a.Item
         ";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
