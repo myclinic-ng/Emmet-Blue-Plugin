@@ -108,9 +108,11 @@ class Store
             }
 
             foreach($result as $key=>$item){
-                $ratioToProfit = ($item["ProfitMargin"] * 100) / $totalProfit; 
-                $result[$key]["RatioToProfit"] = round($ratioToProfit, 2, PHP_ROUND_HALF_UP);
-                $ratioToProfitSum += $ratioToProfit;
+                if ($totalProfit > 0) { 
+                    $ratioToProfit = ($item["ProfitMargin"] * 100) / $totalProfit; 
+                    $result[$key]["RatioToProfit"] = round($ratioToProfit, 2, PHP_ROUND_HALF_UP);
+                    $ratioToProfitSum += $ratioToProfit;
+                }
             }
 
             $mostExpensiveItem = array_reduce($result, function ($a, $b) {
