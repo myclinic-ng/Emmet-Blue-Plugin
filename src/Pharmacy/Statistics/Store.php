@@ -100,39 +100,43 @@ class Store
         $totalCostValue = 0;
         $totalSalesValue = 0;
         $ratioToProfitSum = 0;
-        foreach ($result as $item){
-            $totalProfit += $item["ProfitMargin"];
-            $totalCostValue += $item["StockValueCost"];
-            $totalSalesValue += $item["StockValueSales"];
+        if (count($result) > 0){
+            foreach ($result as $item){
+                $totalProfit += $item["ProfitMargin"];
+                $totalCostValue += $item["StockValueCost"];
+                $totalSalesValue += $item["StockValueSales"];
+            }
+
+            foreach($result as $key=>$item){
+                $ratioToProfit = ($item["ProfitMargin"] * 100) / $totalProfit; 
+                $result[$key]["RatioToProfit"] = round($ratioToProfit, 2, PHP_ROUND_HALF_UP);
+                $ratioToProfitSum += $ratioToProfit;
+            }
+
+            $mostExpensiveItem = array_reduce($result, function ($a, $b) {
+                return @$a['StockValueCost'] > $b['StockValueCost'] ? $a : $b ;
+            });
+
+            $mostValuableItem = array_reduce($result, function ($a, $b) {
+                return @$a['StockValueSales'] > $b['StockValueSales'] ? $a : $b ;
+            });
+
+            $meanRatioToProfit = round($ratioToProfitSum / count($result), 2, PHP_ROUND_HALF_UP);
+
+
+            return [
+                "meta"=>[
+                    "StockValueCost"=>$totalCostValue,
+                    "StockValueSales"=>$totalSalesValue,
+                    "ProfitMargin"=>$totalProfit,
+                    "MostExpensiveItem"=>$mostExpensiveItem,
+                    "MostValuableItem"=>$mostValuableItem,
+                    "MeanRatioToProfit"=>$meanRatioToProfit
+                ],
+                "stockValues"=>$result
+            ];
         }
 
-        foreach($result as $key=>$item){
-            $ratioToProfit = ($item["ProfitMargin"] * 100) / $totalProfit; 
-            $result[$key]["RatioToProfit"] = round($ratioToProfit, 2, PHP_ROUND_HALF_UP);
-            $ratioToProfitSum += $ratioToProfit;
-        }
-
-        $mostExpensiveItem = array_reduce($result, function ($a, $b) {
-            return @$a['StockValueCost'] > $b['StockValueCost'] ? $a : $b ;
-        });
-
-        $mostValuableItem = array_reduce($result, function ($a, $b) {
-            return @$a['StockValueSales'] > $b['StockValueSales'] ? $a : $b ;
-        });
-
-        $meanRatioToProfit = round($ratioToProfitSum / count($result), 2, PHP_ROUND_HALF_UP);
-
-
-        return [
-            "meta"=>[
-                "StockValueCost"=>$totalCostValue,
-                "StockValueSales"=>$totalSalesValue,
-                "ProfitMargin"=>$totalProfit,
-                "MostExpensiveItem"=>$mostExpensiveItem,
-                "MostValuableItem"=>$mostValuableItem,
-                "MeanRatioToProfit"=>$meanRatioToProfit
-            ],
-            "stockValues"=>$result
-        ];
+        return ["meta"=>[], "stockValues"=>$result];
     }
 }
