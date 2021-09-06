@@ -19,6 +19,7 @@ CREATE TABLE Accounts.PatientTypeDepositsAccountTransactions (
 	FOREIGN KEY (AccountID) REFERENCES Accounts.PatientTypeDepositsAccount (AccountID) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (StaffID) REFERENCES [Staffs].[Staff] (StaffID)
 )
+GO
 
 CREATE TRIGGER Accounts.UpdatePatientTypeAccountsDepositBalance 
 ON Accounts.PatientTypeDepositsAccountTransactions 
