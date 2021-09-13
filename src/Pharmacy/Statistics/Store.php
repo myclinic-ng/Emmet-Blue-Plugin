@@ -174,6 +174,9 @@ class Store
             GROUP BY z.BillingTypeItemName, z.BillingTypeItemID
         ";
 
+        print_r($query);
+        die();
+        
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         $totalProfit = 0;
