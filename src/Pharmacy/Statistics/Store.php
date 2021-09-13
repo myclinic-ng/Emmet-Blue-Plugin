@@ -141,4 +141,80 @@ class Store
 
         return ["meta"=>[], "stockValues"=>$result];
     }
+
+    public static function salesValues(int $resourceId) {
+        $query = "
+            SELECT z.BillingTypeItemID, z.BillingTypeItemName, 
+            SUM(z.StockValueCost) as TotalCost,
+            SUM(z.StockValueSales) as TotalSales,
+            SUM(z.ProfitMargin) as TotalProfit
+            FROM  (
+                SELECT 
+                            a.Item, a.ItemQuantity, b.Item as BillingTypeItemID, c.ItemCostPrice, c.DateCreated as CostPriceLastUpdate, d.BillingTypeItemPrice, e.BillingTypeItemName,
+                            b.ItemManufacturer, b.ItemBrand, f.DispensedQuantity, f.DispensationDate,
+                            (c.ItemCostPrice * f.DispensedQuantity) as StockValueCost, 
+                            (d.BillingTypeItemPrice * f.DispensedQuantity) as StockValueSales,
+                            ((d.BillingTypeItemPrice * f.DispensedQuantity) - (c.ItemCostPrice * f.DispensedQuantity)) as ProfitMargin
+                        FROM Pharmacy.StoreInventoryItems a 
+                        INNER JOIN Pharmacy.StoreInventory b ON a.Item = b.ItemID
+                        FULL OUTER JOIN (
+                            SELECT a.ItemID, a.ItemCostPrice, a.DateCreated FROM Pharmacy.ItemPurchaseLog a INNER JOIN (
+                                SELECT ItemID, MAX(DateCreated) as DateCreated FROM Pharmacy.ItemPurchaseLog 
+                                GROUP BY ItemID
+                            ) b ON a.ItemID =  b.ItemID WHERE a.DateCreated = b.DateCreated
+                        ) c ON a.Item = c.ItemID
+                        INNER JOIN Accounts.GeneralDefaultPrices d ON b.Item = d.BillingTypeItem
+                        INNER JOIN Accounts.BillingTypeItems e ON e.BillingTypeItemID = d.BillingTypeItem
+                        INNER JOIN (SELECT a.DispensationDate, b.ItemID, b.DispensedQuantity FROM Pharmacy.Dispensation a INNER JOIN Pharmacy.DispensedItems b ON a.DispensationID = b.DispensationID) f ON a.Item = f.ItemID
+            ) z
+            GROUP BY z.BillingTypeItemName, z.BillingTypeItemID
+        ";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        $totalProfit = 0;
+        $totalCostValue = 0;
+        $totalSalesValue = 0;
+        $ratioToProfitSum = 0;
+        if (count($result) > 0){
+            foreach ($result as $item){
+                $totalProfit += $item["TotalProfit"];
+                $totalCostValue += $item["TotalCost"];
+                $totalSalesValue += $item["TotalSales"];
+            }
+
+            foreach($result as $key=>$item){
+                if ($totalProfit > 0) { 
+                    $ratioToProfit = ($item["TotalProfit"] * 100) / $totalProfit; 
+                    $result[$key]["RatioToProfit"] = round($ratioToProfit, 2, PHP_ROUND_HALF_UP);
+                    $ratioToProfitSum += $ratioToProfit;
+                }
+            }
+
+            $mostExpensiveItem = array_reduce($result, function ($a, $b) {
+                return @$a['TotalCost'] > $b['TotalCost'] ? $a : $b ;
+            });
+
+            $mostValuableItem = array_reduce($result, function ($a, $b) {
+                return @$a['TotalSales'] > $b['TotalSales'] ? $a : $b ;
+            });
+
+            $meanRatioToProfit = round($ratioToProfitSum / count($result), 2, PHP_ROUND_HALF_UP);
+
+
+            return [
+                "meta"=>[
+                    "TotalCost"=>$totalCostValue,
+                    "TotalSales"=>$totalSalesValue,
+                    "ProfitMargin"=>$totalProfit,
+                    "MostExpensiveItem"=>$mostExpensiveItem,
+                    "MostValuableItem"=>$mostValuableItem,
+                    "MeanRatioToProfit"=>$meanRatioToProfit
+                ],
+                "stockValues"=>$result
+            ];
+        }
+
+        return ["meta"=>[], "stockValues"=>$result];
+    }
 }

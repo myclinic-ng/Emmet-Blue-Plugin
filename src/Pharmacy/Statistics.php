@@ -49,4 +49,8 @@ class Statistics
 	public static function stockValues(int $resourceId){
 		return Statistics\Store::stockValues($resourceId);
 	}
+
+	public static function salesValues(int $resourceId){
+		return Statistics\Store::salesValues($resourceId);
+	}
 }
