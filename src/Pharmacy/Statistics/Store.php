@@ -169,14 +169,11 @@ class Store
                         ) c ON a.Item = c.ItemID
                         INNER JOIN Accounts.GeneralDefaultPrices d ON b.Item = d.BillingTypeItem
                         INNER JOIN Accounts.BillingTypeItems e ON e.BillingTypeItemID = d.BillingTypeItem
-                        INNER JOIN (SELECT a.DispensationDate, b.ItemID, b.DispensedQuantity FROM Pharmacy.Dispensation a INNER JOIN Pharmacy.DispensedItems b ON a.DispensationID = b.DispensationID WHERE (CONVERT(date, a.DispensationDate) BETWEEN $sDate AND $eDate) f ON a.Item = f.ItemID
+                        INNER JOIN (SELECT a.DispensationDate, b.ItemID, b.DispensedQuantity FROM Pharmacy.Dispensation a INNER JOIN Pharmacy.DispensedItems b ON a.DispensationID = b.DispensationID WHERE (CONVERT(date, a.DispensationDate) BETWEEN $sDate AND $eDate)) f ON a.Item = f.ItemID
             ) z
             GROUP BY z.BillingTypeItemName, z.BillingTypeItemID
         ";
 
-        print_r($query);
-        die();
-        
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         $totalProfit = 0;
