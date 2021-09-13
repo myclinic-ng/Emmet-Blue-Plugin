@@ -142,12 +142,16 @@ class Store
         return ["meta"=>[], "stockValues"=>$result];
     }
 
-    public static function salesValues(int $resourceId) {
+    public static function salesValues(array $data = []) {
+        $sDate = QB::wrapString($data["startdate"], "'");
+        $eDate = QB::wrapString($data["enddate"], "'");
+
         $query = "
             SELECT z.BillingTypeItemID, z.BillingTypeItemName, 
             SUM(z.StockValueCost) as TotalCost,
             SUM(z.StockValueSales) as TotalSales,
-            SUM(z.ProfitMargin) as TotalProfit
+            SUM(z.ProfitMargin) as TotalProfit,
+            SUM(z.DispensedQuantity) as TotalQuantity
             FROM  (
                 SELECT 
                             a.Item, a.ItemQuantity, b.Item as BillingTypeItemID, c.ItemCostPrice, c.DateCreated as CostPriceLastUpdate, d.BillingTypeItemPrice, e.BillingTypeItemName,
@@ -165,7 +169,7 @@ class Store
                         ) c ON a.Item = c.ItemID
                         INNER JOIN Accounts.GeneralDefaultPrices d ON b.Item = d.BillingTypeItem
                         INNER JOIN Accounts.BillingTypeItems e ON e.BillingTypeItemID = d.BillingTypeItem
-                        INNER JOIN (SELECT a.DispensationDate, b.ItemID, b.DispensedQuantity FROM Pharmacy.Dispensation a INNER JOIN Pharmacy.DispensedItems b ON a.DispensationID = b.DispensationID) f ON a.Item = f.ItemID
+                        INNER JOIN (SELECT a.DispensationDate, b.ItemID, b.DispensedQuantity FROM Pharmacy.Dispensation a INNER JOIN Pharmacy.DispensedItems b ON a.DispensationID = b.DispensationID WHERE (CONVERT(date, a.DispensationDate) BETWEEN $sDate AND $eDate) f ON a.Item = f.ItemID
             ) z
             GROUP BY z.BillingTypeItemName, z.BillingTypeItemID
         ";
