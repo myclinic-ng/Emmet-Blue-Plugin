@@ -39,37 +39,36 @@ class LabRequest
     {
         $patientID = $data['patientID'] ?? 'null';
         $clinicalDiagnosis = $data['clinicalDiagnosis'] ?? null;
-        $investigationRequired = $data['investigationRequired'] ?? null;
         $requestedBy = $data['requestedBy'] ?? null;
-        $investigationType = $data['investigationType'] ?? 'null';
-        $requestNote = $data['requestNote'] ?? null;
+        $investigations = $data["investigations"] ?? [];
+        $requestNote = $investigation['requestNote'] ?? null;
 
-        try
-        {
-            $result = DBQueryFactory::insert('Lab.LabRequests', [
-                'PatientID'=>$patientID,
-                'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
-                'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
-                'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
-                'InvestigationType'=>$investigationType,
-                'RequestNote'=>QB::wrapString((string)$requestNote, "'")
-            ]);
+        foreach ($investigations as $investigation){
+            $investigationRequired = $investigation['investigationRequired'] ?? null;
+            $investigationType = $investigation['investigationType'] ?? 'null';
+            $labId = $investigation["labId"] ?? null;
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Lab',
-                'LabRequests',
-                (string)(serialize($result))
-            );
-            return $result;
-        }
-        catch (\PDOException $e)
-        {
-            throw new SQLException(sprintf(
-                "Unable to process request (LabRequest not created), %s",
-                $e->getMessage()
-            ), Constant::UNDEFINED);
+            try
+            {
+                $result = DBQueryFactory::insert('Lab.LabRequests', [
+                    'PatientID'=>$patientID,
+                    'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
+                    'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                    'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
+                    'InvestigationType'=>$investigationType,
+                    'LabID'=>$labId,
+                    'RequestNote'=>QB::wrapString((string)$requestNote, "'")
+                ]);
+
+                return $result;
+            }
+            catch (\PDOException $e)
+            {
+                throw new SQLException(sprintf(
+                    "Unable to process request (LabRequest not created), %s",
+                    $e->getMessage()
+                ), Constant::UNDEFINED);
+            }
         }
     }
 
