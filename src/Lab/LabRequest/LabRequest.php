@@ -91,13 +91,13 @@ class LabRequest
                 $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
             }
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Lab',
-                'LabRequests',
-                (string)$selectBuilder
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Lab',
+            //     'LabRequests',
+            //     (string)$selectBuilder
+            // );
 
             // $viewOperation  = $viewOperation[0] ?? $viewOperation;
             
