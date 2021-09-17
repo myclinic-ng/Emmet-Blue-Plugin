@@ -87,6 +87,8 @@ class LabRequest
             $selectBuilder .= " AND e.LabID = $resourceId";
         }
 
+        die($selectBuilder);
+
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query($selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
