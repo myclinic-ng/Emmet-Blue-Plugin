@@ -80,14 +80,14 @@ class LabRequest
             $sDate = QB::wrapString($data["startdate"], "'");
             $eDate = QB::wrapString($data["enddate"], "'");
 
-            $selectBuilder .= " AND CONVERT(date, e.RequestDate) BETWEEN ($sDate AND $eDate)";
+            $selectBuilder .= " AND (CONVERT(date, e.RequestDate) BETWEEN $sDate AND $eDate)";
         }
 
         if ($resourceId != 0){
             $selectBuilder .= " AND e.LabID = $resourceId";
         }
 
-        die($selectBuilder);
+        // die($selectBuilder);
 
         try
         {
