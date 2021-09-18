@@ -69,12 +69,15 @@ class LabRequest
 
                 $businessId = $result["ExternalBusinessID"];
 
+                $externalInvestigation = $investigation;
+                $externalInvestigation["labId"] = $result["ExternalLabID"];
+
                 $requestData = [
                     "patientId"=>$patientID,
                     "patientInfo"=>$patientInfo,
                     "businessId"=>$businessId,
                     "clinicalDiagnosis"=>$clinicalDiagnosis,
-                    "investigations"=>$investigations,
+                    "investigations"=>[$externalInvestigation],
                     "requestNote"=>$requestNote
                 ];
 
