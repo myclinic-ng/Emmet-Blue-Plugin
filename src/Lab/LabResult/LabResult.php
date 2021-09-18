@@ -113,8 +113,6 @@ class LabResult
                 $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$businessId;
                 $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-                return [$requestData, $_res];
-
                 if (count($_res) > 0){
                     $auth = $_res[0];
                     $url = $auth["EndpointUrl"]."/lab/lab-result/create-with-request-id";
