@@ -74,6 +74,9 @@ class LabRequest
                     'X-Authorization'=>$token
                 ]);
 
+                var_dump($request->body);
+                die();
+
                 $response = json_decode($request->body);
 
                 if (is_null($response)){
