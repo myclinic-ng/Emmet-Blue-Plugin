@@ -57,10 +57,16 @@ class LabRequest
             if (isset($result[0])){
                 //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
                 $result = $result[0];
-                $patientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
-                $patientInfo["patientName"] = $patientInfo["patientfullname"];
+                $patientInfo = [];
+                $viewPatientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
+                $patientInfo["patientName"] = $viewPatientInfo["patientfullname"];
                 $patientInfo["patientType"] = 1;
-                
+                $patientInfo["First Name"] = $viewPatientInfo["first name"];
+                $patientInfo["Last Name"] = $viewPatientInfo["last name"];
+                $patientInfo["Gender"] = $viewPatientInfo["gender"];
+                $patientInfo["Date Of Birth"] = $viewPatientInfo["date of birth"];
+                $patientInfo["patientPassport"] = $viewPatientInfo["patientpicture"];
+
                 $businessId = $result["ExternalBusinessID"];
 
                 $requestData = [
