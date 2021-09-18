@@ -54,7 +54,7 @@ class LabRequest
             $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
             $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             $feedback = [];
-            if (isset($result[0])){
+            if (count($result) > 0){
                 //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
                 $result = $result[0];
                 $patientInfo = [];
@@ -310,7 +310,7 @@ class LabRequest
         $patientID = $patientLocalInfo['LocalPatientID'] ?? 'null';
 
         $registerRequest = self::create([
-            "PatientID"=>$patientID,
+            "patientID"=>$patientID,
             "clinicalDiagnosis"=>$clinicalDiagnosis,
             "requestedBy"=>$requestedBy,
             "investigations"=>$investigations,
