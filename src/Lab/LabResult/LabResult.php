@@ -154,8 +154,9 @@ class LabResult
             $data['patientLabNumber'] = $labNumber;
             $data['requests'][0] = $requestLabCode;
 
-            return $data;
-            return self::create($data);
+            $res = self::create($data);
+
+            return $res;
         }
 
         return false;
