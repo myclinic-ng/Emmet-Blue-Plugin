@@ -155,6 +155,8 @@ class LabResult
 
             return self::create($data);
         }
+
+        return $data;
     }
 
     /**

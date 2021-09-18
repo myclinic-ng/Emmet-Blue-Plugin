@@ -11,6 +11,7 @@ CREATE TABLE EmmetBlueCloud.BusinessLinkAuth (
 	ExternalBusinessID INT UNIQUE,
 	Token VARCHAR(500),
 	UserId INT,
+	EndpointUrl VARCHAR(100),
 	DateCreated DATETIME DEFAULT GETDATE()
 )
 GO
