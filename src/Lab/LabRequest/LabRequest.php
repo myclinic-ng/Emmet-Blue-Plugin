@@ -127,8 +127,9 @@ class LabRequest
                 }
 
                 $localRequest["feedback"] = $feedback;
+                $localRequest["investigation"] = $investigationRequired;
 
-                $results[$investigationRequired] = $localRequest;
+                $results[] = $localRequest;
             }
             catch (\PDOException $e)
             {
@@ -335,7 +336,7 @@ class LabRequest
             "requestedBy"=>$requestedBy
         ]);
 
-        $localRequestId = $registerRequest["lastInsertId"];
+        $localRequestId = $registerRequest[0]["lastInsertId"];
 
         $query = "INSERT INTO Lab.LinkedExternalRequests (LocalRequestID, ExternalRequestID, ExternalBusinessID) VALUES ($localRequestId, $externalRequestId, $externalBusinessId)";
         $result = DBConnectionFactory::getConnection()->exec($query);
