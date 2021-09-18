@@ -59,6 +59,7 @@ class LabRequest
                 $result = $result[0];
                 $patientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
                 $patientInfo["patientName"] = $patientInfo["patientfullname"];
+                $patientInfo["patientType"] = 1;
                 
                 $businessId = $result["ExternalBusinessID"];
 
