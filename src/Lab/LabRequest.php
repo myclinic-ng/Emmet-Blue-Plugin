@@ -33,6 +33,11 @@ class LabRequest
 		return LabRequest\LabRequest::create($data);
 	}
 
+	public static function newExternalLabRequest(array $data)
+	{
+		return LabRequest\LabRequest::newExternalLabRequest($data);
+	}
+
 	public static function viewLabRequest(int $resourceId = 0, array $data = [])
 	{
 		return LabRequest\LabRequest::view($resourceId, $data);

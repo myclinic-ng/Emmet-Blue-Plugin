@@ -20,6 +20,8 @@ use EmmetBlue\Core\Constant;
 
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
+use EmmetBlue\Core\Factory\HTTPRequestFactory as HTTPRequest;
+
 /**
  * class LabRequest.
  *
@@ -48,6 +50,44 @@ class LabRequest
             $investigationType = $investigation['investigationType'] ?? 'null';
             $labId = $investigation["labId"] ?? null;
 
+            //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
+            $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
+            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            if (isset($result[0])){
+                //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
+
+                $patientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
+                $businessId = $result["ExternalBusinessID"];
+
+                $requestData = [
+                    "patientId"=>$patientID,
+                    "patientInfo"=>$patientInfo,
+                    "businessId"=>$businessId,
+                    "clinicalDiagnosis"=>$clinicalDiagnosis,
+                    "investigations"=>$investigations,
+                    "requestNote"=>$requestNote
+                ];
+
+                $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
+                $token = "4ae3e652e38ff511d15a905e33cdaef2";
+                $request = HTTPRequest::post($url, $requestData, [
+                    'X-Authorization'=>$token
+                ]);
+
+                $response = json_decode($request->body);
+
+                if (is_null($response)){
+                    //DO SOMETHING ABOUT THIS.
+                }
+                else {
+                    if ($response->errorStatus){
+                        throw new \Exception(!is_null($response->errorMessage) ? $response->errorMessage : "An error occurred");
+                    }
+                }
+
+                $feedback = $response->contentData;
+            }
+
             try
             {
                 $result = DBQueryFactory::insert('Lab.LabRequests', [
@@ -59,6 +99,10 @@ class LabRequest
                     'LabID'=>$labId,
                     'RequestNote'=>QB::wrapString((string)$requestNote, "'")
                 ]);
+
+                if (isset($feedback)){
+                    $result["feedback"] = $feedback;
+                }
 
                 return $result;
             }
@@ -220,5 +264,48 @@ class LabRequest
 
         $result = DBConnectionFactory::getConnection()->exec($query);
         return $result;
+    }
+
+    public static function newExternalLabRequest(array $data)
+    {
+        $patientInfo = $data['patientInfo'] ?? [];
+        $externalPatientId = $data['patientId'];
+        $externalBusinessId = $data['businessId'];
+        $clinicalDiagnosis = $data['clinicalDiagnosis'] ?? null;
+        $requestedBy = $data['requestedBy'] ?? null;
+        $investigations = $data["investigations"] ?? [];
+        $requestNote = $investigation['requestNote'] ?? null;
+
+        $patientLocalInfo = \EmmetBlue\Plugins\Patients\Patient\LinkedExternalPatient::getLocalId([
+            "externalPatientId"=>$externalPatientId,
+            "businessId"=>$externalBusinessId
+        ]);
+
+        if (!$patientLocalInfo) {
+            //CREATE PATIENT LOCALLY
+            $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::create($patientInfo);
+            $patientLocalId = $patient["PatientID"];
+
+            //CREATE LINK
+            $link  =\EmmetBlue\Plugins\Patients\Patient\LinkedExternalPatient::create([
+                "localPatientId"=>$patientLocalId,
+                "externalPatientId"=>$externalPatientId,
+                "businessId"=>$externalBusinessId
+            ]);
+
+            $patientLocalInfo = ["LocalPatientID"=>$patientLocalId];
+        }
+
+        $patientID = $patientLocalInfo['LocalPatientID'] ?? 'null';
+
+        $registerRequest = self::create([
+            "PatientID"=>$patientID,
+            "clinicalDiagnosis"=>$clinicalDiagnosis,
+            "requestedBy"=>$requestedBy,
+            "investigations"=>$investigations,
+            "requestNote"=>$requestNote
+        ]);
+
+        return $registerRequest;
     }
 }
