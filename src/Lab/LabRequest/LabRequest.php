@@ -75,18 +75,18 @@ class LabRequest
                     'X-Authorization'=>$token
                 ]);
 
-                $response = json_decode($request->body);
+                $response = json_decode($request->body, true);
 
                 if (is_null($response)){
                     //DO SOMETHING ABOUT THIS.
                 }
                 else {
-                    if ($response->errorStatus){
-                        throw new \Exception(!is_null($response->errorMessage) ? $response->errorMessage : "An error occurred");
+                    if ($response["errorStatus"]){
+                        throw new \Exception(!is_null($response["errorMessage"]) ? $response["errorMessage"] : "An error occurred");
                     }
                 }
 
-                $feedback = $response->contentData;
+                $feedback = $response["contentData"];
             }
 
             try
