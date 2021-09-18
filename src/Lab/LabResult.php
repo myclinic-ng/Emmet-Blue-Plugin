@@ -32,6 +32,11 @@ class LabResult
 	{
 		return LabResult\LabResult::create($data);
 	}
+	
+	public static function createWithRequestId(array $data)
+	{
+		return LabResult\LabResult::createWithRequestId($data);
+	}
 
 	public static function viewLabResult(int $resourceId = 0)
 	{

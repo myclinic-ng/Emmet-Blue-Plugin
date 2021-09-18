@@ -93,37 +93,34 @@ class LabRequest
                     $externalInvestigation = $investigation;
                     $externalInvestigation["labId"] = $result["ExternalLabID"];
 
-                    $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
-                    $token = "4ae3e652e38ff511d15a905e33cdaef2";
-                    $token_user = 2;
+                    $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$result["ExternalBusinessID"];
+                    $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-                    $requestData = [
-                        "patientId"=>$patientID,
-                        "patientInfo"=>$patientInfo,
-                        "businessId"=>$businessId,
-                        "clinicalDiagnosis"=>$clinicalDiagnosis,
-                        "investigations"=>[$externalInvestigation],
-                        "requestNote"=>$requestNote,
-                        "requestedBy"=>$token_user,
-                        "requestId"=> $localRequest["lastInsertId"]
-                    ];
+                    if (count($_res) > 0){
+                        $auth = $_res[0];
+                        $url = $auth["EndpointUrl"]."/lab/lab-request/new-external-lab-request";
+                        $token = $auth["Token"];
+                        $token_user = $auth["UserId"];
 
-                    $request = HTTPRequest::post($url, $requestData, [
-                        'AUTHORIZATION'=>$token
-                    ]);
+                        $requestData = [
+                            "patientId"=>$patientID,
+                            "patientInfo"=>$patientInfo,
+                            "businessId"=>$businessId,
+                            "clinicalDiagnosis"=>$clinicalDiagnosis,
+                            "investigations"=>[$externalInvestigation],
+                            "requestNote"=>$requestNote,
+                            "requestedBy"=>$token_user,
+                            "requestId"=> $localRequest["lastInsertId"]
+                        ];
 
-                    $response = json_decode($request->body, true);
+                        $request = HTTPRequest::post($url, $requestData, [
+                            'AUTHORIZATION'=>$token
+                        ]);
 
-                    // if (is_null($response)){
-                    //     //DO SOMETHING ABOUT THIS.
-                    // }
-                    // else {
-                    //     if ($response["errorStatus"]){
-                    //         throw new \Exception(!is_null($response["errorMessage"]) ? $response["errorMessage"] : "An error occurred");
-                    //     }
-                    // }
+                        $response = json_decode($request->body, true);
 
-                    $feedback = $response;
+                        $feedback = $response;
+                    }
                 }
 
                 $localRequest["feedback"] = $feedback;

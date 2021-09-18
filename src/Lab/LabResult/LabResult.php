@@ -92,17 +92,44 @@ class LabResult
                 $result = DBConnectionFactory::getConnection()->exec($query);
 
                 DBConnectionFactory::getConnection()->exec(implode(";", $reqs2));
-
-                // DatabaseLog::log(
-                //     Session::get('USER_ID'),
-                //     Constant::EVENT_INSERT,
-                //     'Lab',
-                //     'LabResults',
-                //     serialize($query)
-                // );
             }
 
-            return ["repoId"=>$repoId];
+            $feedback = [];
+
+            $query = "SELECT b.ExternalRequestID, b.ExternalBusinessID FROM Lab.Patients a INNER JOIN Lab.LinkedExternalRequests b ON a.RequestID = b.LocalRequestID WHERE a.PatientLabNumber = $patientId";
+            $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            
+            if (count($res) > 0){
+                $requestId = $res[0]["ExternalRequestID"];
+                $businessId = $res[0]["ExternalBusinessID"];
+                foreach ($requests as $key=>$value){
+                    $requests[$key] = $requestId;
+                }
+
+                $requestData = $data;
+                $requestData["requestId"] = $requestId;
+                $requestData["requests"] = $requests;
+
+                $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$businessId;
+                $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+                if (count($_res) > 0){
+                    $auth = $_res[0];
+                    $url = $auth["EndpointUrl"]."/lab/lab-result/create-with-request-id";
+                    $token = $auth["Token"];
+                    $token_user = $auth["UserId"];
+
+                    $request = HTTPRequest::post($url, $requestData, [
+                        'AUTHORIZATION'=>$token
+                    ]);
+
+                    $response = json_decode($request->body, true);
+
+                    $feedback = $response;
+                }
+            }
+
+            return ["repoId"=>$repoId, "feedback"=>$feedback];
         }
         catch (\PDOException $e)
         {
@@ -110,6 +137,20 @@ class LabResult
                 "Unable to process request (LabResult not created), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
+        }
+    }
+
+    public static function createWithRequestId(array $data){
+        $requestId = $data["requestId"];
+        $query = "SELECT PatientLabNumber FROM Lab.Patients WHERE RequestID = $requestId";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        if (count($result) > 0){
+            $labNumber = $result[0]["PatientLabNumber"];
+            $data['patientLabNumber'] = $labNumber;
+            $data['requests'][0] = $labNumber;
+
+            return self::create($data);
         }
     }
 
