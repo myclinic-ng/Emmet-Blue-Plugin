@@ -292,7 +292,7 @@ class LabRequest
         if (!$patientLocalInfo) {
             //CREATE PATIENT LOCALLY
             $patient = \EmmetBlue\Plugins\Patients\Patient\Patient::create($patientInfo);
-            $patientLocalId = $patient["PatientID"];
+            $patientLocalId = $patient["lastInsertId"];
 
             //CREATE LINK
             $link  =\EmmetBlue\Plugins\Patients\Patient\LinkedExternalPatient::create([
