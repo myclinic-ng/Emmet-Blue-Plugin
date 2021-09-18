@@ -113,7 +113,8 @@ class LabRequest
                     'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
                     'InvestigationType'=>$investigationType,
                     'LabID'=>$labId,
-                    'RequestNote'=>QB::wrapString((string)$requestNote, "'")
+                    'RequestNote'=>QB::wrapString((string)$requestNote, "'"),
+                    'feedback'=>$feedback
                 ];
 
                 $result = DBQueryFactory::insert('Lab.LabRequests', [
