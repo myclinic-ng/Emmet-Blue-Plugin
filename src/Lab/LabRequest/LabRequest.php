@@ -295,7 +295,7 @@ class LabRequest
             $patientLocalId = $patient["lastInsertId"];
 
             //CREATE LINK
-            $link  =\EmmetBlue\Plugins\Patients\Patient\LinkedExternalPatient::create([
+            $link  = \EmmetBlue\Plugins\Patients\Patient\LinkedExternalPatient::create([
                 "localPatientId"=>$patientLocalId,
                 "externalPatientId"=>$externalPatientId,
                 "businessId"=>$externalBusinessId

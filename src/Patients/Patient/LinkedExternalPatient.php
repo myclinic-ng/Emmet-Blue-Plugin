@@ -52,7 +52,7 @@ class LinkedExternalPatient
         catch (\PDOException $e)
         {
             throw new SQLException(sprintf(
-                "Unable to process request (Observation not created), %s",
+                "Unable to process request (link not established), %s",
                 $e->getMessage()
             ), Constant::UNDEFINED);
         }
