@@ -42,6 +42,10 @@ class Patient
         if (is_string($base64_string)){
             $data = explode(',', $base64_string);
 
+            if (!isset($data[1])){
+                $data[1] = "";
+            }
+
             file_put_contents($output_file, base64_decode($data[1]));
         } 
 
