@@ -39,8 +39,6 @@ class LabRequest
      */
     public static function create(array $data)
     {
-        print_r($data);
-        die();
         $patientID = $data['patientID'] ?? 'null';
         $clinicalDiagnosis = $data['clinicalDiagnosis'] ?? null;
         $requestedBy = $data['requestedBy'] ?? null;
