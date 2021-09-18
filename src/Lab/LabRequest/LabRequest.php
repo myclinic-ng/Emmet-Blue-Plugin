@@ -47,7 +47,7 @@ class LabRequest
 
         foreach ($investigations as $investigation){
             $investigationRequired = $investigation['investigationRequired'] ?? null;
-            $investigationType = $investigation['investigationType'] ?? 'null';
+            $investigationType = $investigation['investigationType'] ?? null;
             $labId = $investigation["labId"] ?? null;
 
             //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
@@ -72,17 +72,20 @@ class LabRequest
                 $externalInvestigation = $investigation;
                 $externalInvestigation["labId"] = $result["ExternalLabID"];
 
+                $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
+                $token = "4ae3e652e38ff511d15a905e33cdaef2";
+                $token_user = 2;
+
                 $requestData = [
                     "patientId"=>$patientID,
                     "patientInfo"=>$patientInfo,
                     "businessId"=>$businessId,
                     "clinicalDiagnosis"=>$clinicalDiagnosis,
                     "investigations"=>[$externalInvestigation],
-                    "requestNote"=>$requestNote
+                    "requestNote"=>$requestNote,
+                    "requestedBy"=>$token_user
                 ];
 
-                $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
-                $token = "4ae3e652e38ff511d15a905e33cdaef2";
                 $request = HTTPRequest::post($url, $requestData, [
                     'AUTHORIZATION'=>$token
                 ]);
@@ -309,21 +312,14 @@ class LabRequest
 
         $patientID = $patientLocalInfo['LocalPatientID'] ?? 'null';
 
-        // $registerRequest = self::create([
-        //     "patientID"=>$patientID,
-        //     "clinicalDiagnosis"=>$clinicalDiagnosis,
-        //     "requestedBy"=>$requestedBy,
-        //     "investigations"=>$investigations,
-        //     "requestNote"=>$requestNote
-        // ]);
-
-        $registerRequest = [
+        $registerRequest = self::create([
             "patientID"=>$patientID,
             "clinicalDiagnosis"=>$clinicalDiagnosis,
             "requestedBy"=>$requestedBy,
             "investigations"=>$investigations,
-            "requestNote"=>$requestNote
-        ];
+            "requestNote"=>$requestNote,
+            "requestedBy"=>$requestedBy
+        ]);
 
         return $registerRequest;
     }
