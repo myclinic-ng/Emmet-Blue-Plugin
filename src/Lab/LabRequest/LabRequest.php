@@ -72,7 +72,7 @@ class LabRequest
                 $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
                 $token = "4ae3e652e38ff511d15a905e33cdaef2";
                 $request = HTTPRequest::post($url, $requestData, [
-                    'HTTP_Authorization'=>$token
+                    'HTTP_AUTHORIZATION'=>$token
                 ]);
 
                 $response = json_decode($request->body, true);
