@@ -92,7 +92,6 @@ class LabRequest
 
                     $externalInvestigation = $investigation;
                     $externalInvestigation["labId"] = $result["ExternalLabID"];
-                    $externalInvestigation["requestId"] = $localRequest["lastInsertId"];
 
                     $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
                     $token = "4ae3e652e38ff511d15a905e33cdaef2";
@@ -105,7 +104,8 @@ class LabRequest
                         "clinicalDiagnosis"=>$clinicalDiagnosis,
                         "investigations"=>[$externalInvestigation],
                         "requestNote"=>$requestNote,
-                        "requestedBy"=>$token_user
+                        "requestedBy"=>$token_user,
+                        "requestId"=> $localRequest["lastInsertId"]
                     ];
 
                     $request = HTTPRequest::post($url, $requestData, [
