@@ -47,7 +47,7 @@ class LabRequest
 
         foreach ($investigations as $investigation){
             $investigationRequired = $investigation['investigationRequired'] ?? null;
-            $investigationType = $investigation['investigationType'] ?? null;
+            $investigationType = $investigation['investigationType'] ?? 'null';
             $labId = $investigation["labId"] ?? null;
 
             //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
@@ -107,21 +107,19 @@ class LabRequest
             try
             {
 
-                $query = "INSERT INTO Lab.LabRequests (PatientID, ClinicalDiagnosis, InvestigationRequired, RequestedBy, InvestigationType, LabID, RequestNote) VALUES ($patientID, '$clinicalDiagnosis', '$investigationRequired', $investigationType, $labId, '$requestNote')";
+                // $query = "INSERT INTO Lab.LabRequests (PatientID, ClinicalDiagnosis, InvestigationRequired, RequestedBy, InvestigationType, LabID, RequestNote) VALUES ($patientID, '$clinicalDiagnosis', '$investigationRequired', $investigationType, $labId, '$requestNote')";
 
-                return $query;
+                // $result = DBConnectionFactory::getConnection()->exec($query);
 
-                $result = DBConnectionFactory::getConnection()->exec($query);
-
-                // $result = DBQueryFactory::insert('Lab.LabRequests', [
-                //     'PatientID'=>$patientID,
-                //     'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
-                //     'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
-                //     'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
-                //     'InvestigationType'=>$investigationType,
-                //     'LabID'=>$labId,
-                //     'RequestNote'=>QB::wrapString((string)$requestNote, "'")
-                // ]);
+                $result = DBQueryFactory::insert('Lab.LabRequests', [
+                    'PatientID'=>$patientID,
+                    'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
+                    'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                    'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
+                    'InvestigationType'=>$investigationType,
+                    'LabID'=>$labId,
+                    'RequestNote'=>QB::wrapString((string)$requestNote, "'")
+                ]);
 
                 $result["feedback"] = $feedback;
 
