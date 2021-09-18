@@ -109,8 +109,7 @@ class LabRequest
 
                 $query = "INSERT INTO Lab.LabRequests (PatientID, ClinicalDiagnosis, InvestigationRequired, RequestedBy, InvestigationType, LabID, RequestNote) VALUES ($patientID, '$clinicalDiagnosis', '$investigationRequired', $investigationType, $labId, '$requestNote')";
 
-                print_r($query);
-                die();
+                return $query;
 
                 $result = DBConnectionFactory::getConnection()->exec($query);
 
