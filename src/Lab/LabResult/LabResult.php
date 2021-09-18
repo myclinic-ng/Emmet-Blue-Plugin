@@ -101,6 +101,7 @@ class LabResult
             $query = "SELECT b.ExternalRequestID, b.ExternalBusinessID FROM Lab.Patients a INNER JOIN Lab.LinkedExternalRequests b ON a.RequestID = b.LocalRequestID WHERE a.PatientID = $patientId";
             $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             
+            return $res;
             if (count($res) > 0){
                 $requestId = $res[0]["ExternalRequestID"];
                 $businessId = $res[0]["ExternalBusinessID"];
