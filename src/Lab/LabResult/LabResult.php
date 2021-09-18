@@ -148,13 +148,13 @@ class LabResult
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         
-        return $result;
-        if (count($result) > 0){
+        if (isset($result[0])){
             $labNumber = $result[0]["PatientID"];
             $requestLabCode = $result[0]["PatientLabNumber"];
             $data['patientLabNumber'] = $labNumber;
             $data['requests'][0] = $requestLabCode;
 
+            return $data;
             return self::create($data);
         }
 
