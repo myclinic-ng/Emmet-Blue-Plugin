@@ -96,7 +96,7 @@ class LabResult
 
             $feedback = [];
 
-            $query = "SELECT b.ExternalRequestID, b.ExternalBusinessID FROM Lab.Patients a INNER JOIN Lab.LinkedExternalRequests b ON a.RequestID = b.LocalRequestID WHERE a.PatientLabNumber = $patientId";
+            $query = "SELECT b.ExternalRequestID, b.ExternalBusinessID FROM Lab.Patients a INNER JOIN Lab.LinkedExternalRequests b ON a.RequestID = b.LocalRequestID WHERE a.PatientID = $patientId";
             $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             
             if (count($res) > 0){
@@ -144,13 +144,14 @@ class LabResult
 
     public static function createWithRequestId(array $data){
         $requestId = $data["requestId"];
-        $query = "SELECT PatientLabNumber FROM Lab.Patients WHERE RequestID = $requestId";
+        $query = "SELECT PatientLabNumber, PatientID FROM Lab.Patients WHERE RequestID = $requestId";
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         if (count($result) > 0){
-            $labNumber = $result[0]["PatientLabNumber"];
+            $labNumber = $result[0]["PatientID"];
+            $requestLabCode = $result[0]["PatientLabNumber"];
             $data['patientLabNumber'] = $labNumber;
-            $data['requests'][0] = $labNumber;
+            $data['requests'][0] = $requestLabCode;
 
             return self::create($data);
         }
