@@ -309,13 +309,21 @@ class LabRequest
 
         $patientID = $patientLocalInfo['LocalPatientID'] ?? 'null';
 
-        $registerRequest = self::create([
+        // $registerRequest = self::create([
+        //     "patientID"=>$patientID,
+        //     "clinicalDiagnosis"=>$clinicalDiagnosis,
+        //     "requestedBy"=>$requestedBy,
+        //     "investigations"=>$investigations,
+        //     "requestNote"=>$requestNote
+        // ]);
+
+        $registerRequest = [
             "patientID"=>$patientID,
             "clinicalDiagnosis"=>$clinicalDiagnosis,
             "requestedBy"=>$requestedBy,
             "investigations"=>$investigations,
             "requestNote"=>$requestNote
-        ]);
+        ];
 
         return $registerRequest;
     }
