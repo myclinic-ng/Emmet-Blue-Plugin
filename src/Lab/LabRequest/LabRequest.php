@@ -106,7 +106,7 @@ class LabRequest
 
             try
             {
-                print_r([
+                return [
                     'PatientID'=>$patientID,
                     'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
                     'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
@@ -114,8 +114,8 @@ class LabRequest
                     'InvestigationType'=>$investigationType,
                     'LabID'=>$labId,
                     'RequestNote'=>QB::wrapString((string)$requestNote, "'")
-                ]);
-                die();
+                ];
+
                 $result = DBQueryFactory::insert('Lab.LabRequests', [
                     'PatientID'=>$patientID,
                     'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
