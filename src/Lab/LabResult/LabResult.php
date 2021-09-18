@@ -20,6 +20,8 @@ use EmmetBlue\Core\Constant;
 
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
+use EmmetBlue\Core\Factory\HTTPRequestFactory as HTTPRequest;
+
 /**
  * class LabResult.
  *
