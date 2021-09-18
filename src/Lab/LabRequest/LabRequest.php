@@ -55,7 +55,7 @@ class LabRequest
             $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             if (isset($result[0])){
                 //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
-
+                $result = $result[0];
                 $patientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
                 $businessId = $result["ExternalBusinessID"];
 
