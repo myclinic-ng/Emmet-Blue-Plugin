@@ -53,6 +53,7 @@ class LabRequest
             //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
             $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
             $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+            $feedback = [];
             if (isset($result[0])){
                 //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
                 $result = $result[0];
@@ -73,9 +74,6 @@ class LabRequest
                 $request = HTTPRequest::post($url, $requestData, [
                     'X-Authorization'=>$token
                 ]);
-
-                var_dump($request->body);
-                die();
 
                 $response = json_decode($request->body);
 
@@ -103,9 +101,7 @@ class LabRequest
                     'RequestNote'=>QB::wrapString((string)$requestNote, "'")
                 ]);
 
-                if (isset($feedback)){
-                    $result["feedback"] = $feedback;
-                }
+                $result["feedback"] = $feedback;
 
                 return $result;
             }
