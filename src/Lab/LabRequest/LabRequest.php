@@ -45,73 +45,19 @@ class LabRequest
         $investigations = $data["investigations"] ?? [];
         $requestNote = $investigation['requestNote'] ?? null;
 
+        $results = [];
+
         foreach ($investigations as $investigation){
             $investigationRequired = $investigation['investigationRequired'] ?? null;
             $investigationType = $investigation['investigationType'] ?? 'null';
             $labId = $investigation["labId"] ?? null;
 
-            //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
-            $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
-            $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
             $feedback = [];
-            if (count($result) > 0){
-                //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
-                $result = $result[0];
-                $patientInfo = [];
-                $viewPatientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
-                $patientInfo["patientName"] = $viewPatientInfo["patientfullname"];
-                $patientInfo["patientType"] = 1;
-                $patientInfo["First Name"] = $viewPatientInfo["first name"];
-                $patientInfo["Last Name"] = $viewPatientInfo["last name"];
-                $patientInfo["Gender"] = $viewPatientInfo["gender"];
-                $patientInfo["Date Of Birth"] = $viewPatientInfo["date of birth"];
-                $patientInfo["patientPassport"] = $viewPatientInfo["patientpicture"];
-
-                $businessId = $result["ExternalBusinessID"];
-
-                $externalInvestigation = $investigation;
-                $externalInvestigation["labId"] = $result["ExternalLabID"];
-
-                $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
-                $token = "4ae3e652e38ff511d15a905e33cdaef2";
-                $token_user = 2;
-
-                $requestData = [
-                    "patientId"=>$patientID,
-                    "patientInfo"=>$patientInfo,
-                    "businessId"=>$businessId,
-                    "clinicalDiagnosis"=>$clinicalDiagnosis,
-                    "investigations"=>[$externalInvestigation],
-                    "requestNote"=>$requestNote,
-                    "requestedBy"=>$token_user
-                ];
-
-                $request = HTTPRequest::post($url, $requestData, [
-                    'AUTHORIZATION'=>$token
-                ]);
-
-                $response = json_decode($request->body, true);
-
-                // if (is_null($response)){
-                //     //DO SOMETHING ABOUT THIS.
-                // }
-                // else {
-                //     if ($response["errorStatus"]){
-                //         throw new \Exception(!is_null($response["errorMessage"]) ? $response["errorMessage"] : "An error occurred");
-                //     }
-                // }
-
-                $feedback = $response;
-            }
 
             try
             {
 
-                // $query = "INSERT INTO Lab.LabRequests (PatientID, ClinicalDiagnosis, InvestigationRequired, RequestedBy, InvestigationType, LabID, RequestNote) VALUES ($patientID, '$clinicalDiagnosis', '$investigationRequired', $investigationType, $labId, '$requestNote')";
-
-                // $result = DBConnectionFactory::getConnection()->exec($query);
-
-                $result = DBQueryFactory::insert('Lab.LabRequests', [
+                $localRequest = DBQueryFactory::insert('Lab.LabRequests', [
                     'PatientID'=>$patientID,
                     'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
                     'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
@@ -121,9 +67,68 @@ class LabRequest
                     'RequestNote'=>QB::wrapString((string)$requestNote, "'")
                 ]);
 
-                $result["feedback"] = $feedback;
+                //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
+                $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
+                $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-                return $result;
+
+                if (count($result) > 0){
+                    //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
+                    $result = $result[0];
+                    $patientInfo = [];
+                    $viewPatientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
+                    $patientInfo["patientName"] = $viewPatientInfo["patientfullname"];
+                    $patientInfo["patientType"] = 1;
+                    $patientInfo["First Name"] = $viewPatientInfo["first name"];
+                    $patientInfo["Last Name"] = $viewPatientInfo["last name"];
+                    $patientInfo["Gender"] = $viewPatientInfo["gender"];
+                    $patientInfo["Date Of Birth"] = $viewPatientInfo["date of birth"];
+                    $patientInfo["patientPassport"] = $viewPatientInfo["patientpicture"];
+
+                    $query = "SELECT TOP 1 BusinessID FROM EmmetBlueCloud.BusinessInfo";
+                    $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+                    $businessId = $res[0]["BusinessID"];
+
+                    $externalInvestigation = $investigation;
+                    $externalInvestigation["labId"] = $result["ExternalLabID"];
+                    $externalInvestigation["requestId"] = $localRequest["lastInsertId"];
+
+                    $url = "https://api.emmetblue.ng/v1/lab/lab-request/new-external-lab-request";
+                    $token = "4ae3e652e38ff511d15a905e33cdaef2";
+                    $token_user = 2;
+
+                    $requestData = [
+                        "patientId"=>$patientID,
+                        "patientInfo"=>$patientInfo,
+                        "businessId"=>$businessId,
+                        "clinicalDiagnosis"=>$clinicalDiagnosis,
+                        "investigations"=>[$externalInvestigation],
+                        "requestNote"=>$requestNote,
+                        "requestedBy"=>$token_user
+                    ];
+
+                    $request = HTTPRequest::post($url, $requestData, [
+                        'AUTHORIZATION'=>$token
+                    ]);
+
+                    $response = json_decode($request->body, true);
+
+                    // if (is_null($response)){
+                    //     //DO SOMETHING ABOUT THIS.
+                    // }
+                    // else {
+                    //     if ($response["errorStatus"]){
+                    //         throw new \Exception(!is_null($response["errorMessage"]) ? $response["errorMessage"] : "An error occurred");
+                    //     }
+                    // }
+
+                    $feedback = $response;
+                }
+
+                $localRequest["feedback"] = $feedback;
+
+                $results[$investigationRequired] = $localRequest;
             }
             catch (\PDOException $e)
             {
@@ -133,6 +138,8 @@ class LabRequest
                 ), Constant::UNDEFINED);
             }
         }
+
+        return $results;
     }
 
     public static function view(int $resourceId, array $data = [])
@@ -295,6 +302,8 @@ class LabRequest
         $investigations = $data["investigations"] ?? [];
         $requestNote = $investigation['requestNote'] ?? null;
 
+        $externalRequestId = $data["requestId"] ?? null;
+
         $patientLocalInfo = \EmmetBlue\Plugins\Patients\Patient\LinkedExternalPatient::getLocalId([
             "externalPatientId"=>$externalPatientId,
             "businessId"=>$externalBusinessId
@@ -325,6 +334,11 @@ class LabRequest
             "requestNote"=>$requestNote,
             "requestedBy"=>$requestedBy
         ]);
+
+        $localRequestId = $registerRequest["lastInsertId"];
+
+        $query = "INSERT INTO Lab.LinkedExternalRequests (LocalRequestID, ExternalRequestID, ExternalBusinessID) VALUES ($localRequestId, $externalRequestId, $externalBusinessId)";
+        $result = DBConnectionFactory::getConnection()->exec($query);
 
         return $registerRequest;
     }

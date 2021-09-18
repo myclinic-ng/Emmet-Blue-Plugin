@@ -13,3 +13,14 @@ GO
 
 ALTER TABLE Lab.LabRequests ADD LabID INT FOREIGN KEY REFERENCES Lab.Labs (LabID) ON UPDATE CASCADE ON DELETE SET NULL
 GO
+
+CREATE TABLE Lab.LinkedExternalRequests (
+	LinkedRequestID INT PRIMARY KEY IDENTITY,
+	LocalRequestID INT NOT NULL,
+	ExternalRequestID INT NOT NULL,
+	ExternalBusinessID INT NOT NULL,
+
+	UNIQUE(ExternalRequestID, ExternalBusinessID),
+	FOREIGN KEY (LocalRequestID) REFERENCES Lab.LabRequests (RequestID) ON UPDATE CASCADE ON DELETE CASCADE
+)
+GO
