@@ -68,58 +68,60 @@ class LabRequest
                 ]);
 
                 //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
-                $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
-                $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+                if (!is_null($labId)){
+                    $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
+                    $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
 
-                if (count($result) > 0){
-                    //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
-                    $result = $result[0];
-                    $patientInfo = [];
-                    $viewPatientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
-                    $patientInfo["patientName"] = $viewPatientInfo["patientfullname"];
-                    $patientInfo["patientType"] = 1;
-                    $patientInfo["First Name"] = $viewPatientInfo["first name"];
-                    $patientInfo["Last Name"] = $viewPatientInfo["last name"];
-                    $patientInfo["Gender"] = $viewPatientInfo["gender"];
-                    $patientInfo["Date Of Birth"] = $viewPatientInfo["date of birth"];
-                    $patientInfo["patientPassport"] = $viewPatientInfo["patientpicture"];
+                    if (count($result) > 0){
+                        //LAB IS LINKED! REGISTER REQUEST WITH EXTERNAL LAB.
+                        $result = $result[0];
+                        $patientInfo = [];
+                        $viewPatientInfo = \EmmetBlue\Plugins\Patients\Patient\Patient::viewBasic((int) $patientID)["_source"];
+                        $patientInfo["patientName"] = $viewPatientInfo["patientfullname"];
+                        $patientInfo["patientType"] = 1;
+                        $patientInfo["First Name"] = $viewPatientInfo["first name"];
+                        $patientInfo["Last Name"] = $viewPatientInfo["last name"];
+                        $patientInfo["Gender"] = $viewPatientInfo["gender"];
+                        $patientInfo["Date Of Birth"] = $viewPatientInfo["date of birth"];
+                        $patientInfo["patientPassport"] = $viewPatientInfo["patientpicture"];
 
-                    $query = "SELECT TOP 1 BusinessID FROM EmmetBlueCloud.BusinessInfo";
-                    $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+                        $query = "SELECT TOP 1 BusinessID FROM EmmetBlueCloud.BusinessInfo";
+                        $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-                    $businessId = $res[0]["BusinessID"];
+                        $businessId = $res[0]["BusinessID"];
 
-                    $externalInvestigation = $investigation;
-                    $externalInvestigation["labId"] = $result["ExternalLabID"];
+                        $externalInvestigation = $investigation;
+                        $externalInvestigation["labId"] = $result["ExternalLabID"];
 
-                    $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$result["ExternalBusinessID"];
-                    $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+                        $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$result["ExternalBusinessID"];
+                        $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-                    if (count($_res) > 0){
-                        $auth = $_res[0];
-                        $url = $auth["EndpointUrl"]."/lab/lab-request/new-external-lab-request";
-                        $token = $auth["Token"];
-                        $token_user = $auth["UserId"];
+                        if (count($_res) > 0){
+                            $auth = $_res[0];
+                            $url = $auth["EndpointUrl"]."/lab/lab-request/new-external-lab-request";
+                            $token = $auth["Token"];
+                            $token_user = $auth["UserId"];
 
-                        $requestData = [
-                            "patientId"=>$patientID,
-                            "patientInfo"=>$patientInfo,
-                            "businessId"=>$businessId,
-                            "clinicalDiagnosis"=>$clinicalDiagnosis,
-                            "investigations"=>[$externalInvestigation],
-                            "requestNote"=>$requestNote,
-                            "requestedBy"=>$token_user,
-                            "requestId"=> $localRequest["lastInsertId"]
-                        ];
+                            $requestData = [
+                                "patientId"=>$patientID,
+                                "patientInfo"=>$patientInfo,
+                                "businessId"=>$businessId,
+                                "clinicalDiagnosis"=>$clinicalDiagnosis,
+                                "investigations"=>[$externalInvestigation],
+                                "requestNote"=>$requestNote,
+                                "requestedBy"=>$token_user,
+                                "requestId"=> $localRequest["lastInsertId"]
+                            ];
 
-                        $request = HTTPRequest::post($url, $requestData, [
-                            'AUTHORIZATION'=>$token
-                        ]);
+                            $request = HTTPRequest::post($url, $requestData, [
+                                'AUTHORIZATION'=>$token
+                            ]);
 
-                        $response = json_decode($request->body, true);
+                            $response = json_decode($request->body, true);
 
-                        $feedback = $response;
+                            $feedback = $response;
+                        }
                     }
                 }
 
