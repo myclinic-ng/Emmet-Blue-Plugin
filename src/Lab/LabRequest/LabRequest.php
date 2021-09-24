@@ -50,7 +50,7 @@ class LabRequest
         foreach ($investigations as $investigation){
             $investigationRequired = $investigation['investigationRequired'] ?? null;
             $investigationType = $investigation['investigationType'] ?? 'null';
-            $labId = $investigation["labId"] ?? null;
+            $labId = $investigation["labId"] ?? 'null';
 
             $feedback = [];
 
@@ -68,7 +68,7 @@ class LabRequest
                 ]);
 
                 //CHECK IF LAB IS LINKED TO EXTERNAL LAB.
-                if (!is_null($labId)){
+                if (!is_null($labId) || $labId == ''){
                     $query = "SELECT * FROM Lab.LinkedExternalLab WHERE LabID = $labId";
                     $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
