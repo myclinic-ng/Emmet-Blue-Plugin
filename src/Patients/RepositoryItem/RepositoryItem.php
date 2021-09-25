@@ -170,6 +170,12 @@ class RepositoryItem
                     case "pdf":
                     case "file":{
                         $json = $data["file"] ?? null;
+
+                        $_doc = explode(",", $json);
+
+                        if (isset($_doc[1])){
+                            $json = rtrim(trim($_doc[1]));
+                        }
                         
                         if (!self::createRepoFile($puuid, $ruuid, base64_decode($json, true), $number.".".$ext)){
                             self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
