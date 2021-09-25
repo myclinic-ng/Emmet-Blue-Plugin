@@ -132,7 +132,7 @@ class RepositoryItem
                     case "jpeg":
                     case "png":
                     {
-                        if (in_array(strtolower($ext), self::$allowedExtensions[strtolower($category)])){
+                        if (in_array(strtolower($ext), self::$allowedExtensions["image"])){
                             $document = str_replace(" ", "+", $document);
                             $document = base64_decode($document);
                             $docs = explode(",", $document);
