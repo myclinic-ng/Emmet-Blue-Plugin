@@ -177,7 +177,8 @@ class RepositoryItem
                             $json = rtrim(trim($_doc[1]));
                         }
                         
-                        if (!self::createRepoFile($puuid, $ruuid, base64_decode($json, true), $number.".".$ext)){
+                        $decodedFile = base64_decode($json, true);
+                        if (!self::createRepoFile($puuid, $ruuid, $decodedFile, $number.".".$ext)){
                             self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
                         }
                         break;
