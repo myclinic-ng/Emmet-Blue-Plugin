@@ -67,8 +67,6 @@ class RepositoryItem
 
     public static function createRepoFile($patientUuid, $repoNumber, $file, $name)
     {
-        print_r($file);
-        die();
         $patientDir = Constant::getGlobals()["file-server-path"].self::getPatientArchiveDir().$patientUuid;
         $repoDir = $patientDir.DIRECTORY_SEPARATOR.'repositories'.DIRECTORY_SEPARATOR.$repoNumber;
 
