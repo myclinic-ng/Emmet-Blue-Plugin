@@ -106,7 +106,7 @@ class RepositoryItem
             $document = base64_decode($document);
             $docs = explode(",", $document);
             $ext = explode(";", explode("/", $docs[0])[1])[0];
-            
+
             $category = $ext;
         }
 
@@ -178,16 +178,16 @@ class RepositoryItem
                     case "pdf":
                     case "file":{
                         $json = $data["file"] ?? null;
+                        
+                        $decodedFile = base64_decode($json, true);
 
-                        $_doc = explode(",", $json);
+                        $_doc = explode(",", $decodedFile);
 
                         if (isset($_doc[1])){
                             $json = rtrim(trim($_doc[1]));
                         }
-                        
-                        $decodedFile = base64_decode($json, true);
 
-                        if (!self::createRepoFile($puuid, $ruuid, $decodedFile, $number.".".$ext)){
+                        if (!self::createRepoFile($puuid, $ruuid, $json, $number.".".$ext)){
                             self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
                         }
                         break;
