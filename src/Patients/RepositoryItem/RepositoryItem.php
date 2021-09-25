@@ -102,6 +102,7 @@ class RepositoryItem
         }
         
         if($category == "image"){
+            $document = str_replace(" ", "+", $document);
             $document = base64_decode($document);
             $docs = explode(",", $document);
             $ext = explode(";", explode("/", $docs[0])[1])[0];
@@ -133,10 +134,6 @@ class RepositoryItem
                     case "png":
                     {
                         if (in_array(strtolower($ext), self::$allowedExtensions["image"])){
-                            $document = str_replace(" ", "+", $document);
-                            $document = base64_decode($document);
-                            $docs = explode(",", $document);
-                            $ext = explode(";", explode("/", $docs[0])[1])[0];
                             $document = base64_decode($docs[1]);
                             
                            if (!self::createRepoFile($puuid, $ruuid, $document, $number.".".$ext)){
