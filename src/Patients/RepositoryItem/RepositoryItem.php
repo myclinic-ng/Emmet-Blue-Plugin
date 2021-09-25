@@ -126,7 +126,7 @@ class RepositoryItem
                             $document = str_replace(" ", "+", $document);
                             $document = base64_decode($document);
                             $docs = explode(",", $document);
-                            $ext = explode("/", $docs[0])[1];
+                            $ext = explode(";", explode("/", $docs[0])[1])[0];
                             $document = base64_decode($docs[1]);
                             
                            if (!self::createRepoFile($puuid, $ruuid, $document, $number.".".$ext)){
@@ -178,7 +178,7 @@ class RepositoryItem
                         }
                         
                         $decodedFile = base64_decode($json, true);
-                        
+
                         if (!self::createRepoFile($puuid, $ruuid, $decodedFile, $number.".".$ext)){
                             self::delete((int)$result["lastInsertId"], $puuid, $number.".".$ext);
                         }
