@@ -106,6 +106,7 @@ class RepositoryItem
             $document = base64_decode($document);
             $docs = explode(",", $document);
             $ext = explode(";", explode("/", $docs[0])[1])[0];
+            
             $category = $ext;
         }
 
