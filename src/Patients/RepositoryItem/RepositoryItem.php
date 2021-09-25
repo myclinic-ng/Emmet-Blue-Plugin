@@ -100,6 +100,13 @@ class RepositoryItem
         else if($category == "file"){
             $ext = $data["file_ext"];
         }
+        
+        if($category == "image"){
+            $document = base64_decode($document);
+            $docs = explode(",", $document);
+            $ext = explode(";", explode("/", $docs[0])[1])[0];
+            $category = $ext;
+        }
 
         try
         {
@@ -121,6 +128,9 @@ class RepositoryItem
                 switch (strtolower($category))
                 {
                     case "image":
+                    case "jpg":
+                    case "jpeg":
+                    case "png":
                     {
                         if (in_array(strtolower($ext), self::$allowedExtensions[strtolower($category)])){
                             $document = str_replace(" ", "+", $document);
