@@ -50,6 +50,29 @@ class RepositoryItem
         return $result;
     }
 
+    public static function receiveFromExternalLab(array $data)
+    {
+        $result = RepositoryItem\RepositoryItem::receiveFromExternalLab($data);
+
+        return $result;
+    }
+    
+
+    public static function sendAcrossLabs(array $data)
+    {
+        $result = RepositoryItem\RepositoryItem::sendAcrossLabs($data);
+
+        return $result;
+    }
+
+
+    public static function viewRepositoryItem(int $resourceId=0)
+    {
+        $result = RepositoryItem\RepositoryItem::view($resourceId);
+
+        return $result;
+    }
+
     /**
      * Deletes a RepositoryItem UUID
      */
