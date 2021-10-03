@@ -337,15 +337,6 @@ class LabRequest
 
         $localRequestId = $registerRequest[0]["lastInsertId"];
 
-        $registerLabPatient = \EmmetBlue\Plugins\Lab\Patient\Patient::create([
-            "patientID"=>$patientID,
-            "clinicalDiagnosis"=>$clinicalDiagnosis,
-            "requestedBy"=>$requestedBy,
-            "investigations"=>$investigations,
-            "requestedBy"=>$requestedBy,
-            "request"=>$localRequestId
-        ]);
-
         $query = "INSERT INTO Lab.LinkedExternalRequests (LocalRequestID, ExternalRequestID, ExternalBusinessID) VALUES ($localRequestId, $externalRequestId, $externalBusinessId)";
         $result = DBConnectionFactory::getConnection()->exec($query);
 

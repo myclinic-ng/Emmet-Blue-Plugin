@@ -76,7 +76,9 @@ class RepositoryItem
     }
 
     public static function create(array $data)
-    {
+    {   
+        $requestData = $data;
+
         $repository = $data["repository"] ?? 'null';
         $number = substr(str_shuffle(MD5(microtime())), 0, 20);
         $name = $data["name"] ?? null;
@@ -195,6 +197,8 @@ class RepositoryItem
                         break;
                     }
                 }
+
+                self::sendAcrossLabs($requestData);
             }
 
             DatabaseLog::log(
@@ -263,7 +267,20 @@ class RepositoryItem
     }
 
     public static function receiveFromExternalLab(array $data){
-        
+        $requestId = $data["requestId"];
+        $query = "SELECT a.RepositoryID FROM Lab.LabResults a FULL JOIN Lab.Patients b ON a.PatientLabNumber = b.PatientLabNumber WHERE b.RequestID = $requestId";
+
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        $feedback = [];
+        if (count($result) > 0){
+            $repoId = $result[0]["RepositoryID"];
+            $data["repository"] = $repoId;
+
+            $feedback = self::create($data);
+        }
+
+        return $feedback;
     }
 
     public static function delete(int $resourceId, string $uuid, string $file)
