@@ -273,10 +273,7 @@ class RepositoryItem
     public static function receiveFromExternalLab(array $data){
         $requestId = $data["requestId"];
         $query = "SELECT a.RepositoryID FROM Lab.LabResults a FULL JOIN Lab.Patients b ON a.PatientLabNumber = b.PatientLabNumber WHERE b.RequestID = $requestId";
-
-        $feedback = $query;
-        return $feedback;
-
+        
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         $feedback = [];
