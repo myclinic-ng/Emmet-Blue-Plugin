@@ -125,6 +125,8 @@ class RepositoryItem
                 'RepositoryItemCreator'=>(is_null($creator)) ? 'NULL' : $creator
             ]);
 
+            $feedback = [];
+
             if ($result){
                 $query = "SELECT a.RepositoryNumber, b.PatientUUID FROM Patients.PatientRepository a JOIN Patients.Patient b ON a.PatientID = b.PatientID WHERE a.RepositoryID = $repository";
                 $uuids = ((DBConnectionFactory::getConnection()->query($query))->fetchAll())[0];
@@ -200,7 +202,7 @@ class RepositoryItem
                     }
                 }
 
-                self::sendAcrossLabs($requestData);
+                $feedback = self::sendAcrossLabs($requestData);
             }
 
             // DatabaseLog::log(
@@ -211,7 +213,7 @@ class RepositoryItem
             //     (string)(serialize($result))
             // );
             
-            return $result;
+            return ["result"=>$result, "feedback"=>$feedback];
         }
         catch (\PDOException $e)
         {
