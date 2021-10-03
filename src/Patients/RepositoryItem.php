@@ -65,14 +65,6 @@ class RepositoryItem
         return $result;
     }
 
-
-    public static function viewRepositoryItem(int $resourceId=0)
-    {
-        $result = RepositoryItem\RepositoryItem::view($resourceId);
-
-        return $result;
-    }
-
     /**
      * Deletes a RepositoryItem UUID
      */
