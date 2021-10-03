@@ -201,13 +201,13 @@ class RepositoryItem
                 self::sendAcrossLabs($requestData);
             }
 
-            DatabaseLog::log(
-                Session::get('USER_ID'),
-                Constant::EVENT_SELECT,
-                'Patients',
-                'RepositoryItem',
-                (string)(serialize($result))
-            );
+            // DatabaseLog::log(
+            //     Session::get('USER_ID'),
+            //     Constant::EVENT_SELECT,
+            //     'Patients',
+            //     'RepositoryItem',
+            //     (string)(serialize($result))
+            // );
             
             return $result;
         }
@@ -269,6 +269,9 @@ class RepositoryItem
     public static function receiveFromExternalLab(array $data){
         $requestId = $data["requestId"];
         $query = "SELECT a.RepositoryID FROM Lab.LabResults a FULL JOIN Lab.Patients b ON a.PatientLabNumber = b.PatientLabNumber WHERE b.RequestID = $requestId";
+
+        $feedback = $query;
+        return $feedback;
 
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
