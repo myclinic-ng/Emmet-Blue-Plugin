@@ -71,6 +71,8 @@ class LabResult
 
             \EmmetBlue\Plugins\Patients\RepositoryItem\RepositoryItem::create($repoItemData);
 
+            $feedback = [];
+
             if (!empty($requests)){
                 $reqs = [];
                 $reqs2 = [];
@@ -94,40 +96,38 @@ class LabResult
                 $result = DBConnectionFactory::getConnection()->exec($query);
 
                 DBConnectionFactory::getConnection()->exec(implode(";", $reqs2));
-            }
 
-            $feedback = [];
+                $query = "SELECT b.ExternalRequestID, b.ExternalBusinessID FROM Lab.Patients a INNER JOIN Lab.LinkedExternalRequests b ON a.RequestID = b.LocalRequestID WHERE a.PatientLabNumber = $value";
+                $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+                
+                if (count($res) > 0){
+                    $requestId = $res[0]["ExternalRequestID"];
+                    $businessId = $res[0]["ExternalBusinessID"];
+                    foreach ($requests as $key=>$value){
+                        $requests[$key] = $requestId;
+                    }
 
-            $query = "SELECT b.ExternalRequestID, b.ExternalBusinessID FROM Lab.Patients a INNER JOIN Lab.LinkedExternalRequests b ON a.RequestID = b.LocalRequestID WHERE a.PatientID = $patientId";
-            $res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
-            
-            if (count($res) > 0){
-                $requestId = $res[0]["ExternalRequestID"];
-                $businessId = $res[0]["ExternalBusinessID"];
-                foreach ($requests as $key=>$value){
-                    $requests[$key] = $requestId;
-                }
+                    $requestData = $data;
+                    $requestData["requestId"] = $requestId;
+                    $requestData["requests"] = $requests;
 
-                $requestData = $data;
-                $requestData["requestId"] = $requestId;
-                $requestData["requests"] = $requests;
+                    $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$businessId;
+                    $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-                $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$businessId;
-                $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+                    if (count($_res) > 0){
+                        $auth = $_res[0];
+                        $url = $auth["EndpointUrl"]."/lab/lab-result/create-with-request-id";
+                        $token = $auth["Token"];
+                        $token_user = $auth["UserId"];
 
-                if (count($_res) > 0){
-                    $auth = $_res[0];
-                    $url = $auth["EndpointUrl"]."/lab/lab-result/create-with-request-id";
-                    $token = $auth["Token"];
-                    $token_user = $auth["UserId"];
+                        $request = HTTPRequest::post($url, $requestData, [
+                            'AUTHORIZATION'=>$token
+                        ]);
 
-                    $request = HTTPRequest::post($url, $requestData, [
-                        'AUTHORIZATION'=>$token
-                    ]);
+                        $response = json_decode($request->body, true);
 
-                    $response = json_decode($request->body, true);
-
-                    $feedback = $response;
+                        $feedback[] = $response;
+                    }
                 }
             }
 

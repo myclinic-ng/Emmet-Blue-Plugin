@@ -225,6 +225,47 @@ class RepositoryItem
     /**
      * delete patient
      */
+
+    public static function sendAcrossLabs(array $data){
+        $repository = $data["repository"];
+
+        $query = "SELECT c.* FROM Lab.LabResults a INNER JOIN Lab.Patients b ON a.PatientLabNumber = b.PatientLabNumber INNER JOIN Lab.LinkedExternalRequests c ON b.RequestID = c.LocalRequestID WHERE a.RepositoryID=$repository";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        $feedback = [];
+
+        if (count($result) > 0){
+            $requestId = $result[0]["ExternalRequestID"];
+            $businessId = $result[0]["ExternalBusinessID"];
+
+            $requestData = $data;
+            $requestData["requestId"] = $requestId;
+
+            $query = "SELECT * FROM EmmetBlueCloud.BusinessLinkAuth WHERE ExternalBusinessID = ".$businessId;
+            $_res = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+            if (count($_res) > 0){
+                $auth = $_res[0];
+                $url = $auth["EndpointUrl"]."/patients/repository-item/receive-from-external-lab";
+                $token = $auth["Token"];
+                $token_user = $auth["UserId"];
+
+                $request = HTTPRequest::post($url, $requestData, [
+                    'AUTHORIZATION'=>$token
+                ]);
+
+                $response = json_decode($request->body, true);
+
+                $feedback = $response;
+            }
+        }
+
+        return $feedback;
+    }
+
+    public static function receiveFromExternalLab(array $data){
+        
+    }
+
     public static function delete(int $resourceId, string $uuid, string $file)
     {
         $deleteBuilder = (new Builder("QueryBuilder", "delete"))->getBuilder();
