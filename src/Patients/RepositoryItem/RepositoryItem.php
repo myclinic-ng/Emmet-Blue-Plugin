@@ -269,8 +269,6 @@ class RepositoryItem
     }
 
     public static function receiveFromExternalLab(array $data){
-
-        return $data;
         $requestId = $data["requestId"];
         $query = "SELECT a.RepositoryID FROM Lab.LabResults a FULL JOIN Lab.Patients b ON a.PatientLabNumber = b.PatientLabNumber WHERE b.RequestID = $requestId";
 
