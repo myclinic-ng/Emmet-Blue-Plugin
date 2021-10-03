@@ -23,6 +23,8 @@ use EmmetBlue\Core\CustomFileNameGenerator as CFNG;
 
 use EmmetBlue\Plugins\Permission\Permission as Permission;
 
+use EmmetBlue\Core\Factory\HTTPRequestFactory as HTTPRequest;
+
 /**
  * class RepositoryItem.
  *
