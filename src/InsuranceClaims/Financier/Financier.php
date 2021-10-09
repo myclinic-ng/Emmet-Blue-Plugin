@@ -43,18 +43,34 @@ class Financier
         return $result;
     }
 
-    public static function newPatient(array $data){
+    public static function newInsuranceId(array $data){
         $financierId = $data["financier"];
-        $patientData = $data["patientData"] ?? [];
+        $planId = $data["planId"];
+        $planDescription = $data["planDescription"] ?? null;
 
-        $patientResult = \EmmetBlue\Plugins\Patients\Patient\Patient::create($patientData);
+        $query = "SELECT * FROM InsuranceClaims.Financiers WHERE FinancierID = $finacierId";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
-        $patientId = $patientResult["lastInsertId"];
-        $patientType = $data["patientData"]["patientType"];
+        if (count($result) > 0){
+            $financierUid = $result[0]["financierUID"];
+            $timestamp = microtime(true);
 
-        $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($finacierId, $patientType)";
+            $typeName = $financierUid." ".$timestamp;
 
-        $result = DBConnectionFactory::getConnection()->exec($query);
+            $type = \EmmetBlue\Plugins\Patients\PatientType\PatientType::create([
+                "patientTypeName"=>$typeName,
+                "patientTypeCategory"=>$planId,
+                "patientTypeDescription"=>$planDescription
+            ]);
+
+            $patientTypeId = $type["lastInsertId"];
+
+            $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($finacierId, $patientTypeId)";
+
+            $result = DBConnectionFactory::getConnection()->exec($query);
+
+            $result["planName"] = $typeName;
+        }
 
         return $result;
     } 

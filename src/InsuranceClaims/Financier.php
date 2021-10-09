@@ -43,9 +43,9 @@ class Financier
         return $result;
     }
 
-    public static function newPatient(array $data)
+    public static function newInsuranceId(array $data)
     {
-        $result = Financier\Financier::newPatient($data);
+        $result = Financier\Financier::newInsuranceId($data);
 
         return $result;
     }
