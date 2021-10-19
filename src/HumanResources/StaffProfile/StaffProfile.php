@@ -122,8 +122,11 @@ class StaffProfile
 
                     $values = [];
                     foreach ($data as $key=>$value){
-                        $values[] = "($staffId, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
+                        if ($key != "StaffProfile"){
+                            $values[] = "($staffId, ".QB::wrapString((string)ucfirst($key), "'").", ".QB::wrapString((string)$value, "'").")";
+                        }
                     }
+
 
                     $values[] = "($staffId, 'StaffProfile', '$id')";
 

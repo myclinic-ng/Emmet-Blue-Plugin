@@ -47,6 +47,37 @@ class LabRequest
 
         $results = [];
 
+        //deprecated.
+        if (count($investigations) == 0){
+            $investigationRequired = $data['investigationRequired'] ?? null;
+            $investigationType = $data['investigationType'] ?? 'null';
+            $labId = $data["labId"] ?? 'null';
+
+            try
+            {
+
+                $localRequest = DBQueryFactory::insert('Lab.LabRequests', [
+                    'PatientID'=>$patientID,
+                    'ClinicalDiagnosis'=>QB::wrapString((string)$clinicalDiagnosis, "'"),
+                    'InvestigationRequired'=>QB::wrapString((string)$investigationRequired, "'"),
+                    'RequestedBy'=>QB::wrapString((string)$requestedBy, "'"),
+                    'InvestigationType'=>$investigationType,
+                    'LabID'=>$labId,
+                    'RequestNote'=>QB::wrapString((string)$requestNote, "'")
+                ]);
+
+                return $localRequest;
+            }
+            catch (\PDOException $e)
+            {
+                throw new SQLException(sprintf(
+                    "Unable to process request (LabRequest not created), %s",
+                    $e->getMessage()
+                ), Constant::UNDEFINED);
+            }
+
+        }
+
         foreach ($investigations as $investigation){
             $investigationRequired = $investigation['investigationRequired'] ?? null;
             $investigationType = $investigation['investigationType'] ?? 'null';
