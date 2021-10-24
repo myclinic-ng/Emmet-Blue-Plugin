@@ -49,4 +49,11 @@ class Financier
 
         return $result;
     }
+
+    public static function viewInsuranceId(int $resourceId=0)
+    {
+        $result = Financier\Financier::viewInsuranceId($resourceId);
+
+        return $result;
+    }
 }

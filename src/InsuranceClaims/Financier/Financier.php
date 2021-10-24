@@ -52,7 +52,7 @@ class Financier
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         if (count($result) > 0){
-            $financierUid = $result[0]["financierUID"];
+            $financierUid = $result[0]["FinancierUID"];
             $timestamp = microtime(true);
 
             $typeName = $financierUid." ".$timestamp;
@@ -69,7 +69,7 @@ class Financier
 
             $result = DBConnectionFactory::getConnection()->exec($query);
 
-            $result["planName"] = $typeName;
+            $result = ["result"=>$result, "planName"=>$typeName];
         }
 
         return $result;
@@ -77,6 +77,14 @@ class Financier
 
     public static function viewFinanciers(int $resourceId=0){
         $query = "SELECT * FROM InsuranceClaims.Financiers";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
+    public static function viewInsuranceId(int $resourceId=0){
+        $query = "SELECT a.LinkID, b.*, c.* FROM InsuranceClaims.FinancierPatientTypeLinks a INNER JOIN InsuranceClaims.Financiers b ON a.FinancierID = b.FinancierID INNER JOIN Patients.PatientType c ON a.PatientTypeID = c.PatientTypeID";
+        
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
