@@ -57,6 +57,8 @@ class Financier
 
             $typeName = $financierUid." ".$timestamp;
 
+            $typeName = crc32($typeName);
+
             $type = \EmmetBlue\Plugins\Patients\PatientType\PatientType::create([
                 "patientTypeName"=>$typeName,
                 "patientTypeCategory"=>$planId,
@@ -84,7 +86,7 @@ class Financier
 
     public static function viewInsuranceId(int $resourceId=0){
         $query = "SELECT a.LinkID, b.*, c.* FROM InsuranceClaims.FinancierPatientTypeLinks a INNER JOIN InsuranceClaims.Financiers b ON a.FinancierID = b.FinancierID INNER JOIN Patients.PatientType c ON a.PatientTypeID = c.PatientTypeID";
-        
+
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
