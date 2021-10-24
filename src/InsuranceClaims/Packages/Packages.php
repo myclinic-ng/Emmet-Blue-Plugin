@@ -41,7 +41,7 @@ class Packages
         $packageDescription = $data["packageDescription"] ?? "";
         $packageCost = $data["packageCost"] ?? "";
 
-        $categoryId = \\EmmetBlue\Plugins\Patients\PatientTypeCategory\PatientTypeCategory::create([
+        $categoryId = \EmmetBlue\Plugins\Patients\PatientTypeCategory\PatientTypeCategory::create([
             "categoryName"=>$packageName,
             "categoryDescription"=>$packageDescription
         ])["lastInsertId"];
