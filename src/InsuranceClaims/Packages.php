@@ -25,7 +25,7 @@ class Packages
 	 */
     public static function newPackage(array $data)
     {
-        $result = Packages\Packages::create($data);
+        $result = Packages\Packages::newPackage($data);
 
         return $result;
     }

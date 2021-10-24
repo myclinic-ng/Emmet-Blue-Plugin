@@ -9,7 +9,7 @@ CREATE TABLE [InsuranceClaims].[Financiers] (
 
 CREATE TABLE [InsuranceClaims].[FinancierPatientTypeLinks] (
 	LinkID INT PRIMARY KEY IDENTITY,
-	FinancerID INT NOT NULL,
+	FinancierID INT NOT NULL,
 	PatientTypeID INT NOT NULL,
 
 	UNIQUE (FinancierID, PatientTypeID),
@@ -24,5 +24,5 @@ CREATE TABLE [InsuranceClaims].[Packages] (
 	PackageCost MONEY,
 	PackageStatus BIT DEFAULT 1,
 	PackageDescription VARCHAR(100),
-	FOREIGN KEY (CategoryID) REFERENCES Patients.PatientTypeCategory (CategoryID) ON UPDATE CASCADE ON DELETE CASCADE
+	FOREIGN KEY (CategoryID) REFERENCES Patients.PatientTypeCategories (CategoryID) ON UPDATE CASCADE ON DELETE CASCADE
 );
