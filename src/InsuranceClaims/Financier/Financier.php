@@ -48,7 +48,7 @@ class Financier
         $planId = $data["planId"];
         $planDescription = $data["planDescription"] ?? null;
 
-        $query = "SELECT * FROM InsuranceClaims.Financiers WHERE FinancierID = $finacierId";
+        $query = "SELECT * FROM InsuranceClaims.Financiers WHERE FinancierID = $financierId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         if (count($result) > 0){
