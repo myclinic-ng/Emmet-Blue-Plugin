@@ -65,7 +65,7 @@ class Financier
 
             $patientTypeId = $type["lastInsertId"];
 
-            $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($finacierId, $patientTypeId)";
+            $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($financierId, $patientTypeId)";
 
             $result = DBConnectionFactory::getConnection()->exec($query);
 
