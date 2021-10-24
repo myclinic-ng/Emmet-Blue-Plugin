@@ -38,7 +38,7 @@ class Financier
 
     public static function viewFinanciers(int $resourceId=0)
     {
-        $result = Financier\Financier::view($resourceId);
+        $result = Financier\Financier::viewFinanciers($resourceId);
 
         return $result;
     }
