@@ -31,7 +31,7 @@ class Financier
 
     public static function newFinancier(array $data)
     {
-        $result = Financier\Financier::create($data);
+        $result = Financier\Financier::newFinancier($data);
 
         return $result;
     }
