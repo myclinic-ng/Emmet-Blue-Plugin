@@ -54,6 +54,8 @@ class Profiles
         $query = "SELECT * FROM InsuranceClaims.PrimaryAccounts WHERE PatientTypeID = $planId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
+        $result = $result[0] ?? [];
+        
         return $result;
     }
 }
