@@ -35,8 +35,9 @@ class Financier
     public static function newFinancier(array $data)
     {
         $financierUid = $data["financierUid"];
+        $type = $data["financierType"];
 
-        $query = "INSERT INTO InsuranceClaims.Financiers (FinancierUID) VALUES ('$financierUid');";
+        $query = "INSERT INTO InsuranceClaims.Financiers (FinancierUID, FinancierType) VALUES ('$financierUid', '$financierType');";
 
         $result = DBConnectionFactory::getConnection()->exec($query);
 
