@@ -28,7 +28,7 @@ use EmmetBlue\Core\Constant;
  */
 class PatientTypeCategoriesBillingTypeItemLink
 {
-	public static function newPatientTypeCategoriesBillingTypeItemLink(array $data)
+	public static function newLink(array $data)
 	{
 		return PatientTypeCategoriesBillingTypeItemLink\PatientTypeCategoriesBillingTypeItemLink::create($data);
 	}
