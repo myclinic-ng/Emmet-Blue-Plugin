@@ -528,7 +528,7 @@ class Patient
         foreach ($result as $key=>$value){
             $id = $value["PatientID"];
 
-            $result[$key] = self::view((int) $id)["_source"];
+            $result[$key] = self::viewBasic((int) $id)["_source"];
         }
 
         return $result;

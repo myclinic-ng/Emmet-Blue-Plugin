@@ -1,10 +1,19 @@
 CREATE SCHEMA InsuranceClaims
 GO
 
+CREATE TABLE [InsuranceClaims].[FinancierTypes] (
+	FinancierTypeID INT PRIMARY KEY IDENTITY,
+	TypeName VARCHAR(50) UNIQUE
+)
+GO;
+
 CREATE TABLE [InsuranceClaims].[Financiers] (
 	FinancierID INT PRIMARY KEY IDENTITY,
 	FinancierUID VARCHAR(50) UNIQUE,
-	DateCreated DATETIME DEFAULT GETDATE()
+	FinancierType VARCHAR(50) DEFAULT NULL,
+	DateCreated DATETIME DEFAULT GETDATE(),
+
+	FOREIGN KEY (FinancierTypes) REFERENCES InsuranceClaims.FinancierTypes (FinancierType) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 CREATE TABLE [InsuranceClaims].[FinancierPatientTypeLinks] (
