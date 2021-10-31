@@ -14,7 +14,7 @@ namespace EmmetBlue\Plugins\InsuranceClaims;
  * Profiles Controller
  *
  * @author Samuel Adeshina <samueladeshina73@gmail.com>
- * @since v0.0.1 24/10/2021 11:15
+ * @since v0.0.1 31/10/2021 11:15
  */
 class Profiles
 {
