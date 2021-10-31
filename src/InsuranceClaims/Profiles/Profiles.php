@@ -51,7 +51,7 @@ class Profiles
     }
 
     public static function getPrimaryAccount(int $planId){
-        $query = "SELECT * FROM InsuranceClaims.PrimaryAccounts WERE PatientTypeID = $planId";
+        $query = "SELECT * FROM InsuranceClaims.PrimaryAccounts WHERE PatientTypeID = $planId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
