@@ -4,8 +4,7 @@ GO
 CREATE TABLE [InsuranceClaims].[FinancierTypes] (
 	FinancierTypeID INT PRIMARY KEY IDENTITY,
 	TypeName VARCHAR(50) UNIQUE
-)
-GO;
+);
 
 CREATE TABLE [InsuranceClaims].[Financiers] (
 	FinancierID INT PRIMARY KEY IDENTITY,
@@ -13,7 +12,7 @@ CREATE TABLE [InsuranceClaims].[Financiers] (
 	FinancierType VARCHAR(50) DEFAULT NULL,
 	DateCreated DATETIME DEFAULT GETDATE(),
 
-	FOREIGN KEY (FinancierTypes) REFERENCES InsuranceClaims.FinancierTypes (FinancierType) ON UPDATE CASCADE ON DELETE SET NULL
+	FOREIGN KEY (FinancierType) REFERENCES InsuranceClaims.FinancierTypes (TypeName) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 CREATE TABLE [InsuranceClaims].[FinancierPatientTypeLinks] (

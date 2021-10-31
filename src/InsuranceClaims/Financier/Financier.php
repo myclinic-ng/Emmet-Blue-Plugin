@@ -77,6 +77,13 @@ class Financier
         return $result;
     } 
 
+    public static function viewFinancierTypes(){
+        $query = "SELECT * FROM InsuranceClaims.FinancierTypes";
+        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
     public static function viewFinanciers(int $resourceId=0){
         $query = "SELECT * FROM InsuranceClaims.Financiers";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);

@@ -36,6 +36,13 @@ class Financier
         return $result;
     }
 
+    public static function viewFinancierTypes()
+    {
+        $result = Financier\Financier::viewFinancierTypes();
+
+        return $result;
+    }
+
     public static function viewFinanciers(int $resourceId=0)
     {
         $result = Financier\Financier::viewFinanciers($resourceId);
