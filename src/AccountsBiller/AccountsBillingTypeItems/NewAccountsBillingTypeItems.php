@@ -48,7 +48,7 @@ class NewAccountsBillingTypeItems
 		$result = DatabaseQueryFactory::insert('Accounts.BillingTypeItems', $packed);
 		$billingTypeItem = $result["lastInsertId"];
 
-		if (isset($data["priceStructures"])){	
+		if (isset($data["priceStructures"]) && count($data["priceStructures"]) > 0){	
 			foreach($data["priceStructures"] as $priceStructure){
 				$price = $priceStructure["price"];
 				$patientTypes = $priceStructure["patientTypes"];
