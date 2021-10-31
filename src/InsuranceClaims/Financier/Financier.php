@@ -35,7 +35,7 @@ class Financier
     public static function newFinancier(array $data)
     {
         $financierUid = $data["financierUid"];
-        $type = $data["financierType"];
+        $financierType = $data["financierType"];
 
         $query = "INSERT INTO InsuranceClaims.Financiers (FinancierUID, FinancierType) VALUES ('$financierUid', '$financierType');";
 
