@@ -38,7 +38,7 @@ class PatientTypeCategoriesBillingTypeItemLink
         {
             $query = "INSERT INTO Accounts.PatientTypeCategoriesBillingTypeItemLink (PatientTypeCategoryID, BillingTypeItemID) VALUES ";
             $values = [];
-            foreach ($billingTypes as $type){
+            foreach ($billingTypes as $type) {
                 $values[] ="($category, $type)";
             }
             $queryWithValues = $query.implode(", ", $values);

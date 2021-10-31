@@ -38,7 +38,7 @@ class PatientTypeCategoriesBillingTypeItemLink
 		return PatientTypeCategoriesBillingTypeItemLink\PatientTypeCategoriesBillingTypeItemLink::viewByCategory($resourceId, $data);
 	}
 
-	public static function delete(int $resourceId=0
+	public static function delete(int $resourceId=0)
 	{
 		return PatientTypeCategoriesBillingTypeItemLink\PatientTypeCategoriesBillingTypeItemLink::delete($resourceId);
 	}
