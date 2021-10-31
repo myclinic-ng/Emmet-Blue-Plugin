@@ -57,7 +57,7 @@ class PatientTypeCategoriesBillingTypeItemLink
 
 
     public static function viewByCategory(int $resourceId){
-        $query = "SELECT * FROM Accounts.PatientTypeCategoriesBillingTypeItemLink a INNER JOIN Accounts.BillingTypeItems c ON a.BillingTypeItemID = c.BillingTypeItemID WHERE a.PatientTypeCategoryID = $resourceId";
+        $query = "SELECT * FROM Accounts.PatientTypeCategoriesBillingTypeItemLink a INNER JOIN Accounts.BillingTypeItems c ON a.BillingTypeItemID = c.BillingTypeItemID INNER JOIN Accounts.BillingTypes d ON c.BillingType = d.BillingTypeID WHERE a.PatientTypeCategoryID = $resourceId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
         
 
