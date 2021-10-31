@@ -18,11 +18,6 @@ namespace EmmetBlue\Plugins\InsuranceClaims;
  */
 class Packages
 {
-	/**
-	 * Creates a new field title type
-	 *
-	 * @param $_POST
-	 */
     public static function newPackage(array $data)
     {
         $result = Packages\Packages::newPackage($data);
@@ -30,9 +25,6 @@ class Packages
         return $result;
     }
 
-    /**
-     * edits Packages
-     */
     public static function editPackage(int $resourceId=0, array $data)
     {
         $result = Packages\Packages::edit($resourceId, $data);
@@ -40,23 +32,17 @@ class Packages
         return $result;
     }
 
-    /**
-     * Selects Packages
-     */
     public static function viewPackages(int $resourceId=0)
     {
         $result = Packages\Packages::view($resourceId);
 
         return $result;
     }
-
-    /**
-     * Deletes a Packages
-     */
+    
     public static function deletePackages(int $resourceId)
     {
-    	$result = Packages\Packages::delete($resourceId);
+        $result = Packages\Packages::delete($resourceId);
 
-    	return $result;
+        return $result;
     }
 }

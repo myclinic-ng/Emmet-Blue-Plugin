@@ -34,3 +34,12 @@ CREATE TABLE [InsuranceClaims].[Packages] (
 	PackageDescription VARCHAR(100),
 	FOREIGN KEY (CategoryID) REFERENCES Patients.PatientTypeCategories (CategoryID) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE [InsuranceClaims].[PrimaryAccounts] (
+	PrimaryAccountID INT PRIMARY KEY IDENTITY,
+	PatientTypeID INT UNIQUE,
+	PatientID INT NOT NULL,
+
+	FOREIGN KEY (PatientTypeID) REFERENCES Patients.PatientType (PatientTypeID) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (PatientID) REFERENCES Patients.Patient (PatientID) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
