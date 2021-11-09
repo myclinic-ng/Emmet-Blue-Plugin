@@ -188,7 +188,7 @@ class LabRequest
             $selectBuilder .= " AND e.LabID = $resourceId";
         }
 
-        die($selectBuilder);
+        // die($selectBuilder);
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query($selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -223,14 +223,27 @@ class LabRequest
             $selectFields = " DISTINCT f.PatientFullName, f.PatientUUID, g.*";
         }
 
+        if (isset($data["startdate"]) && isset($data["enddate"])){
+            $sDate = QB::wrapString($data["startdate"], "'");
+            $eDate = QB::wrapString($data["enddate"], "'");
+
+            $selectBuilder .= " AND (CONVERT(date, e.RequestDate) BETWEEN $sDate AND $eDate)";
+        }
+
+        if ($resourceId != 0){
+            $selectBuilder .= " AND e.LabID = $resourceId";
+        }
+
         $selectBuilder = str_replace("%selects%", $selectFields, $selectBuilder);
-        
+
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
             
             foreach ($viewOperation as $key=>$result){
-                $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
+                if (isset($result["RequestedBy"])){
+                    $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
+                }
             }
 
             DatabaseLog::log(
