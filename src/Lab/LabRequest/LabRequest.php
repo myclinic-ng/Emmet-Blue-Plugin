@@ -213,8 +213,18 @@ class LabRequest
 
     public static function viewByPatient(int $resourceId, array $data)
     {
-        $resourceId = QB::wrapString($data["patient"], "'");
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.*, j.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID LEFT OUTER JOIN Lab.Labs j ON e.LabID = j.LabID WHERE f.PatientUUID = $resourceId AND (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1) ";
+        $selectFields = "f.PatientFullName, f.PatientUUID, e.*, g.*, j.*";
+        $selectBuilder = "SELECT %selects% FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID LEFT OUTER JOIN Lab.Labs j ON e.LabID = j.LabID WHERE (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1) ";
+        if (isset($data["patient"]) && $data["patient"] !== "") {
+            $resourceId = QB::wrapString($data["patient"], "'");
+            $selectBuilder .= " AND f.PatientUUID = $resourceId";
+        }
+        else {
+            $selectFields = " DISTINCT f.PatientFullName, f.PatientUUID, g.*";
+        }
+
+        $selectBuilder = str_replace("%selects%", $selectFields, $selectBuilder);
+        
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
