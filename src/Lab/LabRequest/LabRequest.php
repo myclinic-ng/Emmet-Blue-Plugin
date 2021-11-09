@@ -214,7 +214,7 @@ class LabRequest
     public static function viewByPatient(int $resourceId, array $data)
     {
         $resourceId = QB::wrapString($data["patient"], "'");
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.*, j.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID LEFT OUTER JOIN Lab.Labs j ON e.LabID = j.LabID WHERE f.PatientUUID = '$resourceId' AND (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1) ";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.*, j.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID LEFT OUTER JOIN Lab.Labs j ON e.LabID = j.LabID WHERE f.PatientUUID = $resourceId AND (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1) ";
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
