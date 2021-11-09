@@ -188,8 +188,7 @@ class LabRequest
             $selectBuilder .= " AND e.LabID = $resourceId";
         }
 
-        // die($selectBuilder);
-
+        die($selectBuilder);
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query($selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
@@ -197,16 +196,6 @@ class LabRequest
             foreach ($viewOperation as $key=>$result){
                 $viewOperation[$key]["RequestedByFullName"] = \EmmetBlue\Plugins\HumanResources\StaffProfile\StaffProfile::viewStaffFullName((int) $result["RequestedBy"])["StaffFullName"];
             }
-
-            // DatabaseLog::log(
-            //     Session::get('USER_ID'),
-            //     Constant::EVENT_SELECT,
-            //     'Lab',
-            //     'LabRequests',
-            //     (string)$selectBuilder
-            // );
-
-            // $viewOperation  = $viewOperation[0] ?? $viewOperation;
             
             return $viewOperation;
         } 
@@ -225,7 +214,7 @@ class LabRequest
     public static function viewByPatient(int $resourceId, array $data)
     {
         $resourceId = QB::wrapString($data["patient"], "'");
-        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a LEFT OUTER JOIN (SELECT * FROM Lab.InvestigationTypes b LEFT OUTER JOIN Lab.Labs c ON b.InvestigationTypeLab = c.LabID) d ON a.InvestigationType = d.InvestigationTypeID) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID WHERE f.PatientUUID = $resourceId AND (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1)";
+        $selectBuilder = "SELECT f.PatientFullName, f.PatientUUID, e.*, g.*, j.* FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID LEFT OUTER JOIN Lab.Labs j ON e.LabID = j.LabID WHERE f.PatientUUID = '$resourceId' AND (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1) ";
         try
         {
             $viewOperation = (DBConnectionFactory::getConnection()->query((string)$selectBuilder))->fetchAll(\PDO::FETCH_ASSOC);
