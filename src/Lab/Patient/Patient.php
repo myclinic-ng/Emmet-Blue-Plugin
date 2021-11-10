@@ -57,6 +57,8 @@ class Patient
             foreach ($investigations as $inv){
                 $investigationTypeRequired = $inv['investigation'] ?? 'null';
                 $investigationRequired = $inv['note'] ?? null;
+                $requestedBy = $inv['requestedBy'] ?? null;
+                $dateRequested = $data['dateRequested'] ?? null;
 
                 $result = DBQueryFactory::insert('Lab.Patients', [
                     'PatientID'=>$patientID,
