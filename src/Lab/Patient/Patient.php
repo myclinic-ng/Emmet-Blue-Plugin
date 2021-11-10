@@ -58,7 +58,8 @@ class Patient
                 $investigationTypeRequired = $inv['investigation'] ?? 'null';
                 $investigationRequired = $inv['note'] ?? null;
                 $requestedBy = $inv['requestedBy'] ?? null;
-                $dateRequested = $data['dateRequested'] ?? null;
+                $dateRequested = $inv['dateRequested'] ?? null;
+                $request = $inv['request'] ?? null;
 
                 $result = DBQueryFactory::insert('Lab.Patients', [
                     'PatientID'=>$patientID,
