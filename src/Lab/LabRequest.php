@@ -63,4 +63,9 @@ class LabRequest
 	{
 		return LabRequest\LabRequest::closeRequest($data);
 	}
+
+	public static function closeMultipleRequests(array $data)
+	{
+		return LabRequest\LabRequest::closeMultipleRequests($data);
+	}
 }

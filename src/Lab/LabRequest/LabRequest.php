@@ -327,7 +327,31 @@ class LabRequest
             $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Count"];
 
             if ($r > 0){
-                $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = 1, RequestAcknowledgedBy = $staff WHERE RequestID = $id; UPDATE Lab.Patients SET Unlocked = 1 WHERE REquestID = $id";
+                $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = 1, RequestAcknowledgedBy = $staff WHERE RequestID = $id; UPDATE Lab.Patients SET Unlocked = 1 WHERE RequestID = $id";
+            }
+        }
+
+        $result = DBConnectionFactory::getConnection()->exec($query);
+        return $result;
+    }
+
+    public static function closeMultipleRequests(array $data){
+        $id = $data["request"] ?? [];
+        $staff = $data["staff"] ?? null;
+
+        $id = implode(", ", $id);
+
+        $query = "SELECT COUNT(*) AS Count FROM Lab.LabRequests WHERE RequestID IN ($id) AND RequestAcknowledged = 0";
+        $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Count"];
+        if ($r > 0){
+            $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = -1, RequestAcknowledgedBy = $staff WHERE RequestID IN ($id)";
+        }
+        else {
+            $query = "SELECT COUNT(*) AS Count FROM Lab.LabRequests WHERE RequestAcknowledged = -1 AND RequestID IN ($id)";
+            $r = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC)[0]["Count"];
+
+            if ($r > 0){
+                $query = "UPDATE Lab.LabRequests SET RequestAcknowledged = 1, RequestAcknowledgedBy = $staff WHERE RequestID IN ($id); UPDATE Lab.Patients SET Unlocked = 1 WHERE RequestID IN ($id)";
             }
         }
 
