@@ -213,7 +213,7 @@ class LabRequest
 
     public static function viewByPatient(int $resourceId, array $data)
     {
-        $selectFields = "f.PatientFullName, f.PatientUUID, e.*, g.*, j.*";
+        $selectFields = "f.PatientFullName, f.PatientUUID, e.*, g.*, j.*, k.*";
         $selectBuilder = "SELECT %selects% FROM Patients.Patient f LEFT OUTER JOIN (SELECT * FROM Lab.LabRequests a) e ON f.PatientID = e.PatientID INNER JOIN Patients.PatientType g ON f.PatientType = g.PatientTypeID LEFT OUTER JOIN Lab.Labs j ON e.LabID = j.LabID INNER JOIN Lab.InvestigationTypes k ON e.InvestigationRequired = k.InvestigationTypeName WHERE k.InvestigationTypeLab = e.LabID AND (e.RequestAcknowledged = 0 OR e.RequestAcknowledged = -1) ";
         if (isset($data["patient"]) && $data["patient"] !== "") {
             $resourceId = QB::wrapString($data["patient"], "'");
