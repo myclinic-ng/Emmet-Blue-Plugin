@@ -83,6 +83,10 @@ class LabRequest
             $investigationType = $investigation['investigationType'] ?? 'null';
             $labId = $investigation["labId"] ?? 'null';
 
+            if ($labId == ""){
+                $labId = 'null';
+            }
+
             $feedback = [];
 
             try
