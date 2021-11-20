@@ -55,15 +55,16 @@ class Financier
         $query = "SELECT * FROM InsuranceClaims.Financiers WHERE FinancierID = $financierId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
+        $results = [];
         if (count($result) > 0){
-            $financierUid = $result[0]["FinancierUID"];
-            $timestamp = microtime(true);
-
-            $typeName = $financierUid." ".$timestamp;
-
-            $typeName = crc32($typeName);
-
             for ($i = 0; $i < $qty; $i++){
+                $financierUid = $result[0]["FinancierUID"];
+                $timestamp = microtime(true);
+
+                $typeName = $financierUid." ".$timestamp;
+
+                $typeName = crc32($typeName);
+
                 $type = \EmmetBlue\Plugins\Patients\PatientType\PatientType::create([
                     "patientTypeName"=>$typeName,
                     "patientTypeCategory"=>$planId,
@@ -75,12 +76,12 @@ class Financier
                 $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($financierId, $patientTypeId)";
 
                 $result = DBConnectionFactory::getConnection()->exec($query);
-            }
 
-            $result = ["result"=>$result, "planName"=>$typeName];
+                $results[] = ["result"=>$result, "planName"=>$typeName];
+            }
         }
 
-        return $result;
+        return $results;
     } 
 
     public static function viewFinancierTypes(){
