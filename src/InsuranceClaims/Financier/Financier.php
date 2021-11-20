@@ -53,12 +53,12 @@ class Financier
         $qty = ($qty < 1) ? 1 : $qty;
 
         $query = "SELECT * FROM InsuranceClaims.Financiers WHERE FinancierID = $financierId";
-        $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        $financierInfo = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
 
         $results = [];
-        if (count($result) > 0){
+        if (count($financierInfo) > 0){
             for ($i = 0; $i < $qty; $i++){
-                $financierUid = $result[0]["FinancierUID"];
+                $financierUid = $financierInfo[0]["FinancierUID"];
                 $timestamp = microtime(true);
 
                 $typeName = $financierUid." ".$timestamp;
