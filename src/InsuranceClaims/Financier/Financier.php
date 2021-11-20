@@ -48,6 +48,9 @@ class Financier
         $financierId = $data["financier"];
         $planId = $data["planId"];
         $planDescription = $data["planDescription"] ?? null;
+        $qty = $data["numberOfSubscriptions"] ?? 1;
+
+        $qty = ($qty < 1) ? 1 : $qty;
 
         $query = "SELECT * FROM InsuranceClaims.Financiers WHERE FinancierID = $financierId";
         $result = DBConnectionFactory::getConnection()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
@@ -60,17 +63,19 @@ class Financier
 
             $typeName = crc32($typeName);
 
-            $type = \EmmetBlue\Plugins\Patients\PatientType\PatientType::create([
-                "patientTypeName"=>$typeName,
-                "patientTypeCategory"=>$planId,
-                "patientTypeDescription"=>$planDescription
-            ]);
+            for ($i = 0; $i < $qty; $i++){
+                $type = \EmmetBlue\Plugins\Patients\PatientType\PatientType::create([
+                    "patientTypeName"=>$typeName,
+                    "patientTypeCategory"=>$planId,
+                    "patientTypeDescription"=>$planDescription
+                ]);
 
-            $patientTypeId = $type["lastInsertId"];
+                $patientTypeId = $type["lastInsertId"];
 
-            $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($financierId, $patientTypeId)";
+                $query = "INSERT INTO InsuranceClaims.FinancierPatientTypeLinks (FinancierID, PatientTypeID) VALUES ($financierId, $patientTypeId)";
 
-            $result = DBConnectionFactory::getConnection()->exec($query);
+                $result = DBConnectionFactory::getConnection()->exec($query);
+            }
 
             $result = ["result"=>$result, "planName"=>$typeName];
         }
